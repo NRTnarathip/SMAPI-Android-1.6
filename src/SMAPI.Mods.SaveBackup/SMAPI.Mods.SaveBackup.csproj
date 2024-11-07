@@ -4,6 +4,7 @@
     <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
     <TargetFramework>net6.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Platforms>AnyCPU;ARM64</Platforms>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />

@@ -52,6 +52,8 @@ using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 using System.Security.Cryptography;
+using StardewValley.Characters;
+using StardewModdingAPI.Android;
 
 namespace StardewModdingAPI.Framework;
 
@@ -285,6 +287,9 @@ internal class SCore : IDisposable
             );
             GameRunner.instance = this.Game;
 
+
+
+
             // fix Harmony for mods
             if (this.Settings.FixHarmony)
                 MiniMonoModHotfix.Apply();
@@ -308,6 +313,10 @@ internal class SCore : IDisposable
 
         // start game
         this.Monitor.Log("Waiting for game to launch...", LogLevel.Debug);
+        //handle if Android Platform
+#if SMAPI_FOR_ANDROID
+        MainActivityPatcher.OnTrySGameRuner_Run();
+#else
         try
         {
             this.IsGameRunning = true;
@@ -321,6 +330,7 @@ internal class SCore : IDisposable
             this.LogManager.PressAnyKeyToExit();
             this.Dispose(isError: true);
         }
+#endif
     }
 
     /// <summary>Get the core logger and monitor on behalf of the game.</summary>
@@ -668,7 +678,11 @@ internal class SCore : IDisposable
 
                 while (true)
                 {
+#if SMAPI_FOR_ANDROID
+                    AndroidGameMethodHelper.UpdateTitleScreenDuringLoadingMode();
+#else
                     Game1.game1.UpdateTitleScreenDuringLoadingMode();
+#endif
                     SCore.ProcessTicksElapsed++;
 
                     // raise load stage changed

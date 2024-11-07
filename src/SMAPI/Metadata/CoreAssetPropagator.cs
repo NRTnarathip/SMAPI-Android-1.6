@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Android;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
@@ -448,7 +449,11 @@ internal class CoreAssetPropagator
                 return true;
 
             case "data/wildtrees": // Tree
+#if SMAPI_FOR_ANDROID
+                AndroidTreeMethods.ClearCache();
+#else
                 Tree.ClearCache();
+#endif
                 return true;
 
             case "data/worldmap": // WorldMapManager

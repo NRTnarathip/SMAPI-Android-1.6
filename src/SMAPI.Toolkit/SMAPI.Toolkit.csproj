@@ -6,6 +6,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PublishTrimmed Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</PublishTrimmed>
+
+    <Platforms>AnyCPU;ARM64</Platforms>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />

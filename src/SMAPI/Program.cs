@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using StardewModdingAPI.Android;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -184,6 +185,7 @@ internal class Program
     /// <remarks>This method is separate from <see cref="Main"/> because that can't contain any references to assemblies loaded by <see cref="CurrentDomain_AssemblyResolve"/> (e.g. via <see cref="Constants"/>), or Mono will incorrectly show an assembly resolution error before assembly resolution is set up.</remarks>
     private static void Start(string[] args)
     {
+
         // get flags
         bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
@@ -221,6 +223,7 @@ internal class Program
         }
 
         // load SMAPI
+        MainActivityPatcher.InitBefore_RunInteractively();
         using SCore core = new(modsPath, writeToConsole, developerMode);
         core.RunInteractively();
     }

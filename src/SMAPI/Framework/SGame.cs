@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Enums;
@@ -117,7 +119,13 @@ internal class SGame : Game1
         Game1.log = gameLogger;
         Game1.multiplayer = this.InitialMultiplayer = multiplayer;
         Game1.hooks = modHooks;
+#if SMAPI_FOR_ANDROID
+        var _locationsFieldInfo = typeof(Game1).GetField("_locations", BindingFlags.NonPublic | BindingFlags.Instance);
+        var newLocations = new ObservableCollection<GameLocation>();
+        _locationsFieldInfo.SetValue(this, newLocations);
+#else
         this._locations = new ObservableCollection<GameLocation>();
+#endif
 
         // init SMAPI
         this.Monitor = monitor;
@@ -169,7 +177,11 @@ internal class SGame : Game1
     /// <summary>Construct a content manager to read game content files.</summary>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
+#if SMAPI_FOR_ANDROID
+    protected override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+#else
     protected internal override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+#endif
     {
         if (SGame.CreateContentManagerImpl == null)
             throw new InvalidOperationException($"The {nameof(SGame)}.{nameof(SGame.CreateContentManagerImpl)} must be set.");
@@ -215,7 +227,12 @@ internal class SGame : Game1
         if (this.IsFirstTick)
         {
             this.Input.TrueUpdate();
+#if SMAPI_FOR_ANDROID
+            //Not sure
+            this.Watchers = new WatcherCore(this.Input, new ObservableCollection<GameLocation>(this._locations));
+#else
             this.Watchers = new WatcherCore(this.Input, (ObservableCollection<GameLocation>)this._locations);
+#endif
         }
 
         // update

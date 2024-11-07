@@ -16,7 +16,7 @@ This assumes `find-game-folder.targets` has already been imported and validated.
       <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
     </ItemGroup>
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
+    <!--<Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />-->
     <Copy SourceFiles="$(TargetDir)\$(TargetName)" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
