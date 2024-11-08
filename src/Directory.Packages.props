@@ -4,8 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- SMAPI + toolkit -->
+    <PackageVersion Include="dnlib" Version="4.4.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.1" />
     <PackageVersion Include="HtmlAgilityPack" Version="1.11.70" />
+    <PackageVersion Include="Lib.Harmony" Version="2.3.3" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.10.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.9.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />

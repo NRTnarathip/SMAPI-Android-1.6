@@ -10,8 +10,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
 /// <summary>Maps Stardew Valley 1.5.6's <see cref="ShopMenu"/> methods to their newer form to avoid breaking older mods.</summary>
 /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
+
 public class ShopMenuFacade : ShopMenu, IRewriteFacade
 {
+    /*********
+    ** Private methods
+    *********/
+    private ShopMenuFacade()
+        : base(null, null, null)
+    {
+        RewriteHelper.ThrowFakeConstructorCalled();
+    }
+
+#if !SMAPI_FOR_ANDROID
     /*********
     ** Accessors
     *********/
@@ -55,15 +66,7 @@ public class ShopMenuFacade : ShopMenu, IRewriteFacade
         return new ShopMenu(shopId, itemsForSale, currency, who, ToOnPurchaseDelegate(on_purchase), on_sell, playOpenSound);
     }
 
-    /*********
-    ** Private methods
-    *********/
-    private ShopMenuFacade()
-        : base(null, null, null)
-    {
-        RewriteHelper.ThrowFakeConstructorCalled();
-    }
-
+    
     private static string GetShopId(string? context)
     {
         return string.IsNullOrWhiteSpace(context)
@@ -93,4 +96,6 @@ public class ShopMenuFacade : ShopMenu, IRewriteFacade
             ? (item, who, countTaken, _) => onPurchase(item, who, countTaken)
             : null;
     }
+#endif
 }
+

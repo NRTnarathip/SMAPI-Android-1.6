@@ -190,6 +190,9 @@ internal class SCore : IDisposable
         // init log file
         this.PurgeNormalLogs();
         string logPath = this.GetLogPath();
+#if SMAPI_FOR_ANDROID
+        AndroidLogger.Log("logPath: " + logPath);
+#endif
 
         // init settings
         {
@@ -222,11 +225,11 @@ internal class SCore : IDisposable
             this.LogManager.PressAnyKeyToExit();
         }
 #else
-            if (Constants.Platform == Platform.Windows)
-            {
-                this.Monitor.Log($"Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
-                this.LogManager.PressAnyKeyToExit();
-            }
+        if (Constants.Platform == Platform.Windows)
+        {
+            this.Monitor.Log($"Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
+            this.LogManager.PressAnyKeyToExit();
+        }
 #endif
     }
 
@@ -287,9 +290,7 @@ internal class SCore : IDisposable
             );
             GameRunner.instance = this.Game;
 
-
-
-
+            AndroidLogger.Log("created new SGameRuner()");
             // fix Harmony for mods
             if (this.Settings.FixHarmony)
                 MiniMonoModHotfix.Apply();
@@ -678,11 +679,7 @@ internal class SCore : IDisposable
 
                 while (true)
                 {
-#if SMAPI_FOR_ANDROID
-                    AndroidGameMethodHelper.UpdateTitleScreenDuringLoadingMode();
-#else
                     Game1.game1.UpdateTitleScreenDuringLoadingMode();
-#endif
                     SCore.ProcessTicksElapsed++;
 
                     // raise load stage changed
@@ -1511,6 +1508,9 @@ internal class SCore : IDisposable
     /// <summary>Set the titles for the game and console windows.</summary>
     private void UpdateWindowTitles()
     {
+#if SMAPI_FOR_ANDROID
+        return;
+#endif
         string consoleTitle = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
         string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
 

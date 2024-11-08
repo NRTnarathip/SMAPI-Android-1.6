@@ -16,17 +16,25 @@
     <TieredCompilation>false</TieredCompilation>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>AnyCPU;ARM64</Platforms>
+    <Configurations>Debug;Release;Android Debug</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Android Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Android Debug|ARM64'">
     <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />
 
   <ItemGroup>
+    <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Mono.Cecil" />
     <PackageReference Include="MonoMod.Common" />
     <PackageReference Include="Newtonsoft.Json" />
@@ -38,24 +46,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="..\..\build\0Harmony.dll" Private="True" />
     <Reference Include="BmFont">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\BmFont.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\BmFont.dll</HintPath>
     </Reference>
     <Reference Include="Lidgren.Network">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\Lidgren.Network.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\StardewValley.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-original\out\xTile.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -78,4 +85,8 @@
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="call &quot;$(ProjectDir)post-build.cmd&quot;" />
+  </Target>
 </Project>

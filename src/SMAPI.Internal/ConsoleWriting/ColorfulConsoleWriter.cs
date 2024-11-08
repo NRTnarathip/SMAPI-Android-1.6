@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using StardewModdingAPI.Android;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Internal.ConsoleWriting;
@@ -32,6 +33,7 @@ internal class ColorfulConsoleWriter : IConsoleWriter
     /// <param name="colorConfig">The colors to use for text written to the SMAPI console.</param>
     public ColorfulConsoleWriter(Platform platform, ColorSchemeConfig colorConfig)
     {
+
         if (colorConfig.UseScheme == MonitorColorScheme.None)
         {
             this.SupportsColor = false;

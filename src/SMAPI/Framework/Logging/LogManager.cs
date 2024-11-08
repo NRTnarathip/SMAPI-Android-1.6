@@ -67,8 +67,10 @@ internal class LogManager : IDisposable
         this.Monitor = this.GetMonitor("SMAPI", "SMAPI");
         this.MonitorForGame = this.GetMonitor("game", "game");
 
+
         // enable Unicode handling on Windows
         // (the terminal defaults to UTF-8 on Linux/macOS)
+
 #if SMAPI_FOR_WINDOWS
         Console.InputEncoding = Encoding.Unicode;
         Console.OutputEncoding = Encoding.Unicode;
@@ -87,6 +89,10 @@ internal class LogManager : IDisposable
     /// <param name="title">The new window title.</param>
     public void SetConsoleTitle(string title)
     {
+#if SMAPI_FOR_ANDROID
+        return;
+#endif
+
         Console.Title = title;
     }
 
@@ -137,6 +143,10 @@ internal class LogManager : IDisposable
     /// <param name="showMessage">Whether to print a 'press any key to exit' message to the console.</param>
     public void PressAnyKeyToExit(bool showMessage)
     {
+#if SMAPI_FOR_ANDROID
+        return;
+#endif
+
         if (showMessage)
             this.Monitor.Log("Game has ended. Press any key to exit.");
         Thread.Sleep(100);

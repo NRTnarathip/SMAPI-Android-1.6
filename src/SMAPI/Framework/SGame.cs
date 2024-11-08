@@ -177,11 +177,7 @@ internal class SGame : Game1
     /// <summary>Construct a content manager to read game content files.</summary>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-#if SMAPI_FOR_ANDROID
-    protected override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
-#else
     protected internal override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
-#endif
     {
         if (SGame.CreateContentManagerImpl == null)
             throw new InvalidOperationException($"The {nameof(SGame)}.{nameof(SGame.CreateContentManagerImpl)} must be set.");

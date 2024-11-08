@@ -11,18 +11,8 @@ using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Android;
 
-[HarmonyPatch]
 public static class MainActivityPatcher
 {
-    static Harmony harmony = new(typeof(MainActivityPatcher).FullName);
-    public static void InitBefore_RunInteractively()
-    {
-        harmony.PatchAll();
-    }
-
-    //Android!!; MainActivity.OnCreatePartTwo();
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(StardewValley.MainActivity), "OnCreatePartTwo")]
     static bool OnCreatePartTwoFix(StardewValley.MainActivity __instance)
     {
         AndroidLogger.Log("Try OnCreatePartTwoFix()");
@@ -59,6 +49,10 @@ public static class MainActivityPatcher
 
     internal static void OnTrySGameRuner_Run()
     {
-
+        AndroidLogger.Log("On OnTrySGameRuner_Run()");
+        AndroidPatcher.harmony.Patch(
+            AccessTools.Method(typeof(MainActivity), "OnCreatePartTwo"),
+            new(AccessTools.Method(typeof(MainActivityPatcher), nameof(OnCreatePartTwoFix)))
+        );
     }
 }

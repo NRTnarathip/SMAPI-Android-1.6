@@ -449,11 +449,7 @@ internal class CoreAssetPropagator
                 return true;
 
             case "data/wildtrees": // Tree
-#if SMAPI_FOR_ANDROID
-                AndroidTreeMethods.ClearCache();
-#else
                 Tree.ClearCache();
-#endif
                 return true;
 
             case "data/worldmap": // WorldMapManager

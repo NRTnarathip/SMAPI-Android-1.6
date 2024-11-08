@@ -24,7 +24,11 @@ internal class ColorSchemeConfig
     /// <param name="schemes">The available console color schemes.</param>
     public ColorSchemeConfig(MonitorColorScheme useScheme, IDictionary<MonitorColorScheme, IDictionary<ConsoleLogLevel, ConsoleColor>> schemes)
     {
+#if SMAPI_FOR_ANDROID
+        this.UseScheme = MonitorColorScheme.None;
+#else
         this.UseScheme = useScheme;
+#endif
         this.Schemes = schemes;
     }
 }

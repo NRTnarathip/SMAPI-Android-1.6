@@ -33,27 +33,44 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
+        AndroidLogger.Log("");
+        AndroidLogger.Log("Starting SMAPI Program()...");
+        StardewModdingAPI.Android.AndroidPatcher.BeforeProgramMain();
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
+
+#if !SMAPI_FOR_ANDROID
         Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
+#endif
 
         try
         {
             AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
+#if !SMAPI_FOR_ANDROID
             Program.AssertGamePresent();
             Program.AssertGameVersion();
             Program.AssertSmapiVersions();
             Program.AssertDepsJson();
+#endif
             Program.Start(args);
+
         }
         catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
         {
+#if SMAPI_FOR_ANDROID
+            AndroidLogger.Log($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
+#endif
             Console.WriteLine($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
         }
+
         catch (Exception ex)
         {
+#if SMAPI_FOR_ANDROID
+            AndroidLogger.Log($"SMAPI failed to initialize: {ex}");
+#endif
             Console.WriteLine($"SMAPI failed to initialize: {ex}");
             Program.PressAnyKeyToExit(true);
         }
+        AndroidLogger.Log("End SMAPI Program()");
     }
 
 
@@ -185,9 +202,13 @@ internal class Program
     /// <remarks>This method is separate from <see cref="Main"/> because that can't contain any references to assemblies loaded by <see cref="CurrentDomain_AssemblyResolve"/> (e.g. via <see cref="Constants"/>), or Mono will incorrectly show an assembly resolution error before assembly resolution is set up.</remarks>
     private static void Start(string[] args)
     {
-
+        AndroidLogger.Log("On SMAPI.Program.Start(args)");
         // get flags
+#if SMAPI_FOR_ANDROID
+        bool writeToConsole = false;
+#else
         bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
+#endif
 
         // get mods path
         bool? developerMode = null;
@@ -223,9 +244,11 @@ internal class Program
         }
 
         // load SMAPI
-        MainActivityPatcher.InitBefore_RunInteractively();
+        AndroidLogger.Log("before new SCore()");
         using SCore core = new(modsPath, writeToConsole, developerMode);
+        AndroidLogger.Log("before core.RunInteractively()");
         core.RunInteractively();
+        AndroidLogger.Log("End SMAPI.Program.Start(args)");
     }
 
     /// <summary>Write an error directly to the console and exit.</summary>
@@ -253,6 +276,10 @@ internal class Program
     /// <param name="showMessage">Whether to print a 'press any key to exit' message to the console.</param>
     private static void PressAnyKeyToExit(bool showMessage)
     {
+#if SMAPI_FOR_ANDROID
+        return;
+#endif
+
         if (showMessage)
             Console.WriteLine("Game has ended. Press any key to exit.");
         Thread.Sleep(100);

@@ -86,7 +86,12 @@ public static class Constants
     public static string ContentPath { get; } = Constants.GetContentFolderPath();
 
     /// <summary>The directory path containing Stardew Valley's app data.</summary>
+#if SMAPI_FOR_ANDROID
+    public static string ExternalFilesPath { get; } = MainActivity.instance.ApplicationContext.GetExternalFilesDir(null).AbsolutePath;
+    public static string DataPath { get; } = ExternalFilesPath;
+#else
     public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
+#endif
 
     /// <summary>The directory path in which error logs should be stored.</summary>
     public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
