@@ -1,9 +1,7 @@
 using System;
-using HarmonyLib;
 
 namespace StardewModdingAPI.Android;
 
-[HarmonyPatch]
 static class AndroidConsolePatcher
 {
     //[HarmonyPrefix]

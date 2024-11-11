@@ -32,7 +32,7 @@ This assumes `find-game-folder.targets` has already been imported and validated.
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <!--<Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
 
     <!-- FluentHttpClient + dependencies -->
     <Copy SourceFiles="$(TargetDir)\Pathoschild.Http.Client.dll" DestinationFolder="$(GamePath)\smapi-internal" />

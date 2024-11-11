@@ -9,7 +9,7 @@
 
     <Platforms>AnyCPU;ARM64</Platforms>
 
-    <Configurations>Debug;Release;Android Debug</Configurations>
+    <Configurations>Debug;Release;Android Debug;Android Release</Configurations>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />

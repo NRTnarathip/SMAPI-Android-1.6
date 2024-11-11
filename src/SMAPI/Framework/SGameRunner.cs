@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Android;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
@@ -80,13 +81,16 @@ internal class SGameRunner : GameRunner
     public SGameRunner(Monitor monitor, Reflector reflection, SModHooks modHooks, IGameLogger gameLogger, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action onGameContentLoaded, Action<LoadStage> onLoadStageChanged, Action<GameTime, Action> onGameUpdating, Action<SGame, GameTime, Action> onPlayerInstanceUpdating, Action onGameExiting, Action<RenderTarget2D> onPlayerInstanceRendered)
     {
         // init XNA
+        AndroidLogger.Log("try init XNA");
         Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
         // hook into game
+        AndroidLogger.Log("try into game");
         this.ModHooks = modHooks;
         this.GameLogger = gameLogger;
 
         // init SMAPI
+        AndroidLogger.Log("try init SMAPI");
         this.Monitor = monitor;
         this.Reflection = reflection;
         this.Multiplayer = multiplayer;

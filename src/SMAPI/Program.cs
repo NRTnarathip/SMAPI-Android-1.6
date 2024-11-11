@@ -25,6 +25,33 @@ internal class Program
     /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
     private static Dictionary<string, string>? AssemblyPathsByName;
 
+    public static void StartFromSMAPILoader()
+    {
+        try
+        {
+            AndroidPatcher.InitFormSMAPILoader();
+        }
+        catch (Exception ex)
+        {
+            AndroidLogger.Log("Error StartFromSMAPILoader();");
+            AndroidLogger.Log("==== " + ex);
+        }
+        //Important!! call order prefix CheckAppPermissions() -> SMAPI.Main(args);
+
+        //Code In MainActivity.cs
+        //protected override void OnCreate(Android.OS.Bundle bundle)
+        //instance = this;
+        //Log.It("MainActivity.OnCreate");
+        //RequestWindowFeature(WindowFeatures.NoTitle);
+        //if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
+        //{
+        //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+        //}
+        //Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
+        //Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
+        //base.OnCreate(bundle);
+        //CheckAppPermissions();
+    }
 
     /*********
     ** Public methods
@@ -35,7 +62,6 @@ internal class Program
     {
         AndroidLogger.Log("");
         AndroidLogger.Log("Starting SMAPI Program()...");
-        StardewModdingAPI.Android.AndroidPatcher.BeforeProgramMain();
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
 #if !SMAPI_FOR_ANDROID

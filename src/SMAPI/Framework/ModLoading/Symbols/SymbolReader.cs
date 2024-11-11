@@ -2,6 +2,7 @@ using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
+using Mono.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.ModLoading.Symbols;
 

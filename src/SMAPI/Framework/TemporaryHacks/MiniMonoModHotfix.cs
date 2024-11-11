@@ -65,7 +65,6 @@ static class MiniMonoModHotfix
                 .GetMethod("<_CopyMethodToDefinition>g__ResolveTokenAs|1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance),
             transpiler: new HarmonyMethod(typeof(MiniMonoModHotfix), nameof(ResolveTokenFix))
         );
-
     }
 
     private static IEnumerable<CodeInstruction> ResolveTokenFix(IEnumerable<CodeInstruction> instructions)

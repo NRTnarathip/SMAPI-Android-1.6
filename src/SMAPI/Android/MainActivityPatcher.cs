@@ -3,19 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HarmonyLib;
 using AndroidUtils = Android.Util;
 using System.Reflection;
 using StardewValley;
 using StardewModdingAPI.Framework;
+using HarmonyLib;
 
 namespace StardewModdingAPI.Android;
 
+[HarmonyPatch]
 public static class MainActivityPatcher
 {
+    public static void PrefixCheckAppPermissions()
+    {
+        AndroidLogger.Log("On Prefix CheckAppPermissions");
+        StardewModdingAPI.Program.Main([]);
+    }
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(MainActivity), "OnCreatePartTwo")]
     static bool OnCreatePartTwoFix(StardewValley.MainActivity __instance)
     {
-        AndroidLogger.Log("Try OnCreatePartTwoFix()");
+        AndroidLogger.Log("Prefix OnCreatePartTwoFix()");
         //Original Src Code
         //Log.It("MainActivity.OnCreatePartTwo");
         //MobileDisplay.SetupDisplaySettings();
@@ -46,13 +54,8 @@ public static class MainActivityPatcher
 
         return false;
     }
-
     internal static void OnTrySGameRuner_Run()
     {
         AndroidLogger.Log("On OnTrySGameRuner_Run()");
-        AndroidPatcher.harmony.Patch(
-            AccessTools.Method(typeof(MainActivity), "OnCreatePartTwo"),
-            new(AccessTools.Method(typeof(MainActivityPatcher), nameof(OnCreatePartTwoFix)))
-        );
     }
 }

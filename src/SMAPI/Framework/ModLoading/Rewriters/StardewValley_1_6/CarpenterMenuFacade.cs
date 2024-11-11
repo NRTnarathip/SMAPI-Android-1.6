@@ -1,5 +1,4 @@
 using System.Reflection;
-using HarmonyLib;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
 using StardewValley.Menus;
