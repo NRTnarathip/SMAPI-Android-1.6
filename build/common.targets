@@ -21,8 +21,8 @@ repo. It imports the other MSBuild files as needed.
     <NoWarn Condition="'$(TargetFramework)' == 'netstandard2.0'">$(NoWarn);CS8632</NoWarn>
 
     <!--set platform-->
-    <DefineConstants Condition="$(OS) == 'Windows_NT' And '$(Configuration)' != 'Android Debug'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
-    <!--<DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>-->
+    <DefineConstants Condition="$(OS) == 'Windows_NT' And '$(Configuration)' != 'Android Release'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <DefineConstants Condition=" '$(Configuration)' == 'Android Release'">$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
     <CopyToGameFolder>true</CopyToGameFolder>
 
 

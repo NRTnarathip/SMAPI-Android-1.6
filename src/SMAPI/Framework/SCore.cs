@@ -290,7 +290,6 @@ internal class SCore : IDisposable
             );
             GameRunner.instance = this.Game;
 
-            AndroidLogger.Log("created new SGameRuner()");
             // fix Harmony for mods
             if (this.Settings.FixHarmony)
                 MiniMonoModHotfix.Apply();
@@ -314,9 +313,10 @@ internal class SCore : IDisposable
 
         // start game
         this.Monitor.Log("Waiting for game to launch...", LogLevel.Debug);
-        //handle if Android Platform
+
 #if SMAPI_FOR_ANDROID
-        MainActivityPatcher.OnTrySGameRuner_Run();
+        this.IsGameRunning = true;
+        StardewValley.Program.releaseBuild = false; // game's debug logic interferes with SMAPI opening the game window
 #else
         try
         {
@@ -487,6 +487,7 @@ internal class SCore : IDisposable
     private void OnGameInitialized()
     {
         // start SMAPI console
+
         if (this.Settings.ListenForConsoleInput)
         {
             new Thread(
@@ -494,7 +495,11 @@ internal class SCore : IDisposable
                     commandManager: this.CommandManager,
                     reloadTranslations: this.ReloadTranslations,
                     handleInput: input => this.RawCommandQueue.Add(input),
-                    continueWhile: () => this.IsGameRunning && !this.IsExiting
+                    continueWhile: () =>
+                    {
+                        bool isContinue = this.IsGameRunning && !this.IsExiting;
+                        return isContinue;
+                    }
                 )
             ).Start();
         }
@@ -519,6 +524,7 @@ internal class SCore : IDisposable
     {
         try
         {
+
             /*********
             ** Safe queued work
             *********/
@@ -541,6 +547,7 @@ internal class SCore : IDisposable
             if (this.IsExiting)
             {
                 this.Monitor.Log("SMAPI shutting down: aborting update.");
+
                 return;
             }
 

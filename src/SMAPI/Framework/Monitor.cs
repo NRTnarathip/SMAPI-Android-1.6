@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using StardewModdingAPI.Android;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Internal.ConsoleWriting;
 
@@ -152,6 +153,9 @@ internal class Monitor : IMonitor
 
         // write to log file
         this.LogFile.WriteLine(fullMessage);
+#if SMAPI_FOR_ANDROID
+        AndroidLogger.Log("Log(): " + fullMessage);
+#endif
     }
 
     /// <summary>Generate a message prefix for the current time.</summary>

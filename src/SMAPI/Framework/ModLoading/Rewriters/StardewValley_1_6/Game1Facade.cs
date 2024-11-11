@@ -17,6 +17,7 @@ public class Game1Facade : Game1, IRewriteFacade
     public bool gamePadControlsImplemented { get; set; }              // never used
     public static bool menuUp { get; set; }                           // mostly unused and always false
     public static Color morningColor { get; set; } = Color.LightBlue; // never used
+    public new IList<GameLocation> _locations => base._locations;         // make like PC
 
 
     /*********
@@ -24,8 +25,7 @@ public class Game1Facade : Game1, IRewriteFacade
     *********/
     public static bool canHaveWeddingOnDay(int day, string season)
     {
-        return
-            Utility.TryParseEnum(season, out Season parsedSeason)
+        return Utility.TryParseEnum(season, out Season parsedSeason)
             && Game1.canHaveWeddingOnDay(day, parsedSeason);
     }
 

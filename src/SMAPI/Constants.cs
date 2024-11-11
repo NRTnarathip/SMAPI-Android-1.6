@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
@@ -272,6 +273,16 @@ public static class Constants
     /// <param name="resolver">The assembly resolver.</param>
     internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
     {
+#if SMAPI_FOR_ANDROID
+        // add search paths
+        resolver.TryAddSearchDirectory(Constants.GamePath);
+        string svDllPath = GamePath + "/StardewValley.dll";
+        var svAsmLoaded = AssemblyDefinition.ReadAssembly(svDllPath);
+        Console.WriteLine("readed sv module: " + svAsmLoaded);
+        resolver.AddWithExplicitNames(svAsmLoaded, ["StardewValley", "Stardew Valley"]);
+        return;
+#endif
+
         // add search paths
         resolver.TryAddSearchDirectory(Constants.GamePath);
         resolver.TryAddSearchDirectory(Constants.InternalFilesPath);

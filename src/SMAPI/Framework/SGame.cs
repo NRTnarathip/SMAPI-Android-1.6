@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Enums;
@@ -111,6 +112,7 @@ internal class SGame : Game1
     public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, SInputState input, SModHooks modHooks, IGameLogger gameLogger, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating, Action onContentLoaded, Action<LoadStage> onLoadStageChanged, Action<RenderTarget2D> onRendered)
         : base(playerIndex, instanceIndex)
     {
+        Console.WriteLine("try init XNA Graphic");
         // init XNA
         Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
@@ -119,10 +121,20 @@ internal class SGame : Game1
         Game1.log = gameLogger;
         Game1.multiplayer = this.InitialMultiplayer = multiplayer;
         Game1.hooks = modHooks;
+        Console.WriteLine("done setup hook into game");
 #if SMAPI_FOR_ANDROID
-        var _locationsFieldInfo = typeof(Game1).GetField("_locations", BindingFlags.NonPublic | BindingFlags.Instance);
-        var newLocations = new ObservableCollection<GameLocation>();
-        _locationsFieldInfo.SetValue(this, newLocations);
+        try
+        {
+            var _locationsField = AccessTools.Field(typeof(Game1), nameof(Game1._locations));
+            Console.WriteLine("_locationField: " + _locationsField);
+            var newLocations = new ObservableCollection<GameLocation>();
+            //_locationsField.SetValue(this, newLocations);
+            Console.WriteLine("done set _locations with fake value: " + _locationsField.GetValue(this));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error try set Game1 _locations: " + ex);
+        }
 #else
         this._locations = new ObservableCollection<GameLocation>();
 #endif

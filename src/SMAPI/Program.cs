@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.VisualBasic;
 using StardewModdingAPI.Android;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Serialization.Models;
@@ -36,21 +37,6 @@ internal class Program
             AndroidLogger.Log("Error StartFromSMAPILoader();");
             AndroidLogger.Log("==== " + ex);
         }
-        //Important!! call order prefix CheckAppPermissions() -> SMAPI.Main(args);
-
-        //Code In MainActivity.cs
-        //protected override void OnCreate(Android.OS.Bundle bundle)
-        //instance = this;
-        //Log.It("MainActivity.OnCreate");
-        //RequestWindowFeature(WindowFeatures.NoTitle);
-        //if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
-        //{
-        //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-        //}
-        //Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
-        //Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
-        //base.OnCreate(bundle);
-        //CheckAppPermissions();
     }
 
     /*********
@@ -60,7 +46,6 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
-        AndroidLogger.Log("");
         AndroidLogger.Log("Starting SMAPI Program()...");
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
@@ -78,21 +63,14 @@ internal class Program
             Program.AssertDepsJson();
 #endif
             Program.Start(args);
-
         }
         catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
         {
-#if SMAPI_FOR_ANDROID
-            AndroidLogger.Log($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
-#endif
             Console.WriteLine($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
         }
 
         catch (Exception ex)
         {
-#if SMAPI_FOR_ANDROID
-            AndroidLogger.Log($"SMAPI failed to initialize: {ex}");
-#endif
             Console.WriteLine($"SMAPI failed to initialize: {ex}");
             Program.PressAnyKeyToExit(true);
         }
@@ -230,11 +208,7 @@ internal class Program
     {
         AndroidLogger.Log("On SMAPI.Program.Start(args)");
         // get flags
-#if SMAPI_FOR_ANDROID
-        bool writeToConsole = false;
-#else
         bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
-#endif
 
         // get mods path
         bool? developerMode = null;
@@ -270,11 +244,12 @@ internal class Program
         }
 
         // load SMAPI
-        AndroidLogger.Log("before new SCore()");
-        using SCore core = new(modsPath, writeToConsole, developerMode);
-        AndroidLogger.Log("before core.RunInteractively()");
+#if SMAPI_FOR_ANDROID
+        developerMode = false;
+        writeToConsole = false;
+#endif
+        SCore core = new(modsPath, writeToConsole, developerMode);
         core.RunInteractively();
-        AndroidLogger.Log("End SMAPI.Program.Start(args)");
     }
 
     /// <summary>Write an error directly to the console and exit.</summary>
@@ -282,6 +257,13 @@ internal class Program
     /// <param name="technicalMessage">An additional message to log with technical details.</param>
     private static void PrintErrorAndExit(string message, string? technicalMessage = null)
     {
+
+#if SMAPI_FOR_ANDROID
+        AndroidLogger.Log("PrintErrorAndExit: msg: " + message);
+        AndroidLogger.Log("technicalMsg: " + technicalMessage);
+        return;
+#endif
+
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(message);
         Console.ResetColor();
@@ -303,6 +285,7 @@ internal class Program
     private static void PressAnyKeyToExit(bool showMessage)
     {
 #if SMAPI_FOR_ANDROID
+        AndroidLogger.Log("PressAnyKeyToExit: Game has ended. Press any key to exit.");
         return;
 #endif
 
