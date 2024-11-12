@@ -266,6 +266,10 @@ internal class InstructionMetadata
                 .MapFacade<WateringCan, WateringCanFacade>()
                 .MapFacade<WorldDate, WorldDateFacade>()
 
+#if SMAPI_FOR_ANDROID
+                //Map Method For Android Only
+                //.MapMethod("Force.DeepCloner.DeepClonerExtensions.DeepClone", )
+#endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
                 .MapField("Netcode.NetCollection`1<StardewValley.Buildings.Building> StardewValley.Locations.BuildableGameLocation::buildings", typeof(GameLocation), nameof(GameLocation.buildings))
@@ -290,6 +294,9 @@ internal class InstructionMetadata
                 .MapMethod("System.String Netcode.NetString::op_Implicit(Netcode.NetString)", typeof(ImplicitConversionOperatorsFacade), nameof(ImplicitConversionOperatorsFacade.NetString_ToString))
                 .MapMethod("System.Int32 StardewValley.Network.NetDirection::op_Implicit(StardewValley.Network.NetDirection)", typeof(ImplicitConversionOperatorsFacade), nameof(ImplicitConversionOperatorsFacade.NetDirection_ToInt))
                 .MapMethod("!0 StardewValley.Network.NetPausableField`3<Microsoft.Xna.Framework.Vector2,Netcode.NetVector2,Netcode.NetVector2>::op_Implicit(StardewValley.Network.NetPausableField`3<!0,!1,!2>)", typeof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>), nameof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>.op_Implicit));
+
+
+
 
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);

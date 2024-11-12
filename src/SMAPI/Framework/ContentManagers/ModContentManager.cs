@@ -21,6 +21,7 @@ using StardewValley;
 using xTile;
 using xTile.Format;
 using xTile.Tiles;
+using static Java.Util.Jar.Attributes;
 
 namespace StardewModdingAPI.Framework.ContentManagers;
 
@@ -534,4 +535,46 @@ internal sealed class ModContentManager : BaseContentManager
 
         return key;
     }
+
+#if SMAPI_FOR_ANDROID
+    //fix OpenStream can't read asset file any AbsolutePath
+    //original engine it's can load only local assets with only RealativePath
+    protected override Stream OpenStream(string assetName)
+    {
+        try
+        {
+            //original code
+            //Stream stream = TitleContainer.OpenStream(Path.Combine(RootDirectory, assetName) + ".xnb");
+            //MemoryStream memoryStream = new MemoryStream();
+            //stream.CopyTo(memoryStream);
+            //memoryStream.Seek(0L, SeekOrigin.Begin);
+            //stream.Close();
+            //return memoryStream;
+
+            //patch code
+            assetName = assetName.Replace("//", "/"); //safePath
+            string externalAbsolutePath = Path.Combine(this.RootDirectory, assetName) + ".xnb";
+            using (FileStream stream = new FileStream(externalAbsolutePath, FileMode.Open, FileAccess.Read))
+            {
+                MemoryStream destination = new MemoryStream();
+                stream.CopyTo(destination);
+                destination.Seek(0L, SeekOrigin.Begin);
+                stream.Close();
+                return destination;
+            }
+        }
+        catch (FileNotFoundException innerException)
+        {
+            throw new ContentLoadException("The content file was not found.", innerException);
+        }
+        catch (DirectoryNotFoundException innerException2)
+        {
+            throw new ContentLoadException("The directory was not found.", innerException2);
+        }
+        catch (Exception innerException3)
+        {
+            throw new ContentLoadException("Opening stream error.", innerException3);
+        }
+    }
+#endif
 }

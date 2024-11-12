@@ -40,6 +40,7 @@
   <Import Project="..\..\build\common.targets" />
 
   <ItemGroup>
+    <PackageReference Include="DeepCloner" />
     <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Mono.Cecil" />
     <PackageReference Include="Newtonsoft.Json" />

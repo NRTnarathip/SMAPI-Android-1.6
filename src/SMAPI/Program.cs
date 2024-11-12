@@ -107,6 +107,10 @@ internal class Program
                     }
                 }
             }
+#if SMAPI_FOR_ANDROID
+            //fix missing remap dll name pc to android
+            Program.AssemblyPathsByName["Stardew Valley"] = EarlyConstants.GamePath + "/StardewValley.dll";
+#endif
         }
 
         // resolve

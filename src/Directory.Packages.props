@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- SMAPI + toolkit -->
+    <PackageVersion Include="DeepCloner" Version="0.10.4" />
     <PackageVersion Include="dnlib" Version="4.4.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.1" />
     <PackageVersion Include="HtmlAgilityPack" Version="1.11.70" />
