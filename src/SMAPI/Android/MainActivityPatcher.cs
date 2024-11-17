@@ -17,17 +17,17 @@ namespace StardewModdingAPI.Android;
 public static class MainActivityPatcher
 {
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Game), "Run", [])]
-    static bool PrefixGameRun(Game __instance)
-    {
-        Console.WriteLine("Prefix Game.Run(): " + __instance);
-        Console.WriteLine("gamePtr: " + GameRunner.instance.gamePtr);
-        var _game1Field = AccessTools.Field(typeof(MainActivity), "_game1");
-        Console.WriteLine("main activity gamePtr: " + _game1Field.GetValue(MainActivity.instance));
+    //[HarmonyPrefix]
+    //[HarmonyPatch(typeof(Game), "Run", [])]
+    //static bool PrefixGameRun(Game __instance)
+    //{
+    //    Console.WriteLine("Prefix Game.Run(): " + __instance);
+    //    Console.WriteLine("gamePtr: " + GameRunner.instance.gamePtr);
+    //    var _game1Field = AccessTools.Field(typeof(MainActivity), "_game1");
+    //    Console.WriteLine("main activity gamePtr: " + _game1Field.GetValue(MainActivity.instance));
 
-        return true;
-    }
+    //    return true;
+    //}
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Game), "Run", [])]
     static void PostfixGameRun(Game __instance)

@@ -63,22 +63,22 @@
       <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Backports">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.Backports.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Backports.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Core">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.Core.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Core.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Iced">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.Iced.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Iced.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.ILHelpers">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.ILHelpers.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.ILHelpers.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android-Arm64\artifacts\bin\MonoMod.RuntimeDetour\release_net8.0\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\StardewValley.dll</HintPath>

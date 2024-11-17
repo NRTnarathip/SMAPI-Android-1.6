@@ -80,6 +80,7 @@ internal class SCore : IDisposable
 
     /// <summary>Simplifies access to private game code.</summary>
     private readonly Reflector Reflection = new();
+    public Reflector GetReflector => this.Reflection;
 
     /// <summary>Encapsulates access to SMAPI core translations.</summary>
     private readonly Translator Translator = new();
@@ -111,6 +112,7 @@ internal class SCore : IDisposable
 
     /// <summary>Manages SMAPI events for mods.</summary>
     private readonly EventManager EventManager;
+
 
 
     /****
@@ -1285,7 +1287,11 @@ internal class SCore : IDisposable
     private void OnRendered(RenderTarget2D renderTarget)
     {
         this.RaiseRenderEvent(this.EventManager.Rendered, Game1.spriteBatch, renderTarget);
+        EventOnRendered?.Invoke(renderTarget);
     }
+    public delegate void EventOnRenderdDelegate(RenderTarget2D renderTarget);
+    public static event EventOnRenderdDelegate EventOnRendered;
+
 
     /// <summary>Raise a rendering/rendered event, temporarily opening the given sprite batch if needed to let mods draw to it.</summary>
     /// <typeparam name="TEventArgs">The event args type to construct.</typeparam>

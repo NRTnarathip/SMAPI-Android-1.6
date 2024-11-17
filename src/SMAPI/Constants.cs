@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Android.App;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using StardewModdingAPI.Enums;
@@ -88,7 +90,8 @@ public static class Constants
 
     /// <summary>The directory path containing Stardew Valley's app data.</summary>
 #if SMAPI_FOR_ANDROID
-    public static string ExternalFilesPath { get; } = MainActivity.instance.ApplicationContext.GetExternalFilesDir(null).AbsolutePath;
+    public static Activity GetGameActivity() => AccessTools.Field(typeof(MainActivity), "instance").GetValue(null) as Activity;
+    public static string ExternalFilesPath { get; } = GetGameActivity().ApplicationContext.GetExternalFilesDir(null).AbsolutePath;
     public static string DataPath { get; } = ExternalFilesPath;
 #else
     public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
@@ -278,7 +281,6 @@ public static class Constants
         resolver.TryAddSearchDirectory(Constants.GamePath);
         string svDllPath = GamePath + "/StardewValley.dll";
         var svAsmLoaded = AssemblyDefinition.ReadAssembly(svDllPath);
-        Console.WriteLine("readed sv module: " + svAsmLoaded);
         resolver.AddWithExplicitNames(svAsmLoaded, ["StardewValley", "Stardew Valley"]);
         return;
 #endif

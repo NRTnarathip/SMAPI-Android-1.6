@@ -1,0 +1,445 @@
+[33mcommit c68be6ed63a0abc65b6045b81b863b180ee869d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: NRTnarathip <61742272+NRTnarathip@users.noreply.github.com>
+Date:   Tue Nov 12 09:55:50 2024 +0700
+
+    Update: Content Patcher work now & test with Mod Thai
+
+[33mcommit 800cdb35392c63d3a13da5499e2fd919198fe745[m
+Author: NRTnarathip <61742272+NRTnarathip@users.noreply.github.com>
+Date:   Mon Nov 11 23:33:37 2024 +0700
+
+    Update: work fine, but some mod it's not work as such Content Patcher
+
+[33mcommit 58311657393e59079c1f646e81367463e5ee7bc2[m
+Author: NRTnarathip <61742272+NRTnarathip@users.noreply.github.com>
+Date:   Mon Nov 11 10:08:16 2024 +0700
+
+    WIP: Harmony & MonoMod Support
+    Note: please use Harmony &MonoMod .dll from build at my reposit
+
+[33mcommit 800509e8b9cbfd92a46203ff2c7053ccfcf21713[m
+Author: NRTnarathip <61742272+NRTnarathip@users.noreply.github.com>
+Date:   Fri Nov 8 09:25:01 2024 +0700
+
+    WIP: now can run Main() & Start() program
+
+[33mcommit 30276bb5ae1f3d61dce81d7f1a68d4c083d3a255[m
+Author: NRTnarathip <61742272+NRTnarathip@users.noreply.github.com>
+Date:   Fri Nov 8 01:41:05 2024 +0700
+
+    WIP: wait fix StardewValley.dll Internal Access SMAPI.dll
+
+[33mcommit 2f98438b3d20af3cfeec0e290a577b8761b3d6cb[m
+Merge: 4daed276 b4e25112
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Thu Nov 7 01:20:27 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit b4e25112499aab9d16325567a12938e56d77cb81[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Thu Nov 7 01:20:00 2024 -0500
+
+    prepare for release
+
+[33mcommit 9e4e3dc6dbf1c8ce5e4e5b8f2da1b05cbe3bb4b3[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Thu Nov 7 01:17:56 2024 -0500
+
+    update mod compatibility list
+
+[33mcommit c3edb442cee66ddd7f6fa42c843d41461d529b47[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Thu Nov 7 01:17:56 2024 -0500
+
+    fix `translation.UsePlaceholder(false)` also disabling custom default
+
+[33mcommit 4daed27628b4c1810433acdfdf158d87e6f3bef7[m
+Merge: 6a1eb71a 2769248a
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Nov 5 14:34:39 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit 2769248ad66f9e0aa27b7422b45c4e732e0a61d6[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Nov 5 14:34:11 2024 -0500
+
+    prepare for release
+
+[33mcommit 4395c9bbb40937aaf9576404c243538857e71702[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Nov 5 14:34:10 2024 -0500
+
+    fix asset propagation for Data/ChairTiles
+
+[33mcommit 4af917335b424a77edd33aa132aad55dd7979233[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Nov 5 14:34:10 2024 -0500
+
+    remove new private assembly references feature
+    
+    This caused a wide array of mod errors and crashes due to common assemblies like 0Harmony.dll and Newtonsoft.Json.dll getting reloaded (even when not marked as a private assembly).
+    
+    For repro steps and affected files, see this thread in #modded-tech-support on the Stardew Valley Discord:
+    > Content Patcher "Can't parse JSON file ... Unable to find a constructor" error after recent updates
+    
+    We can revisit the feature in later versions.
+
+[33mcommit 6a1eb71a30dd25c58272f504e3023bb6e0e72b95[m
+Merge: fd43bc31 79fb337c
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 22:51:08 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit 79fb337c9ed044a872415a9e4807c81419ce6b78[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 22:50:59 2024 -0500
+
+    prepare for release
+
+[33mcommit 322489ad24aa8a8c1d29c70e4661b2f47381f4fd[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 22:50:58 2024 -0500
+
+    fix mod build package creating invalid zip files
+
+[33mcommit b707e2c47a466f8371f383493b67739bc575bb70[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 22:50:58 2024 -0500
+
+    add rewriters for location tile method changes
+
+[33mcommit 6064cebaf6649f72f3794fe291c76d7e1431740e[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 22:50:58 2024 -0500
+
+    fix rewriters for signatures containing nested types
+
+[33mcommit fd43bc315aa3ecf0b5530f84ba35cf0fae0b1c14[m
+Merge: f3f41460 9801f0bd
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 18:45:32 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit 9801f0bd9450ec37f14d75fbd2b36bc5ac0b8dc0[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 18:45:23 2024 -0500
+
+    prepare for release
+
+[33mcommit b8920f897d3ede8e8df2e53a099d6e4952f7f389[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 18:45:22 2024 -0500
+
+    revert TMX tile size premultiplication change in SMAPI 4.1.0
+    
+    The tilesheet changes were reverted in Stardew Valley 1.6.10.
+
+[33mcommit f3f41460bad982ffd5f0d6ac24e88ec5e34ee1bd[m
+Merge: 7a91eeeb 22f64a1a
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 16:19:23 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit 22f64a1a2642267fad36c329f198d4a19dfec253[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 16:19:09 2024 -0500
+
+    prepare for release
+
+[33mcommit 9151379bf15ab9eb19090824de7a4f02474bcece[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Nov 4 15:50:35 2024 -0500
+
+    fix crash loading spouse rooms loaded from .tmx files
+
+[33mcommit 7a91eeebe21c5032c661905364126c823501aa55[m
+Merge: 74e20ea2 f0e74ead
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 22:28:53 2024 -0500
+
+    Merge branch 'develop' into stable
+
+[33mcommit f0e74eadb3c7dcd86384a4bf261e9940e912dd0e[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 22:28:28 2024 -0500
+
+    prepare for release
+
+[33mcommit 7af00701a78eeabf850eccba1d924af1e1ef5401[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 22:27:45 2024 -0500
+
+    only override buffer when the world is ready
+    
+    This fixes drawing UI to the title screen (e.g. the Generic Mod Config Menu button).
+
+[33mcommit 0bb9da51d10254d564e5d1d38b398b56c20de334[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 20:33:53 2024 -0500
+
+    update dependencies
+
+[33mcommit a945a9498e61c15197ebb9a488fb48a0fcf0f5f1[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 20:33:53 2024 -0500
+
+    update schema for Content Patcher 2.4.0
+
+[33mcommit 129c1e622388a8a7933ac10aedb099172baa48ba[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 20:05:37 2024 -0500
+
+    add Translation method to disable gender-switch block handling
+    
+    This allows for edge cases where a mod needs to keep gender-switch blocks as-is (e.g. to pass to dialogue later).
+
+[33mcommit d779c7d68cdd5b4d75908b3913576fac25122e8c[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 15:58:47 2024 -0500
+
+    replace multi-line string concatenation with raw string literals
+
+[33mcommit bc361207ce38fd83116d52deb638818ab87f64b6[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 15:58:46 2024 -0500
+
+    remove net field implicit conversion build warnings
+    
+    The last implicit conversion operators were removed in 1.6.9.
+
+[33mcommit 8addcc8d4305cf8f00096feb478d937cc93a034a[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 15:58:46 2024 -0500
+
+    migrate to central package management
+
+[33mcommit 645f86198210fa1336b55ccba2d18cc27bfc22ba[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Nov 3 15:58:45 2024 -0500
+
+    migrate to file-scoped namespaces
+
+[33mcommit 015ec0244638ccb13a462a8665ecd50219d1eda0[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Nov 2 18:04:59 2024 -0400
+
+    move GetModPageUrls() into WikiModEntry for reuse
+
+[33mcommit 149e8b9a31825d4842c0f3cdf22be3b56fe7176d[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Nov 2 18:04:59 2024 -0400
+
+    fix .tmx map tile sizes being premultiplied
+    
+    This is inconsistent with the vanilla .tbin maps, which don't premultiply tile size.
+
+[33mcommit aeabd832fdaeb347fd4eac7b2c373997760d7ce7[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Oct 28 18:42:57 2024 -0400
+
+    no longer block map edits which change the tilesheet order
+    
+    That no longer causes crashes in Stardew Valley 1.6.9.
+
+[33mcommit c386c10c403040b58a04025e1ee47373f7fe0b01[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Oct 27 20:59:45 2024 -0400
+
+    allow gender-switch blocks in translations
+
+[33mcommit cb6c1a8d890ff425ba285ce79b4269be1f86464b[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Oct 27 20:59:45 2024 -0400
+
+    allow tokens in translation placeholders
+
+[33mcommit f2cf0a3125b5a66035157a2745a1d1bf3d3cd774[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Oct 27 20:59:45 2024 -0400
+
+    defer translation formatting until it's used
+    
+    This avoids various edge cases when chaining method calls. For example:
+    - calling `Tokens(...)` again with different values would ignore any values provided for a token that was already replaced;
+    - calling `Default("boop").UsePlaceholder(false).UsePlaceholder(true)` would reset to the initial default;
+    - etc.
+
+[33mcommit 9b62d9a32c48131f6f9ae8f01fd7f4ab91b41f4b[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Fri Oct 18 01:18:50 2024 -0400
+
+    update for extensible map display device in 1.6.9
+
+[33mcommit c44132780c16ae96b08f169a08ad900ef2c9008e[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Fri Oct 18 01:18:50 2024 -0400
+
+    add rewriters for net field implicit conversions removed in 1.6.9
+
+[33mcommit 66d9e82fffb61c6cf3347c9f7278bc56b0687aae[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Oct 6 23:45:26 2024 -0400
+
+    prepare for mod build package release
+
+[33mcommit 1ce878a30cc0a8db1fcfef97582f2f317c9df58f[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Oct 6 23:45:03 2024 -0400
+
+    remove HTML in mod package README
+    
+    This fixes the README format on nuget.org.
+
+[33mcommit 76666d9553078709f5e8ab9a1465157266e456ca[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Oct 5 11:15:31 2024 -0400
+
+    add param docs to event interfaces
+    
+    This lets mods fully document their event handlers using the 'inheritdoc' tag.
+
+[33mcommit d9a46f64be0c31e10b99f4567f3da511937c55f1[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Wed Oct 2 19:02:33 2024 -0400
+
+    update for load-game changes in 1.6.9 build 24277
+
+[33mcommit e2d3ffb4d63d9e3f5039897cf6fd9305336cefb4[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Oct 1 20:33:54 2024 -0400
+
+    update package instructions
+    
+    .NET runtime bug 3828 was fixed in .NET 8+ (which is used to package SMAPI even if we target an older version).
+
+[33mcommit 2e99cd57760b6179e8d24b603d48686448a0e5b7[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Oct 1 20:25:37 2024 -0400
+
+    fix installer publish on Linux/macOS
+
+[33mcommit 123dca8b04198b9420444edef502502c8a4be31a[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Oct 1 19:28:22 2024 -0400
+
+    update rewriters for 1.6.9
+
+[33mcommit 608c8fa34497aa35e9bf37fe71ab5c19e8fd3579[m
+Merge: 64897670 a8c93722
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Sep 14 15:20:23 2024 -0400
+
+    Merge pull request #940 from abhiaagarwal/arbitrary_files_modbuild
+    
+    [ModBuildConfig] Add ability to include arbitrary mods in build output
+
+[33mcommit a8c9372299ea9bee3ba6738da136063fa47619e7[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Sep 14 15:17:39 2024 -0400
+
+    tweak mod file manager naming
+
+[33mcommit 1effd1bc9d3a4a7b5e00c043f5f026313ca96a71[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Sep 14 15:13:04 2024 -0400
+
+    minor refactoring
+    
+    This commit...
+    - simplifies usage with a new <ContentPack /> group;
+    - fixes content pack folder name not defaulting to Include path;
+    - fixes release zip not creating a parent folder when content packs are bundled;
+    - fixes content pack manager's relative path resolution;
+    - fixes implications that we only support Content Patcher packs;
+    - and rewrites the docs a bit.
+
+[33mcommit c420b8a0902a5c388dd8d6598688d897ab8a9ea6[m
+Author: Abhi Agarwal <abhiaagarwal01@gmail.com>
+Date:   Mon Mar 25 18:37:30 2024 -0400
+
+    Actually make it work
+
+[33mcommit cf0039dd1a6cb0697c297ef8b68d3335bcfed074[m
+Author: Abhi Agarwal <abhiaagarwal01@gmail.com>
+Date:   Mon Mar 25 16:42:35 2024 -0400
+
+    Add docs and version checks
+
+[33mcommit 65992200f736152aa2805d50fe362c53e6114070[m
+Author: Abhi Agarwal <abhiaagarwal01@gmail.com>
+Date:   Sun Mar 24 21:39:49 2024 -0400
+
+    Add ability to add arbitrary content mods
+
+[33mcommit 6489767054564ed0dac11b947cefac3995b4bb62[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sat Sep 14 13:10:14 2024 -0400
+
+    fix 'direct console access' warnings
+
+[33mcommit c243d56fe741f3f49d1b02aeeda13fe9b6bc51a9[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Fri Sep 6 19:37:44 2024 -0400
+
+    update for fish pond data changes in 1.6.9
+
+[33mcommit 2f4b8410552f1288b5827f9c1eeb896c213ba1f9[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Fri Sep 6 19:04:55 2024 -0400
+
+    prepare for mod build package release
+
+[33mcommit b0d14d4afe4d1bc6fc0975cda46decd98b66a86b[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Fri Sep 6 19:04:54 2024 -0400
+
+    move mod build package release notes into its own file
+
+[33mcommit 67658b8863d4de4aabb6135b67ad1515a74bdfd6[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Tue Aug 20 22:45:00 2024 -0400
+
+    add asset propagation for Data/ChairTiles
+
+[33mcommit 26cfac01605565879a796317b392e3d29ca69996[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Aug 19 22:17:22 2024 -0400
+
+    add anonymized metrics for SMAPI and game versions
+
+[33mcommit 2f0db74ca71276055711cbfda8645e7cace1fd0a[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Mon Aug 19 22:17:21 2024 -0400
+
+    add workaround for CurseForge prerelease version auto-sync issue
+
+[33mcommit d28ef2b750c00a65c8eabf4f545dcc8d8bb4209c[m
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Aug 18 15:34:13 2024 -0400
+
+    update release notes
+
+[33mcommit f7aa28c4a5ffa2e0483607af01b42dcd69081567[m
+Merge: 60443622 02345c37
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Aug 18 15:32:27 2024 -0400
+
+    Merge pull request #961 from spacechase0/mod-assembly-versions-in-log
+    
+    Log mod assembly versions when loading mods
+
+[33mcommit 604436220f09ee0abc98663e81d1c09c7dec7fc0[m
+Merge: 1990418a 2d8c0c37
+Author: Jesse Plamondon-Willard <Pathoschild@users.noreply.github.com>
+Date:   Sun Aug 18 15:31:25 2024 -0400
+
+    Merge pull request #960 from spacechase0/i18n-folders
+    
+    Implement i18n folder-per-locale support
+
+[33mcommit 02345c370e2cf1e

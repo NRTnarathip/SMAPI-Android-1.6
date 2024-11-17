@@ -37,6 +37,7 @@ internal class Program
             AndroidLogger.Log("Error StartFromSMAPILoader();");
             AndroidLogger.Log("==== " + ex);
         }
+
     }
 
     /*********
@@ -46,11 +47,15 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
+
         AndroidLogger.Log("Starting SMAPI Program()...");
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
 #if !SMAPI_FOR_ANDROID
         Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
+        
+#else
+        //StardewModdingAPI.Android.VersionInfoMenu.Init();
 #endif
 
         try
@@ -99,7 +104,10 @@ internal class Program
                     {
                         string? curName = AssemblyName.GetAssemblyName(dllPath).Name;
                         if (curName != null)
+                        {
                             Program.AssemblyPathsByName[curName] = dllPath;
+                            Console.WriteLine("found asm name: " + curName);
+                        }
                     }
                     catch
                     {
