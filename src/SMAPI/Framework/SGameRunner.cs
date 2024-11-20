@@ -5,7 +5,7 @@ using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using StardewModdingAPI.Android;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;

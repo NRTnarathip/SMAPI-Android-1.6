@@ -33,6 +33,8 @@ internal static class EarlyConstants
     /*********
     ** Accessors
     *********/
+    public static string ExternalFilesDir { get; } = Application.Context.GetExternalFilesDir(null).AbsolutePath;
+
     /// <summary>The path to the game folder.</summary>
     public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
@@ -90,9 +92,7 @@ public static class Constants
 
     /// <summary>The directory path containing Stardew Valley's app data.</summary>
 #if SMAPI_FOR_ANDROID
-    public static Activity GetGameActivity() => AccessTools.Field(typeof(MainActivity), "instance").GetValue(null) as Activity;
-    public static string ExternalFilesPath { get; } = GetGameActivity().ApplicationContext.GetExternalFilesDir(null).AbsolutePath;
-    public static string DataPath { get; } = ExternalFilesPath;
+    public static string DataPath { get; } = EarlyConstants.ExternalFilesDir;
 #else
     public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 #endif

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using StardewModdingAPI.Android;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Internal.ConsoleWriting;
 

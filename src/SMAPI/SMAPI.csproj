@@ -52,15 +52,14 @@
   </ItemGroup>
 
   <ItemGroup>
-
     <Reference Include="BmFont">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\BmFont.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\BmFont.dll</HintPath>
     </Reference>
     <Reference Include="Lidgren.Network">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\Lidgren.Network.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Backports">
       <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Backports.dll</HintPath>
@@ -81,13 +80,13 @@
       <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\StardewValley.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
-      <HintPath>..\..\..\Stardew Valley Android\assemblies-reference-for-smapi\xTile.dll</HintPath>
+      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 

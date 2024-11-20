@@ -1,6 +1,6 @@
 using AndroidUtils = Android.Util;
 
-namespace StardewModdingAPI.Android;
+namespace StardewModdingAPI.Mobile;
 
 public static class AndroidLogger
 {

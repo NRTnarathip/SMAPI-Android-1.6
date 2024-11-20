@@ -53,7 +53,9 @@ using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 using System.Security.Cryptography;
 using StardewValley.Characters;
-using StardewModdingAPI.Android;
+using StardewModdingAPI.Mobile;
+using Android.Views;
+using Android.App;
 
 namespace StardewModdingAPI.Framework;
 
@@ -317,8 +319,14 @@ internal class SCore : IDisposable
         this.Monitor.Log("Waiting for game to launch...", LogLevel.Debug);
 
 #if SMAPI_FOR_ANDROID
+        var mainActivityField = typeof(MainActivity).GetField("instance", BindingFlags.Static | BindingFlags.Public);
+        var activity = mainActivityField.GetValue(null) as Android.App.Activity;
+        activity.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
+        Console.WriteLine("try Game.Run()");
         this.IsGameRunning = true;
-        StardewValley.Program.releaseBuild = false; // game's debug logic interferes with SMAPI opening the game window
+        StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
+        this.Game.Run();
+        Console.WriteLine("done Game.Run()");
 #else
         try
         {

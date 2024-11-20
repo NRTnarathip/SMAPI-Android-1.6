@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using StardewModdingAPI.Android;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Internal.ConsoleWriting;

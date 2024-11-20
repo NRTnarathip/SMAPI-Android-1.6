@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.VisualBasic;
-using StardewModdingAPI.Android;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -67,6 +67,7 @@ internal class Program
             Program.AssertSmapiVersions();
             Program.AssertDepsJson();
 #endif
+            Console.WriteLine("try Program.Start()");
             Program.Start(args);
         }
         catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
@@ -106,7 +107,6 @@ internal class Program
                         if (curName != null)
                         {
                             Program.AssemblyPathsByName[curName] = dllPath;
-                            Console.WriteLine("found asm name: " + curName);
                         }
                     }
                     catch
@@ -124,6 +124,7 @@ internal class Program
         // resolve
         try
         {
+
             string? searchName = new AssemblyName(e.Name).Name;
             return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
                 ? Assembly.LoadFrom(assemblyPath)
@@ -257,7 +258,7 @@ internal class Program
 
         // load SMAPI
 #if SMAPI_FOR_ANDROID
-        developerMode = false;
+        developerMode = true;
         writeToConsole = false;
 #endif
         SCore core = new(modsPath, writeToConsole, developerMode);

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 
-namespace StardewModdingAPI.Android;
+namespace StardewModdingAPI.Mobile;
 
 public static class DeepClonerExtensionsMapFacade
 {

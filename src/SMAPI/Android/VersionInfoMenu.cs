@@ -12,14 +12,14 @@ using Microsoft.Xna.Framework;
 using StardewValley.Mods;
 using StardewModdingAPI.Framework.Events;
 
-namespace StardewModdingAPI.Android;
+namespace StardewModdingAPI.Mobile;
 
 [HarmonyPatch]
 internal static class VersionInfoMenu
 {
     internal static void Init()
     {
-        SCore.EventOnRendered += OnRendered;
+        //SCore.EventOnRendered += OnRendered;
     }
 
     static void OnRendered(RenderTarget2D renderTarget)
