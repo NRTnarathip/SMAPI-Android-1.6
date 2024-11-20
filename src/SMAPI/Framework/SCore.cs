@@ -557,7 +557,6 @@ internal class SCore : IDisposable
             if (this.IsExiting)
             {
                 this.Monitor.Log("SMAPI shutting down: aborting update.");
-
                 return;
             }
 

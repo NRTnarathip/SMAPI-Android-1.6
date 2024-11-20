@@ -10,20 +10,33 @@ namespace StardewModdingAPI.Mobile;
 internal static class AndroidPatcher
 {
     public static Harmony harmony { get; private set; }
-    internal static void InitFormSMAPILoader()
+    internal static void Setup()
     {
-
         AndroidLogger.Log("===========================");
         AndroidLogger.Log("===========================");
-        AndroidLogger.Log("On InitFormSMAPILoader()");
+        AndroidLogger.Log("On AndroidPatcher.Setup()");
 
 
         Log.enabled = true;
 
-        //Harmony.DEBUG = false;
-        //harmony = new Harmony(nameof(AndroidPatcher));
-        //harmony.PatchAll();
+        Harmony.DEBUG = false;
+        harmony = new Harmony(nameof(AndroidPatcher));
+        harmony.PatchAll();
 
-        AndroidLogger.Log("Done InitFormSMAPILoader()");
+        AndroidLogger.Log("Done Setup()");
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Game1), "TranslateFields")]
+    static void PrefixTranslateFields()
+    {
+        Console.WriteLine("prefix TranslateFields");
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Game1), "TranslateFields")]
+    static void PostfixTranslateFields()
+    {
+        Console.WriteLine("post TranslateFields");
     }
 }

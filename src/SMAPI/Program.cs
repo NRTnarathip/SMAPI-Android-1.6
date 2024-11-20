@@ -26,20 +26,6 @@ internal class Program
     /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
     private static Dictionary<string, string>? AssemblyPathsByName;
 
-    public static void StartFromSMAPILoader()
-    {
-        try
-        {
-            AndroidPatcher.InitFormSMAPILoader();
-        }
-        catch (Exception ex)
-        {
-            AndroidLogger.Log("Error StartFromSMAPILoader();");
-            AndroidLogger.Log("==== " + ex);
-        }
-
-    }
-
     /*********
     ** Public methods
     *********/
@@ -47,6 +33,7 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
+        AndroidPatcher.Setup();
 
         AndroidLogger.Log("Starting SMAPI Program()...");
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
@@ -126,9 +113,10 @@ internal class Program
         {
 
             string? searchName = new AssemblyName(e.Name).Name;
-            return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
+            var resolveAsm = searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
                 ? Assembly.LoadFrom(assemblyPath)
                 : null;
+            return resolveAsm;
         }
         catch (Exception ex)
         {

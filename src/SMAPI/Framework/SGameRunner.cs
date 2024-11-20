@@ -339,5 +339,6 @@ internal class SGameRunner : GameRunner
             if (!Context.ActiveScreenIds.Contains(id))
                 Context.LastRemovedScreenId = id;
         }
+        Console.WriteLine("end UpdateForSplitScreenChanges()");
     }
 }

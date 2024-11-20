@@ -163,7 +163,15 @@ internal class SGame : Game1
     /// <inheritdoc />
     protected override void LoadContent()
     {
-        base.LoadContent();
+        try
+        {
+            base.LoadContent();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("error tri SGame.LoadContent: " + ex);
+        }
 
         this.OnContentLoaded();
     }
