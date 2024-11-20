@@ -143,15 +143,50 @@
         /*********
         ** Broke in SDV 1.6.9
         *********/
+        "Artifact Digger": {
+            "ID": "mizzion.artifactdigger",
+            "~1.3.0 | Status": "AssumeBroken",
+            "~1.3.0 | StatusReasonDetails": "content loads fail at runtime"
+        },
+        "Better Crystalariums": {
+            "ID": "DecidedlyHuman.BetterCrystalariums",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Better Frog Control": {
+            "ID": "malkavian.betterfrogcontrol",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "CompanionTrinketEffect type reference fails at runtime"
+        },
         "Catalogue Indicator": {
             "ID": "com.anthonyhilyard.CatalogueIndicator",
             "~1.0.0 | Status": "AssumeBroken",
             "~1.0.0 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
         },
+        "Custom Moss": {
+            "ID": "aceynk.CustomMoss",
+            "~1.1.1 | Status": "AssumeBroken",
+            "~1.1.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Fishing Tackle Tooltip": {
+            "ID": "BarleyZP.FishingTackleTooltip",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Happy Home Designer": {
+            "ID": "tlitookilakin.HappyHomeDesigner",
+            "~2.1.2 | Status": "AssumeBroken",
+            "~2.1.2 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
         "Heart Event Helper": {
             "ID": "bungus.HeartEventHelper",
             "~1.0.6 | Status": "AssumeBroken",
             "~1.0.6 | StatusReasonDetails": "breaks question dialogues (e.g. Lewis' start-festival-event question)"
+        },
+        "Jump Down the Mine": {
+            "ID": "flowoeB.JumpDownTheMine",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "fails with runtime 'Common Language Runtime detected an invalid program' errors"
         },
         "Json Assets": {
             "ID": "spacechase0.JsonAssets",
@@ -160,15 +195,60 @@
 
             "Default | UpdateKey": "Nexus:1720"
         },
+        "Luck Skill": {
+            "ID": "spacechase0.LuckSkill",
+            "~1.2.6 | Status": "AssumeBroken",
+            "~1.2.6 | StatusReasonDetails": "Harmony errors at runtime"
+        },
+        "Lunar Disturbances": {
+            "ID": "KoihimeNakamura.LunarDisturbances",
+            "~1.5.3 | Status": "AssumeBroken",
+            "~1.5.3 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "Machine Augmentors": {
+            "ID": "SlayerDharok.MachineAugmentors",
+            "~1.1.0 | Status": "AssumeBroken",
+            "~1.1.0 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "NPC Map Locations Extra Config": {
+            "ID": "trashcan9.NPCMapLocations.ExtraConfig",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "PokefyMania": {
+            "ID": "NoodlesofCat.PokefyMania",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "content edits fail at runtime"
+        },
+        "Searchable Chests": {
+            "ID": "ThisIsCad.SearchableChests",
+            "~1.2.0 | Status": "AssumeBroken",
+            "~1.2.0 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "Season Switcher": {
+            "ID": "Dumbledalton.SeasonSwitcher",
+            "~0.1.0 | Status": "AssumeBroken",
+            "~0.1.0 | StatusReasonDetails": "fails with runtime 'Common Language Runtime detected an invalid program' errors"
+        },
         "Shop Tile Framework": {
             "ID": "Cherry.ShopTileFramework",
             "~1.0.10-alpha-20240227 | Status": "AssumeBroken",
             "~1.0.10-alpha-20240227 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
         },
+        "Stardew Valley Timelapse": {
+            "ID": "evskii.StardewTimelapse",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "crashes game due to permission errors when it takes a screenshot"
+        },
         "Swim (FlyingTNT)": {
             "ID": "FlyingTNT.Swim",
             "~1.6.4 | Status": "AssumeBroken",
             "~1.6.4 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Tile Transparency": {
+            "ID": "aedenthorn.TileTransparency",
+            "~0.2.0 | Status": "AssumeBroken",
+            "~0.2.0 | StatusReasonDetails": "Harmony patches fail at runtime"
         },
         "TMXL Map Toolkit": {
             "ID": "Platonymous.TMXLoader",
@@ -176,6 +256,21 @@
             "~1.24.3-alpha.20240226 | StatusReasonDetails": "Harmony patches fail at runtime",
 
             "Default | UpdateKey": "Nexus:1820"
+        },
+        "Tool Assembly": {
+            "ID": "ofts.toolAss",
+            "~0.4.1-beta.1 | Status": "AssumeBroken",
+            "~0.4.1-beta.1 | StatusReasonDetails": "content edits fail at runtime"
+        },
+        "Tool Upgrade Costs": {
+            "ID": "Cherry.ToolUpgradeCosts",
+            "~1.0.1-alpha.20240225 | Status": "AssumeBroken",
+            "~1.0.1-alpha.20240225 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "Yet Another Fishing Mod": {
+            "ID": "NeverToxic.YetAnotherFishingMod",
+            "~1.1.2 | Status": "AssumeBroken",
+            "~1.1.2 | StatusReasonDetails": "Harmony patches fail at runtime"
         },
 
         /*********

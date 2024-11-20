@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.GameScanning;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
@@ -63,10 +63,10 @@ public class ModToolkit
         return new GameScanner().ScanIncludingInvalid();
     }
 
-    /// <summary>Extract mod metadata from the wiki compatibility list.</summary>
-    public async Task<WikiModList> GetWikiCompatibilityListAsync()
+    /// <summary>Extract mod metadata from the compatibility list repo.</summary>
+    public async Task<ModCompatibilityEntry[]> GetCompatibilityListAsync()
     {
-        using WikiClient client = new(this.UserAgent);
+        using CompatibilityRepoClient client = new(this.UserAgent);
         return await client.FetchModsAsync();
     }
 
@@ -98,14 +98,24 @@ public class ModToolkit
 
     /// <summary>Get an update URL for an update key (if valid).</summary>
     /// <param name="updateKey">The update key.</param>
+    /// <returns>Returns the URL if the mod site is supported, else <c>null</c>.</returns>
     public string? GetUpdateUrl(string updateKey)
     {
         UpdateKey parsed = UpdateKey.Parse(updateKey);
         if (!parsed.LooksValid)
             return null;
 
-        if (this.VendorModUrls.TryGetValue(parsed.Site, out string? urlTemplate))
-            return string.Format(urlTemplate, parsed.ID);
+        return this.GetUpdateUrl(parsed.Site, parsed.ID);
+    }
+
+    /// <summary>Get an update URL for an update key (if valid).</summary>
+    /// <param name="site">The mod site containing the mod.</param>
+    /// <param name="id">The mod ID within the site.</param>
+    /// <returns>Returns the URL if the mod site is supported, else <c>null</c>.</returns>
+    public string? GetUpdateUrl(ModSiteKey site, string id)
+    {
+        if (this.VendorModUrls.TryGetValue(site, out string? urlTemplate))
+            return string.Format(urlTemplate, id);
 
         return null;
     }

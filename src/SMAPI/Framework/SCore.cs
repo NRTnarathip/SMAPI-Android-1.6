@@ -1738,6 +1738,12 @@ internal class SCore : IDisposable
     /// <summary>Verify the game's content files and log a warning if any are missing or modified.</summary>
     public void LogContentIntegrityIssues()
     {
+        if (!this.Settings.CheckContentIntegrity)
+        {
+            this.Monitor.Log("You disabled content integrity checks, so you won't be notified if a game content file is missing or corrupted.", LogLevel.Warn);
+            return;
+        }
+
         string contentPath = Constants.ContentPath;
 
         // get file
@@ -1957,11 +1963,8 @@ internal class SCore : IDisposable
                 this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}, ID: {manifest?.UniqueID}) [content pack]...");
             else if (manifest?.EntryDll != null)
             {
-                FileVersionInfo version = FileVersionInfo.GetVersionInfo(assemblyFile!.FullName);
-                string versionStr = version.FilePrivatePart == 0
-                    ? $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}"
-                    : $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}.{version.FilePrivatePart}";
-                this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{manifest.EntryDll}, ID: {manifest.UniqueID}, assembly version: {versionStr})..."); // don't use Path.Combine here, since EntryDLL might not be valid
+                this.TryGetAssemblyVersion(assemblyFile?.FullName, out string? assemblyVersion);
+                this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{manifest.EntryDll}, ID: {manifest.UniqueID}, assembly version: {assemblyVersion ?? "<unknown>"})..."); // don't use Path.Combine here, since EntryDLL might not be valid
             }
             else
                 this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}, ID: {manifest?.UniqueID ?? "<unknown>"})...");
@@ -2113,6 +2116,34 @@ internal class SCore : IDisposable
                 failReason = ModFailReason.LoadFailed;
                 return false;
             }
+        }
+    }
+
+    /// <summary>Get the display version for an assembly file, if it's valid.</summary>
+    /// <param name="filePath">The absolute path to the assembly file.</param>
+    /// <param name="versionString">The extracted display version, if valid.</param>
+    /// <returns>Returns whether the assembly version was successfully extracted.</returns>
+    private bool TryGetAssemblyVersion(string? filePath, [NotNullWhen(true)] out string? versionString)
+    {
+        if (filePath is null || !File.Exists(filePath))
+        {
+            versionString = null;
+            return false;
+        }
+
+        try
+        {
+            FileVersionInfo version = FileVersionInfo.GetVersionInfo(filePath);
+            versionString = version.FilePrivatePart == 0
+                ? $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}"
+                : $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}.{version.FilePrivatePart}";
+            return true;
+        }
+        catch (Exception ex)
+        {
+            this.Monitor.Log($"Error extracting assembly version from '{filePath}': {ex.GetLogSummary()}");
+            versionString = null;
+            return false;
         }
     }
 

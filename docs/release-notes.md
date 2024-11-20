@@ -1,6 +1,41 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Updated mod compatibility list.
+
+* For mod authors:
+  * Added `PathUtilities.CreateSlug` to turn an arbitrary string into a safe 'slug' that can be used in special contexts like URLs and file paths.  
+    _For example, `PathUtilities.CreateSlug("some 例子?!/\\~ text")` becomes `"some-例子-text"`._
+  * `PathUtilities.IsSlug` is now less strict and allows more Unicode characters.
+
+* For the web UI:
+  * Revamped how the mod compatibility list works to simplify maintenance.
+  * Fixed CurseForge links not shown for mods that have a CurseForge page.
+
+* For external tools:
+  * Updated SMAPI toolkit for the new [mod compatibility repo](https://github.com/Pathoschild/SmapiCompatibilityList), which replaces the former [wiki page](https://stardewvalleywiki.com/Modding:Mod_compatibility).
+  * Added toolkit method to get the URL from an update key site + mod ID.
+
+## 4.1.7
+Released 12 November 2024 for Stardew Valley 1.6.14 or later.
+
+* For players:
+  * Updated for Stardew Valley 1.6.14.
+  * Updated mod compatibility list.
+  * Fixed crash if a mod has a missing or invalid DLL.
+
+## 4.1.6
+Released 07 November 2024 for Stardew Valley 1.6.10 or later.
+
+* For players:
+  * Revamped message shown after a game update to avoid confusion.
+  * Added option to disable content integrity checks in `smapi-internal/config.json`. When disabled, SMAPI will log a warning for visibility when someone helps you troubleshoot game issues.
+
+* For mod authors:
+  * Fixed `translation.ApplyGenderSwitchBlocks(false)` not applied correctly.
+
 ## 4.1.5
 Released 07 November 2024 for Stardew Valley 1.6.10 or later.
 

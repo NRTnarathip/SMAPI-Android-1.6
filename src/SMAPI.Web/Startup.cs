@@ -17,11 +17,11 @@ using StardewModdingAPI.Toolkit.Framework.Clients.ModDropExport;
 using StardewModdingAPI.Toolkit.Framework.Clients.NexusExport;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Caching.CompatibilityRepo;
 using StardewModdingAPI.Web.Framework.Caching.CurseForgeExport;
 using StardewModdingAPI.Web.Framework.Caching.ModDropExport;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.NexusExport;
-using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -86,10 +86,10 @@ internal class Startup
 
         // init storage
         services.AddSingleton<IModCacheRepository>(new ModCacheMemoryRepository());
+        services.AddSingleton<ICompatibilityCacheRepository>(new CompatibilityCacheMemoryRepository());
         services.AddSingleton<ICurseForgeExportCacheRepository>(new CurseForgeExportCacheMemoryRepository());
         services.AddSingleton<IModDropExportCacheRepository>(new ModDropExportCacheMemoryRepository());
         services.AddSingleton<INexusExportCacheRepository>(new NexusExportCacheMemoryRepository());
-        services.AddSingleton<IWikiCacheRepository>(new WikiCacheMemoryRepository());
 
         // init Hangfire
         services

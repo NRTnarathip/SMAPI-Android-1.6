@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -32,9 +32,6 @@ public class ModExtendedMetadataModel
     /// <summary>The mod ID in the CurseForge mod repo.</summary>
     public int? CurseForgeID { get; set; }
 
-    /// <summary>The mod key in the CurseForge mod repo (used in mod page URLs).</summary>
-    public string? CurseForgeKey { get; set; }
-
     /// <summary>The mod ID in the ModDrop mod repo.</summary>
     public int? ModDropID { get; set; }
 
@@ -56,34 +53,18 @@ public class ModExtendedMetadataModel
     /// <summary>The latest unofficial version, if newer than <see cref="Main"/> and <see cref="Optional"/>.</summary>
     public ModEntryVersionModel? Unofficial { get; set; }
 
-    /// <summary>The latest unofficial version for the current Stardew Valley or SMAPI beta, if any.</summary>
-    public ModEntryVersionModel? UnofficialForBeta { get; set; }
-
     /****
     ** Stable compatibility
     ****/
     /// <summary>The compatibility status.</summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public WikiCompatibilityStatus? CompatibilityStatus { get; set; }
+    public ModCompatibilityStatus? CompatibilityStatus { get; set; }
 
     /// <summary>The human-readable summary of the compatibility status or workaround, without HTML formatting.</summary>
     public string? CompatibilitySummary { get; set; }
 
     /// <summary>The game or SMAPI version which broke this mod, if applicable.</summary>
     public string? BrokeIn { get; set; }
-
-    /****
-    ** Beta compatibility
-    ****/
-    /// <summary>The compatibility status for the Stardew Valley beta (if any).</summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public WikiCompatibilityStatus? BetaCompatibilityStatus { get; set; }
-
-    /// <summary>The human-readable summary of the compatibility status or workaround for the Stardew Valley beta (if any), without HTML formatting.</summary>
-    public string? BetaCompatibilitySummary { get; set; }
-
-    /// <summary>The beta game or SMAPI version which broke this mod, if applicable.</summary>
-    public string? BetaBrokeIn { get; set; }
 
     /****
     ** Version mappings
@@ -105,45 +86,38 @@ public class ModExtendedMetadataModel
     public ModExtendedMetadataModel() { }
 
     /// <summary>Construct an instance.</summary>
-    /// <param name="wiki">The mod metadata from the wiki (if available).</param>
+    /// <param name="compatibility">The mod metadata from the mod compatibility list (if available).</param>
     /// <param name="db">The mod metadata from SMAPI's internal DB (if available).</param>
     /// <param name="main">The main version.</param>
     /// <param name="optional">The latest optional version, if newer than <paramref name="main"/>.</param>
     /// <param name="unofficial">The latest unofficial version, if newer than <paramref name="main"/> and <paramref name="optional"/>.</param>
-    /// <param name="unofficialForBeta">The latest unofficial version for the current Stardew Valley or SMAPI beta, if any.</param>
-    public ModExtendedMetadataModel(WikiModEntry? wiki, ModDataRecord? db, ModEntryVersionModel? main, ModEntryVersionModel? optional, ModEntryVersionModel? unofficial, ModEntryVersionModel? unofficialForBeta)
+    public ModExtendedMetadataModel(ModCompatibilityEntry? compatibility, ModDataRecord? db, ModEntryVersionModel? main, ModEntryVersionModel? optional, ModEntryVersionModel? unofficial)
     {
         // versions
         this.Main = main;
         this.Optional = optional;
         this.Unofficial = unofficial;
-        this.UnofficialForBeta = unofficialForBeta;
 
-        // wiki data
-        if (wiki != null)
+        // compatibility list data
+        if (compatibility != null)
         {
-            this.ID = wiki.ID;
-            this.Name = wiki.Name.FirstOrDefault();
-            this.NexusID = wiki.NexusID;
-            this.ChucklefishID = wiki.ChucklefishID;
-            this.CurseForgeID = wiki.CurseForgeID;
-            this.CurseForgeKey = wiki.CurseForgeKey;
-            this.ModDropID = wiki.ModDropID;
-            this.GitHubRepo = wiki.GitHubRepo;
-            this.CustomSourceUrl = wiki.CustomSourceUrl;
-            this.CustomUrl = wiki.CustomUrl;
+            this.ID = compatibility.ID;
+            this.Name = compatibility.Name.FirstOrDefault();
+            this.NexusID = compatibility.NexusID;
+            this.ChucklefishID = compatibility.ChucklefishID;
+            this.CurseForgeID = compatibility.CurseForgeID;
+            this.ModDropID = compatibility.ModDropID;
+            this.GitHubRepo = compatibility.GitHubRepo;
+            this.CustomSourceUrl = compatibility.CustomSourceUrl;
+            this.CustomUrl = compatibility.CustomUrl;
 
-            this.CompatibilityStatus = wiki.Compatibility.Status;
-            this.CompatibilitySummary = wiki.Compatibility.Summary;
-            this.BrokeIn = wiki.Compatibility.BrokeIn;
+            this.CompatibilityStatus = compatibility.Compatibility.Status;
+            this.CompatibilitySummary = compatibility.Compatibility.Summary;
+            this.BrokeIn = compatibility.Compatibility.BrokeIn;
 
-            this.BetaCompatibilityStatus = wiki.BetaCompatibility?.Status;
-            this.BetaCompatibilitySummary = wiki.BetaCompatibility?.Summary;
-            this.BetaBrokeIn = wiki.BetaCompatibility?.BrokeIn;
-
-            this.ChangeLocalVersions = wiki.Overrides?.ChangeLocalVersions?.ToString();
-            this.ChangeRemoteVersions = wiki.Overrides?.ChangeRemoteVersions?.ToString();
-            this.ChangeUpdateKeys = wiki.Overrides?.ChangeUpdateKeys?.ToString();
+            this.ChangeLocalVersions = compatibility.Overrides?.ChangeLocalVersions?.ToString();
+            this.ChangeRemoteVersions = compatibility.Overrides?.ChangeRemoteVersions?.ToString();
+            this.ChangeUpdateKeys = compatibility.Overrides?.ChangeUpdateKeys?.ToString();
         }
 
         // internal DB data

@@ -1,6 +1,6 @@
 var smapi = smapi || {};
 var app;
-smapi.modList = function (mods, enableBeta) {
+smapi.modList = function (mods) {
     // init data
     var defaultStats = {
         total: 0,
@@ -18,7 +18,6 @@ smapi.modList = function (mods, enableBeta) {
         mods: mods,
         showAdvanced: false,
         visibleMainStats: $.extend({}, defaultStats),
-        visibleBetaStats: $.extend({}, defaultStats),
         filters: {
             source: {
                 value: {
@@ -27,7 +26,7 @@ smapi.modList = function (mods, enableBeta) {
                 }
             },
             status: {
-                label: enableBeta ? "main status" : "status",
+                label: "status",
                 value: {
                     // note: keys must match status returned by the API
                     ok: { value: true },
@@ -38,10 +37,6 @@ smapi.modList = function (mods, enableBeta) {
                     abandoned: { value: true },
                     obsolete: { value: true }
                 }
-            },
-            betaStatus: {
-                label: "beta status",
-                value: {} // cloned from status field if needed
             },
             download: {
                 value: {
@@ -65,17 +60,6 @@ smapi.modList = function (mods, enableBeta) {
         });
     });
 
-    // init beta filters
-    if (enableBeta) {
-        var filterGroup = data.filters.betaStatus;
-        $.extend(true, filterGroup.value, data.filters.status.value);
-        Object.entries(filterGroup.value).forEach(([filterKey, filter]) => {
-            filter.id = "beta_" + filter.id;
-        });
-    }
-    else
-        delete data.filters.betaStatus;
-
     // init mods
     for (var i = 0; i < data.mods.length; i++) {
         var mod = mods[i];
@@ -83,18 +67,10 @@ smapi.modList = function (mods, enableBeta) {
         // set initial visibility
         mod.Visible = true;
 
-        // set overall compatibility
-        mod.LatestCompatibility = mod.BetaCompatibility || mod.Compatibility;
-
         // concatenate searchable text
         mod.SearchableText = [mod.Name, mod.AlternateNames, mod.Author, mod.AlternateAuthors, mod.Compatibility.Summary, mod.BrokeIn];
         if (mod.Compatibility.UnofficialVersion)
             mod.SearchableText.push(mod.Compatibility.UnofficialVersion);
-        if (mod.BetaCompatibility) {
-            mod.SearchableText.push(mod.BetaCompatibility.Summary);
-            if (mod.BetaCompatibility.UnofficialVersion)
-                mod.SearchableText.push(mod.BetaCompatibility.UnofficialVersion);
-        }
         for (var p = 0; p < mod.ModPages; p++)
             mod.SearchableField.push(mod.ModPages[p].Text);
         mod.SearchableText = mod.SearchableText.join(" ").toLowerCase();
@@ -128,8 +104,7 @@ smapi.modList = function (mods, enableBeta) {
                 var words = data.search.toLowerCase().split(" ");
 
                 // apply criteria
-                var mainStats = data.visibleMainStats = $.extend({}, defaultStats);
-                var betaStats = data.visibleBetaStats = $.extend({}, defaultStats);
+                var stats = data.visibleMainStats = $.extend({}, defaultStats);
                 for (var i = 0; i < data.mods.length; i++) {
                     var mod = data.mods[i];
                     mod.Visible = true;
@@ -137,20 +112,15 @@ smapi.modList = function (mods, enableBeta) {
                     // check filters
                     mod.Visible = this.matchesFilters(mod, words);
                     if (mod.Visible) {
-                        mainStats.total++;
-                        betaStats.total++;
-
-                        mainStats[this.getCompatibilityGroup(mod.Compatibility.Status)]++;
-                        betaStats[this.getCompatibilityGroup(mod.LatestCompatibility.Status)]++;
+                        stats.total++;
+                        stats[this.getCompatibilityGroup(mod.Compatibility.Status)]++;
                     }
                 }
 
                 // add aggregate stats
-                for (let stats of [mainStats, betaStats]) {
-                    stats.percentCompatible = Math.round((stats.compatible + stats.workaround) / stats.total * 100);
-                    stats.percentBroken = Math.round((stats.soon + stats.broken) / stats.total * 100);
-                    stats.percentObsolete = Math.round(stats.abandoned / stats.total * 100);
-                }
+                stats.percentCompatible = Math.round((stats.compatible + stats.workaround) / stats.total * 100);
+                stats.percentBroken = Math.round((stats.soon + stats.broken) / stats.total * 100);
+                stats.percentObsolete = Math.round(stats.abandoned / stats.total * 100);
             },
 
             /**
@@ -189,13 +159,6 @@ smapi.modList = function (mods, enableBeta) {
                 var mainStatus = mod.Compatibility.Status;
                 if (filters.status.value[mainStatus] && !filters.status.value[mainStatus].value)
                     return false;
-
-                // check beta status
-                if (enableBeta) {
-                    var betaStatus = mod.LatestCompatibility.Status;
-                    if (filters.betaStatus.value[betaStatus] && !filters.betaStatus.value[betaStatus].value)
-                        return false;
-                }
 
                 // check download sites
                 var ignoreSites = [];

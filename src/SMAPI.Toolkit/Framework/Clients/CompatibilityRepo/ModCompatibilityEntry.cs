@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
-namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+namespace StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 
-/// <summary>A mod entry in the wiki list.</summary>
-public class WikiModEntry
+/// <summary>A mod entry in the compatibility list.</summary>
+public class ModCompatibilityEntry
 {
     /*********
     ** Accessors
@@ -28,9 +27,6 @@ public class WikiModEntry
     /// <summary>The mod ID in the CurseForge mod repo.</summary>
     public int? CurseForgeID { get; }
 
-    /// <summary>The mod key in the CurseForge mod repo (used in mod page URLs).</summary>
-    public string? CurseForgeKey { get; }
-
     /// <summary>The mod ID in the ModDrop mod repo.</summary>
     public int? ModDropID { get; }
 
@@ -47,30 +43,18 @@ public class WikiModEntry
     public string? ContentPackFor { get; }
 
     /// <summary>The mod's compatibility with the latest stable version of the game.</summary>
-    public WikiCompatibilityInfo Compatibility { get; }
-
-    /// <summary>The mod's compatibility with the latest beta version of the game (if any).</summary>
-    public WikiCompatibilityInfo? BetaCompatibility { get; }
-
-    /// <summary>Whether a Stardew Valley or SMAPI beta which affects mod compatibility is in progress. If this is true, <see cref="BetaCompatibility"/> should be used for beta versions of SMAPI instead of <see cref="Compatibility"/>.</summary>
-#if NET6_0_OR_GREATER
-    [MemberNotNullWhen(true, nameof(WikiModEntry.BetaCompatibility))]
-#endif
-    public bool HasBetaInfo => this.BetaCompatibility != null;
+    public ModCompatibilityInfo Compatibility { get; }
 
     /// <summary>The human-readable warnings for players about this mod.</summary>
     public string[] Warnings { get; }
-
-    /// <summary>The URL of the pull request which submits changes for an unofficial update to the author, if any.</summary>
-    public string? PullRequestUrl { get; }
 
     /// <summary>Special notes intended for developers who maintain unofficial updates or submit pull requests.</summary>
     public string? DevNote { get; }
 
     /// <summary>The data overrides to apply to the mod's manifest or remote mod page data, if any.</summary>
-    public WikiDataOverrideEntry? Overrides { get; }
+    public ModDataOverrideEntry? Overrides { get; }
 
-    /// <summary>The link anchor for the mod entry in the wiki compatibility list.</summary>
+    /// <summary>The link anchor for the mod entry in the compatibility list.</summary>
     public string? Anchor { get; }
 
 
@@ -84,20 +68,17 @@ public class WikiModEntry
     /// <param name="nexusId">The mod ID on Nexus.</param>
     /// <param name="chucklefishId">The mod ID in the Chucklefish mod repo.</param>
     /// <param name="curseForgeId">The mod ID in the CurseForge mod repo.</param>
-    /// <param name="curseForgeKey">The mod ID in the CurseForge mod repo.</param>
     /// <param name="modDropId">The mod ID in the ModDrop mod repo.</param>
     /// <param name="githubRepo">The GitHub repository in the form 'owner/repo'.</param>
     /// <param name="customSourceUrl">The URL to a non-GitHub source repo.</param>
     /// <param name="customUrl">The custom mod page URL (if applicable).</param>
     /// <param name="contentPackFor">The name of the mod which loads this content pack, if applicable.</param>
     /// <param name="compatibility">The mod's compatibility with the latest stable version of the game.</param>
-    /// <param name="betaCompatibility">The mod's compatibility with the latest beta version of the game (if any).</param>
     /// <param name="warnings">The human-readable warnings for players about this mod.</param>
-    /// <param name="pullRequestUrl">The URL of the pull request which submits changes for an unofficial update to the author, if any.</param>
     /// <param name="devNote">Special notes intended for developers who maintain unofficial updates or submit pull requests.</param>
     /// <param name="overrides">The data overrides to apply to the mod's manifest or remote mod page data, if any.</param>
-    /// <param name="anchor">The link anchor for the mod entry in the wiki compatibility list.</param>
-    public WikiModEntry(string[] id, string[] name, string[] author, int? nexusId, int? chucklefishId, int? curseForgeId, string? curseForgeKey, int? modDropId, string? githubRepo, string? customSourceUrl, string? customUrl, string? contentPackFor, WikiCompatibilityInfo compatibility, WikiCompatibilityInfo? betaCompatibility, string[] warnings, string? pullRequestUrl, string? devNote, WikiDataOverrideEntry? overrides, string? anchor)
+    /// <param name="anchor">The link anchor for the mod entry in the compatibility list.</param>
+    public ModCompatibilityEntry(string[] id, string[] name, string[] author, int? nexusId, int? chucklefishId, int? curseForgeId, int? modDropId, string? githubRepo, string? customSourceUrl, string? customUrl, string? contentPackFor, ModCompatibilityInfo compatibility, string[] warnings, string? devNote, ModDataOverrideEntry? overrides, string? anchor)
     {
         this.ID = id;
         this.Name = name;
@@ -105,16 +86,13 @@ public class WikiModEntry
         this.NexusID = nexusId;
         this.ChucklefishID = chucklefishId;
         this.CurseForgeID = curseForgeId;
-        this.CurseForgeKey = curseForgeKey;
         this.ModDropID = modDropId;
         this.GitHubRepo = githubRepo;
         this.CustomSourceUrl = customSourceUrl;
         this.CustomUrl = customUrl;
         this.ContentPackFor = contentPackFor;
         this.Compatibility = compatibility;
-        this.BetaCompatibility = betaCompatibility;
         this.Warnings = warnings;
-        this.PullRequestUrl = pullRequestUrl;
         this.DevNote = devNote;
         this.Overrides = overrides;
         this.Anchor = anchor;
@@ -136,10 +114,10 @@ public class WikiModEntry
             anyFound = true;
             yield return new KeyValuePair<ModSiteKey, string>(ModSiteKey.ModDrop, $"https://www.moddrop.com/stardew-valley/mod/{this.ModDropID}");
         }
-        if (!string.IsNullOrWhiteSpace(this.CurseForgeKey))
+        if (this.CurseForgeID.HasValue)
         {
             anyFound = true;
-            yield return new KeyValuePair<ModSiteKey, string>(ModSiteKey.CurseForge, $"https://www.curseforge.com/stardewvalley/mods/{this.CurseForgeKey}");
+            yield return new KeyValuePair<ModSiteKey, string>(ModSiteKey.CurseForge, $"https://www.curseforge.com/projects/{this.CurseForgeID}");
         }
         if (this.ChucklefishID.HasValue)
         {

@@ -123,8 +123,8 @@ public class DeployModTask : Task
             ExtraAssemblyTypes bundleAssemblyTypes = this.GetExtraAssembliesToBundleOption();
 
             // parse ignore patterns
-            string[] ignoreFilePaths = this.GetCustomIgnoreFilePaths(this.IgnoreModFilePatterns).ToArray();
-            Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns(this.IgnoreModFilePaths).ToArray();
+            string[] ignoreFilePaths = this.GetCustomIgnoreFilePaths(this.IgnoreModFilePaths).ToArray();
+            Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns(this.IgnoreModFilePatterns).ToArray();
 
             var modPackages = new Dictionary<string, IModFileManager>
             {
@@ -149,8 +149,8 @@ public class DeployModTask : Task
                     string version = item.GetMetadata("Version");
 
                     // get options
-                    ignoreFilePaths = this.GetCustomIgnoreFilePaths(item.GetMetadata("IgnoreModFilePatterns")).ToArray();
-                    ignoreFilePatterns = this.GetCustomIgnorePatterns(this.IgnoreModFilePaths).ToArray();
+                    ignoreFilePaths = this.GetCustomIgnoreFilePaths(item.GetMetadata("IgnoreModFilePaths")).ToArray();
+                    ignoreFilePatterns = this.GetCustomIgnorePatterns(item.GetMetadata("IgnoreModFilePatterns")).ToArray();
                     string rawValidateManifest = item.GetMetadata("ValidateManifest");
                     bool validateManifest = string.IsNullOrEmpty(rawValidateManifest) || bool.Parse(rawValidateManifest);
 

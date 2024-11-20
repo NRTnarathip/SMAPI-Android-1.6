@@ -54,7 +54,7 @@ internal static class EarlyConstants
     internal static int? LogScreenId { get; set; }
 
     /// <summary>SMAPI's current raw semantic version.</summary>
-    internal static string RawApiVersion = "4.1.5";
+    internal static string RawApiVersion = "4.1.7";
 }
 
 /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -70,7 +70,7 @@ public static class Constants
     public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion(EarlyConstants.RawApiVersion);
 
     /// <summary>The minimum supported version of Stardew Valley.</summary>
-    public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.6.10");
+    public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.6.14");
 
     /// <summary>The minimum supported Stardew Valley build number, or <c>null</c> for any build of <see cref="MinimumGameVersion"/>.</summary>
     public static int? MinimumGameBuild { get; } = null;

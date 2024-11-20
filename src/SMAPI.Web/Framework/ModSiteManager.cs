@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using StardewModdingAPI.Toolkit;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients;
 

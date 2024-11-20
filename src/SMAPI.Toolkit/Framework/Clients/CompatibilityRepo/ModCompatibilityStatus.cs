@@ -1,7 +1,7 @@
-namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+namespace StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 
 /// <summary>The compatibility status for a mod.</summary>
-public enum WikiCompatibilityStatus
+public enum ModCompatibilityStatus
 {
     /// <summary>The status is unknown.</summary>
     Unknown,

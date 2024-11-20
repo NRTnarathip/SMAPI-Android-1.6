@@ -7,7 +7,7 @@ repo. It imports the other MSBuild files as needed.
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>4.1.5</Version>
+    <Version>4.1.7</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>

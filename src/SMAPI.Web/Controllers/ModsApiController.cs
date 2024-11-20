@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Caching;
+using StardewModdingAPI.Web.Framework.Caching.CompatibilityRepo;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
-using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.CurseForge;
@@ -39,8 +39,8 @@ internal class ModsApiController : Controller
     /// <summary>The mod sites which provide mod metadata.</summary>
     private readonly ModSiteManager ModSites;
 
-    /// <summary>The cache in which to store wiki data.</summary>
-    private readonly IWikiCacheRepository WikiCache;
+    /// <summary>The cache in which to store compatibility list data.</summary>
+    private readonly ICompatibilityCacheRepository CompatibilityCache;
 
     /// <summary>The cache in which to store mod data.</summary>
     private readonly IModCacheRepository ModCache;
@@ -57,7 +57,7 @@ internal class ModsApiController : Controller
     *********/
     /// <summary>Construct an instance.</summary>
     /// <param name="environment">The web hosting environment.</param>
-    /// <param name="wikiCache">The cache in which to store wiki data.</param>
+    /// <param name="compatibilityCache">The cache in which to store compatibility list data.</param>
     /// <param name="modCache">The cache in which to store mod metadata.</param>
     /// <param name="config">The config settings for mod update checks.</param>
     /// <param name="chucklefish">The Chucklefish API client.</param>
@@ -66,11 +66,11 @@ internal class ModsApiController : Controller
     /// <param name="modDrop">The ModDrop API client.</param>
     /// <param name="nexus">The Nexus API client.</param>
     /// <param name="updateManifest">The API client for arbitrary update manifest URLs.</param>
-    public ModsApiController(IWebHostEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> config, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus, IUpdateManifestClient updateManifest)
+    public ModsApiController(IWebHostEnvironment environment, ICompatibilityCacheRepository compatibilityCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> config, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus, IUpdateManifestClient updateManifest)
     {
         this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "SMAPI.metadata.json"));
 
-        this.WikiCache = wikiCache;
+        this.CompatibilityCache = compatibilityCache;
         this.ModCache = modCache;
         this.Config = config;
         this.ModSites = new ModSiteManager(new IModSiteClient[] { chucklefish, curseForge, github, modDrop, nexus, updateManifest });
@@ -90,8 +90,8 @@ internal class ModsApiController : Controller
 
         ModUpdateCheckConfig config = this.Config.Value;
 
-        // fetch wiki data
-        WikiModEntry[] wikiData = this.WikiCache.GetWikiMods().Select(p => p.Data).ToArray();
+        // fetch compatibility list
+        ModCompatibilityEntry[] compatibilityList = this.CompatibilityCache.GetMods().Select(p => p.Data).ToArray();
         IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
         foreach (ModSearchEntryModel mod in model.Mods)
         {
@@ -103,7 +103,7 @@ internal class ModsApiController : Controller
                 mod.AddUpdateKeys(config.SmapiInfo.AddBetaUpdateKeys);
 
             // fetch result
-            ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata, model.ApiVersion, metrics);
+            ModEntryModel result = await this.GetModData(mod, compatibilityList, model.IncludeExtendedMetadata, model.ApiVersion, metrics);
             if (!model.IncludeExtendedMetadata && (model.ApiVersion == null || mod.InstalledVersion == null))
             {
                 result.Errors = result.Errors
@@ -131,17 +131,17 @@ internal class ModsApiController : Controller
     *********/
     /// <summary>Get the metadata for a mod.</summary>
     /// <param name="search">The mod data to match.</param>
-    /// <param name="wikiData">The wiki data.</param>
+    /// <param name="compatibilityList">The compatibility list.</param>
     /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
     /// <param name="apiVersion">The SMAPI version installed by the player.</param>
     /// <param name="metrics">The metrics to update with update-check results.</param>
     /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
-    private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata, ISemanticVersion? apiVersion, ApiMetricsModel metrics)
+    private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, ModCompatibilityEntry[] compatibilityList, bool includeExtendedMetadata, ISemanticVersion? apiVersion, ApiMetricsModel metrics)
     {
         // cross-reference data
         ModDataRecord? record = this.ModDatabase.Get(search.ID);
-        WikiModEntry? wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.OrdinalIgnoreCase));
-        UpdateKey[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
+        ModCompatibilityEntry? compatEntry = compatibilityList.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.OrdinalIgnoreCase));
+        UpdateKey[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, compatEntry).ToArray();
         ModOverrideConfig? overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID.Trim(), StringComparison.OrdinalIgnoreCase));
         bool allowNonStandardVersions = overrides?.AllowNonStandardVersions ?? false;
 
@@ -155,7 +155,6 @@ internal class ModsApiController : Controller
         ModEntryVersionModel? main = null;
         ModEntryVersionModel? optional = null;
         ModEntryVersionModel? unofficial = null;
-        ModEntryVersionModel? unofficialForBeta = null;
         foreach (UpdateKey updateKey in updateKeys)
         {
             // validate update key
@@ -166,7 +165,7 @@ internal class ModsApiController : Controller
             }
 
             // fetch data
-            ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey, allowNonStandardVersions, wikiEntry?.Overrides?.ChangeRemoteVersions, metrics);
+            ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey, allowNonStandardVersions, compatEntry?.Overrides?.ChangeRemoteVersions, metrics);
             if (data.Status != RemoteModStatus.Ok)
             {
                 errors.Add(data.Error ?? data.Status.ToString());
@@ -194,24 +193,8 @@ internal class ModsApiController : Controller
         }
 
         // get unofficial version
-        if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, optional?.Version))
-            unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{wikiEntry.Anchor}");
-
-        // get unofficial version for beta
-        if (wikiEntry is { HasBetaInfo: true })
-        {
-            if (wikiEntry.BetaCompatibility.Status == WikiCompatibilityStatus.Unofficial)
-            {
-                if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
-                {
-                    unofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, optional?.Version))
-                        ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{wikiEntry.Anchor}")
-                        : null;
-                }
-                else
-                    unofficialForBeta = unofficial;
-            }
-        }
+        if (compatEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(compatEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(compatEntry.Compatibility.UnofficialVersion, optional?.Version))
+            unofficial = new ModEntryVersionModel(compatEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{compatEntry.Anchor}");
 
         // fallback to preview if latest is invalid
         if (main == null && optional != null)
@@ -230,7 +213,7 @@ internal class ModsApiController : Controller
         }
 
         // get recommended update (if any)
-        ISemanticVersion? installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.Overrides?.ChangeLocalVersions, allowNonStandard: allowNonStandardVersions);
+        ISemanticVersion? installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), compatEntry?.Overrides?.ChangeLocalVersions, allowNonStandard: allowNonStandardVersions);
         if (apiVersion != null && installedVersion != null)
         {
             // get newer versions
@@ -241,8 +224,6 @@ internal class ModsApiController : Controller
                 updates.Add(optional);
             if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: true))
                 updates.Add(unofficial);
-            if (this.IsRecommendedUpdate(installedVersion, unofficialForBeta?.Version, useBetaChannel: apiVersion.IsPrerelease()))
-                updates.Add(unofficialForBeta);
 
             // get newest version
             ModEntryVersionModel? newest = null;
@@ -260,7 +241,7 @@ internal class ModsApiController : Controller
 
         // add extended metadata
         if (includeExtendedMetadata)
-            result.Metadata = new ModExtendedMetadataModel(wikiEntry, record, main: main, optional: optional, unofficial: unofficial, unofficialForBeta: unofficialForBeta);
+            result.Metadata = new ModExtendedMetadataModel(compatEntry, record, main: main, optional: optional, unofficial: unofficial);
 
         // add result
         result.Errors = errors.ToArray();
@@ -320,8 +301,8 @@ internal class ModsApiController : Controller
     /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>
     /// <param name="specifiedKeys">The specified update keys.</param>
     /// <param name="record">The mod's entry in SMAPI's internal database.</param>
-    /// <param name="entry">The mod's entry in the wiki list.</param>
-    private IEnumerable<UpdateKey> GetUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, WikiModEntry? entry)
+    /// <param name="entry">The mod's entry in the compatibility list.</param>
+    private IEnumerable<UpdateKey> GetUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, ModCompatibilityEntry? entry)
     {
         // get unique update keys
         List<UpdateKey> updateKeys = this.GetUnfilteredUpdateKeys(specifiedKeys, record, entry)
@@ -329,7 +310,7 @@ internal class ModsApiController : Controller
             .Distinct()
             .ToList();
 
-        // apply overrides from wiki
+        // apply overrides from compatibility list
         if (entry?.Overrides?.ChangeUpdateKeys?.HasChanges == true)
         {
             List<string> newKeys = updateKeys.Select(p => p.ToString()).ToList();
@@ -355,8 +336,8 @@ internal class ModsApiController : Controller
     /// <summary>Get every available update key based on the available mod metadata, including duplicates and keys which should be filtered.</summary>
     /// <param name="specifiedKeys">The specified update keys.</param>
     /// <param name="record">The mod's entry in SMAPI's internal database.</param>
-    /// <param name="entry">The mod's entry in the wiki list.</param>
-    private IEnumerable<string> GetUnfilteredUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, WikiModEntry? entry)
+    /// <param name="entry">The mod's entry in the compatibility list.</param>
+    private IEnumerable<string> GetUnfilteredUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, ModCompatibilityEntry? entry)
     {
         // specified update keys
         foreach (string key in specifiedKeys ?? Array.Empty<string>())
@@ -372,7 +353,7 @@ internal class ModsApiController : Controller
                 yield return defaultKey;
         }
 
-        // wiki metadata
+        // compatibility list metadata
         if (entry != null)
         {
             if (entry.NexusID.HasValue)

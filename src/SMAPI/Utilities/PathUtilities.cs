@@ -61,6 +61,15 @@ public static class PathUtilities
         return ToolkitPathUtilities.IsSafeRelativePath(path);
     }
 
+    /// <summary>Create a 'slug' containing only basic characters that are safe in all contexts (e.g. filenames, URLs, etc).</summary>
+    /// <param name="input">The string to represent.</param>
+    [Pure]
+    [return: NotNullIfNotNull("input")]
+    public static string? CreateSlug(string? input)
+    {
+        return ToolkitPathUtilities.CreateSlug(input);
+    }
+
     /// <summary>Get whether a string is a valid 'slug', containing only basic characters that are safe in all contexts (e.g. filenames, URLs, etc).</summary>
     /// <param name="str">The string to check.</param>
     [Pure]

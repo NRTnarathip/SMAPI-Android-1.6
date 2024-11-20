@@ -16,6 +16,7 @@ internal class SConfig
     private static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>
     {
         [nameof(CheckForUpdates)] = true,
+        [nameof(CheckContentIntegrity)] = true,
         [nameof(ListenForConsoleInput)] = true,
         [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
         [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
@@ -49,6 +50,9 @@ internal class SConfig
 
     /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
     public bool CheckForUpdates { get; set; }
+
+    /// <summary>Whether SMAPI should check whether the content files are present and unmodified.</summary>
+    public bool CheckContentIntegrity { get; set; }
 
     /// <summary>Whether SMAPI should listen for console input to support console commands.</summary>
     public bool ListenForConsoleInput { get; set; }
@@ -106,6 +110,7 @@ internal class SConfig
     /// <summary>Construct an instance.</summary>
     /// <param name="developerMode"><inheritdoc cref="DeveloperMode" path="/summary" /></param>
     /// <param name="checkForUpdates"><inheritdoc cref="CheckForUpdates" path="/summary" /></param>
+    /// <param name="checkContentIntegrity"><inheritdoc cref="CheckContentIntegrity" path="/summary" /></param>
     /// <param name="listenForConsoleInput"><inheritdoc cref="ListenForConsoleInput" path="/summary" /></param>
     /// <param name="paranoidWarnings"><inheritdoc cref="ParanoidWarnings" path="/summary" /></param>
     /// <param name="useBetaChannel"><inheritdoc cref="UseBetaChannel" path="/summary" /></param>
@@ -122,10 +127,11 @@ internal class SConfig
     /// <param name="suppressUpdateChecks"><inheritdoc cref="SuppressUpdateChecks" path="/summary" /></param>
     /// <param name="modsToLoadEarly"><inheritdoc cref="ModsToLoadEarly" path="/summary" /></param>
     /// <param name="modsToLoadLate"><inheritdoc cref="ModsToLoadLate" path="/summary" /></param>
-    public SConfig(bool developerMode, bool? checkForUpdates, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? fixHarmony, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, bool? logTechnicalDetailsForBrokenMods, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadEarly, string[]? modsToLoadLate)
+    public SConfig(bool developerMode, bool? checkForUpdates, bool? checkContentIntegrity, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? fixHarmony, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, bool? logTechnicalDetailsForBrokenMods, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadEarly, string[]? modsToLoadLate)
     {
         this.DeveloperMode = developerMode;
         this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
+        this.CheckContentIntegrity = checkContentIntegrity ?? (bool)SConfig.DefaultValues[nameof(this.CheckContentIntegrity)];
         this.ListenForConsoleInput = listenForConsoleInput ?? (bool)SConfig.DefaultValues[nameof(this.ListenForConsoleInput)];
         this.ParanoidWarnings = paranoidWarnings ?? (bool)SConfig.DefaultValues[nameof(this.ParanoidWarnings)];
         this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(this.UseBetaChannel)];

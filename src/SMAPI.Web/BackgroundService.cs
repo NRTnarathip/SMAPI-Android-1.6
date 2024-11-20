@@ -11,16 +11,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.Clients.CurseForgeExport;
 using StardewModdingAPI.Toolkit.Framework.Clients.ModDropExport;
 using StardewModdingAPI.Toolkit.Framework.Clients.NexusExport;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Web.Framework.Caching;
+using StardewModdingAPI.Web.Framework.Caching.CompatibilityRepo;
 using StardewModdingAPI.Web.Framework.Caching.CurseForgeExport;
 using StardewModdingAPI.Web.Framework.Caching.ModDropExport;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.NexusExport;
-using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -38,8 +38,8 @@ internal class BackgroundService : IHostedService, IDisposable
     /// <summary>The background task server.</summary>
     private static BackgroundJobServer? JobServer;
 
-    /// <summary>The cache in which to store wiki metadata.</summary>
-    private static IWikiCacheRepository? WikiCache;
+    /// <summary>The cache in which to store compatibility list data.</summary>
+    private static ICompatibilityCacheRepository? CompatibilityCache;
 
     /// <summary>The cache in which to store mod data.</summary>
     private static IModCacheRepository? ModCache;
@@ -69,14 +69,14 @@ internal class BackgroundService : IHostedService, IDisposable
     [MemberNotNullWhen(true,
         nameof(BackgroundService.JobServer),
         nameof(BackgroundService.ModCache),
+        nameof(BackgroundService.CompatibilityCache),
         nameof(BackgroundService.CurseForgeExportApiClient),
         nameof(BackgroundService.CurseForgeExportCache),
         nameof(BackgroundService.ModDropExportApiClient),
         nameof(BackgroundService.ModDropExportCache),
         nameof(BackgroundService.NexusExportApiClient),
         nameof(BackgroundService.NexusExportCache),
-        nameof(BackgroundService.UpdateCheckConfig),
-        nameof(BackgroundService.WikiCache)
+        nameof(BackgroundService.UpdateCheckConfig)
     )]
     private static bool IsStarted { get; set; }
 
@@ -91,7 +91,7 @@ internal class BackgroundService : IHostedService, IDisposable
     ** Hosted service
     ****/
     /// <summary>Construct an instance.</summary>
-    /// <param name="wikiCache">The cache in which to store wiki metadata.</param>
+    /// <param name="compatibilityCache">The cache in which to store compatibility list data.</param>
     /// <param name="modCache">The cache in which to store mod data.</param>
     /// <param name="curseForgeExportCache">The cache in which to store mod data from the CurseForge export API.</param>
     /// <param name="curseForgeExportApiClient">The HTTP client for fetching the mod export from the CurseForge export API.</param>
@@ -103,7 +103,7 @@ internal class BackgroundService : IHostedService, IDisposable
     /// <param name="updateCheckConfig">The config settings for mod update checks.</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "The Hangfire reference forces it to initialize first, since it's needed by the background service.")]
     public BackgroundService(
-        IWikiCacheRepository wikiCache,
+        ICompatibilityCacheRepository compatibilityCache,
         IModCacheRepository modCache,
         ICurseForgeExportCacheRepository curseForgeExportCache,
         ICurseForgeExportApiClient curseForgeExportApiClient,
@@ -115,7 +115,7 @@ internal class BackgroundService : IHostedService, IDisposable
         IOptions<ModUpdateCheckConfig> updateCheckConfig
     )
     {
-        BackgroundService.WikiCache = wikiCache;
+        BackgroundService.CompatibilityCache = compatibilityCache;
         BackgroundService.ModCache = modCache;
         BackgroundService.CurseForgeExportApiClient = curseForgeExportApiClient;
         BackgroundService.CurseForgeExportCache = curseForgeExportCache;
@@ -139,7 +139,7 @@ internal class BackgroundService : IHostedService, IDisposable
         bool enableNexusExport = BackgroundService.NexusExportApiClient is not DisabledNexusExportApiClient;
 
         // set startup tasks
-        BackgroundJob.Enqueue(() => BackgroundService.UpdateWikiAsync(null));
+        BackgroundJob.Enqueue(() => BackgroundService.UpdateCompatibilityListAsync(null));
         if (enableCurseForgeExport)
             BackgroundJob.Enqueue(() => BackgroundService.UpdateCurseForgeExportAsync(null));
         if (enableModDropExport)
@@ -149,7 +149,7 @@ internal class BackgroundService : IHostedService, IDisposable
         BackgroundJob.Enqueue(() => BackgroundService.RemoveStaleModsAsync());
 
         // set recurring tasks
-        RecurringJob.AddOrUpdate("update wiki data", () => BackgroundService.UpdateWikiAsync(null), "*/10 * * * *");      // every 10 minutes
+        RecurringJob.AddOrUpdate("update compatibility list", () => BackgroundService.UpdateCompatibilityListAsync(null), "*/10 * * * *");      // every 10 minutes
         if (enableCurseForgeExport)
             RecurringJob.AddOrUpdate("update CurseForge export", () => BackgroundService.UpdateCurseForgeExportAsync(null), "*/10 * * * *");
         if (enableModDropExport)
@@ -184,19 +184,19 @@ internal class BackgroundService : IHostedService, IDisposable
     /****
     ** Tasks
     ****/
-    /// <summary>Update the cached wiki metadata.</summary>
+    /// <summary>Update the cached compatibility list data.</summary>
     /// <param name="context">Information about the context in which the job is performed. This is injected automatically by Hangfire.</param>
     [AutomaticRetry(Attempts = 3, DelaysInSeconds = [30, 60, 120])]
-    public static async Task UpdateWikiAsync(PerformContext? context)
+    public static async Task UpdateCompatibilityListAsync(PerformContext? context)
     {
         if (!BackgroundService.IsStarted)
             throw new InvalidOperationException($"Must call {nameof(BackgroundService.StartAsync)} before scheduling tasks.");
 
-        context.WriteLine("Fetching data from wiki...");
-        WikiModList wikiCompatList = await new ModToolkit().GetWikiCompatibilityListAsync();
+        context.WriteLine("Fetching data from compatibility repo...");
+        ModCompatibilityEntry[] compatList = await new ModToolkit().GetCompatibilityListAsync();
 
         context.WriteLine("Saving data...");
-        BackgroundService.WikiCache.SaveWikiData(wikiCompatList.StableVersion, wikiCompatList.BetaVersion, wikiCompatList.Mods);
+        BackgroundService.CompatibilityCache.SaveData(compatList);
 
         context.WriteLine("Done!");
     }

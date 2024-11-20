@@ -21,6 +21,7 @@ This assumes `find-game-folder.targets` has already been imported and validated.
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
     <Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />
+    <Copy SourceFiles="$(TargetDir)\Markdig.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Pintail.dll" DestinationFolder="$(GamePath)\smapi-internal" />

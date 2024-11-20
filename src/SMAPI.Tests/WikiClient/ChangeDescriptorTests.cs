@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 using StardewModdingAPI;
-using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 
 namespace SMAPI.Tests.WikiClient;
 

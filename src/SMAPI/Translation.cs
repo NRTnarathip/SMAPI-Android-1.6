@@ -213,8 +213,11 @@ public class Translation
             }
 
             // apply gender switches
-            Gender gender = this.ForceGender?.Invoke() ?? Game1.player?.Gender ?? default;
-            text = Dialogue.applyGenderSwitchBlocks(gender, text);
+            if (this.ShouldApplyGenderSwitchBlocks)
+            {
+                Gender gender = this.ForceGender?.Invoke() ?? Game1.player?.Gender ?? default;
+                text = Dialogue.applyGenderSwitchBlocks(gender, text);
+            }
         }
 
         return text;

@@ -6,6 +6,6 @@ internal class ModCompatibilityListConfig
     /*********
     ** Accessors
     *********/
-    /// <summary>The number of minutes before which wiki data should be considered old.</summary>
+    /// <summary>The number of minutes before which compatibility list data should be considered old.</summary>
     public int StaleMinutes { get; set; }
 }

@@ -6,9 +6,6 @@
     ViewData["Title"] = "Mod compatibility";
 
     TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
-
-    bool hasBeta = Model.BetaVersion != null;
-    string betaLabel = $"SDV {Model.BetaVersion} only";
 }
 @section Head {
     <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/mods.css")" />
@@ -19,8 +16,7 @@
     <script>
         $(function() {
             var data = @(this.ForJson(Model.Mods));
-            var enableBeta = @this.ForJson(hasBeta);
-            smapi.modList(data, enableBeta);
+            smapi.modList(data);
         });
     </script>
 }
@@ -33,19 +29,14 @@ else
 {
     @if (Model.IsStale)
     {
-        <div class="error">Showing data from @staleAge.Humanize(maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute) ago. (Couldn't fetch newer data; the wiki API may be offline.)</div>
+        <div class="error">Showing data from @staleAge.Humanize(maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute) ago. (Couldn't fetch newer data; the GitHub API may be offline.)</div>
     }
 
     <div id="app">
         <div id="intro">
-            <p>This page shows all known SMAPI mods and (incompatible) content packs, whether they work with the latest versions of Stardew Valley and SMAPI, and how to fix them if not. If a mod doesn't work after following the instructions below, check <a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting">the troubleshooting guide</a> or <a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#Ask_for_help">ask for help</a>.</p>
+            <p>This page shows all known SMAPI mods and (incompatible) content packs, whether they work with the latest versions of Stardew Valley and SMAPI, and how to fix them if not. If a mod doesn't work after following the instructions below, check <a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting">the troubleshooting guide</a> or <a href="https://stardewvalleywiki.com/Modding:Help">ask for help</a>.</p>
 
-            <p>The list is updated every few days (you can help <a href="https://stardewvalleywiki.com/Modding:Mod_compatibility">update it</a>!). It doesn't include XNB mods (see <a href="https://stardewvalleywiki.com/Modding:Using_XNB_mods"><em>using XNB mods</em> on the wiki</a> instead) or compatible content packs.</p>
-
-            @if (hasBeta)
-            {
-                <p id="beta-blurb"><strong>Note:</strong> "@betaLabel" lines are for the beta version of Stardew Valley, not the stable version most players have. If a mod doesn't have that line, the info applies to both versions.</p>
-            }
+            <p>The list is updated regularly (<a href="https://github.com/Pathoschild/SmapiCompatibilityList#readme">you can help update it</a>!). It doesn't include XNB mods (see <a href="https://stardewvalleywiki.com/Modding:Using_XNB_mods"><em>using XNB mods</em> on the wiki</a> instead) or compatible content packs.</p>
         </div>
 
         <div id="options">
@@ -67,12 +58,6 @@ else
             <div v-if="visibleMainStats.total > 0">
                 {{visibleMainStats.total}} mods shown ({{visibleMainStats.percentCompatible}}% compatible or have a workaround, {{visibleMainStats.percentBroken}}% broken, {{visibleMainStats.percentObsolete}}% obsolete).
             </div>
-            @if (hasBeta)
-            {
-                <div v-if="visibleBetaStats.total > 0">
-                    <strong>@betaLabel</strong>: {{visibleBetaStats.total}} mods shown ({{visibleBetaStats.percentCompatible}}% compatible or have a workaround, {{visibleBetaStats.percentBroken}}% broken, {{visibleBetaStats.percentObsolete}}% obsolete).
-                </div>
-            }
             <span v-else>No matching mods found.</span>
         </div>
         <table class="wikitable" id="mod-list">
@@ -104,13 +89,9 @@ else
                     </td>
                     <td>
                         <div v-html="mod.Compatibility.Summary"></div>
-                        <div v-if="mod.BetaCompatibility">
-                            <strong v-if="mod.BetaCompatibility">@betaLabel:</strong>
-                            <span v-html="mod.BetaCompatibility.Summary"></span>
-                        </div>
                         <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
                     </td>
-                    <td class="mod-broke-in" v-html="mod.LatestCompatibility.BrokeIn" v-show="showAdvanced"></td>
+                    <td class="mod-broke-in" v-html="mod.Compatibility.BrokeIn" v-show="showAdvanced"></td>
                     <td v-show="showAdvanced">
                         <span v-if="mod.SourceUrl">
                             <a v-bind:href="mod.SourceUrl">source</a>
@@ -125,7 +106,6 @@ else
                         <small>
                             <a v-bind:href="'#' + mod.Slug">#</a>
                             <span v-show="showAdvanced">
-                                <a v-bind:href="mod.PullRequestUrl" v-if="mod.PullRequestUrl">PR</a>
                                 <abbr v-bind:title="mod.DevNote" v-if="mod.DevNote">[dev note]</abbr>
                             </span>
                         </small>

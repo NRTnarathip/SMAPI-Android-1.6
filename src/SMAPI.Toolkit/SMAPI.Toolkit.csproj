@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" />
+    <PackageReference Include="Markdig" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Pathoschild.Http.FluentClient" />
     <PackageReference Include="System.Management" Condition="'$(OS)' == 'Windows_NT'" />

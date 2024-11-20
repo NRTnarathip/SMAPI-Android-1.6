@@ -20,6 +20,7 @@ using StardewValley.GameData.FishPonds;
 using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.GameData.Movies;
 using StardewValley.GameData.SpecialOrders;
+using StardewValley.Internal;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Minigames;
@@ -34,8 +35,8 @@ using StardewValley.SpecialOrders.Objectives;
 using StardewValley.SpecialOrders.Rewards;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using StardewValley.WorldMaps;
 using xTile.Layers;
-using static StardewValley.Projectiles.BasicProjectile;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Metadata;
@@ -227,6 +228,7 @@ internal class InstructionMetadata
                 .MapFacade<IClickableMenu, IClickableMenuFacade>()
                 .MapFacade<IslandWest, IslandWestFacade>()
                 .MapFacade<Item, ItemFacade>()
+                .MapFacade<ItemQueryContext, ItemQueryContextFacade>()
                 .MapFacade<JunimoHut, JunimoHutFacade>()
                 .MapFacade<LargeTerrainFeature, LargeTerrainFeatureFacade>()
                 .MapFacade<Layer, LayerFacade>()
@@ -265,6 +267,7 @@ internal class InstructionMetadata
                 .MapFacade<Wallpaper, WallpaperFacade>()
                 .MapFacade<WateringCan, WateringCanFacade>()
                 .MapFacade<WorldDate, WorldDateFacade>()
+                .MapFacade(typeof(WorldMapManager).FullName!, typeof(WorldMapManagerFacade))
 
 #if SMAPI_FOR_ANDROID
                 //Map Method For Android Only

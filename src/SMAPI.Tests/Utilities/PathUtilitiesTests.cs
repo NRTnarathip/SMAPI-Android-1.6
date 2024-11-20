@@ -15,7 +15,7 @@ internal class PathUtilitiesTests
     ** Sample data
     *********/
     /// <summary>Sample paths used in unit tests.</summary>
-    public static readonly SamplePath[] SamplePaths = {
+    public static readonly SamplePath[] SamplePaths = [
         // Windows absolute path
         new(
             OriginalPath: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
@@ -136,7 +136,7 @@ internal class PathUtilitiesTests
             NormalizedOnWindows: @"C:\some\mixed\path\separators",
             NormalizedOnUnix: @"C:/some/mixed/path/separators"
         )
-    };
+    ];
 
 
     /*********
@@ -145,7 +145,7 @@ internal class PathUtilitiesTests
     /****
     ** GetSegments
     ****/
-    [Test(Description = "Assert that PathUtilities.GetSegments splits paths correctly.")]
+    [Test(Description = $"Assert that {nameof(PathUtilities.GetSegments)} splits paths correctly.")]
     [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
     public void GetSegments(SamplePath path)
     {
@@ -158,7 +158,7 @@ internal class PathUtilitiesTests
             .And.ContainInOrder(segments);
     }
 
-    [Test(Description = "Assert that PathUtilities.GetSegments splits paths correctly when given a limit.")]
+    [Test(Description = $"Assert that {nameof(PathUtilities.GetSegments)} splits paths correctly when given a limit.")]
     [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
     public void GetSegments_WithLimit(SamplePath path)
     {
@@ -174,7 +174,7 @@ internal class PathUtilitiesTests
     /****
     ** NormalizeAssetName
     ****/
-    [Test(Description = "Assert that PathUtilities.NormalizeAssetName normalizes paths correctly.")]
+    [Test(Description = $"Assert that {nameof(PathUtilities.NormalizeAssetName)} normalizes paths correctly.")]
     [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
     public void NormalizeAssetName(SamplePath path)
     {
@@ -191,7 +191,7 @@ internal class PathUtilitiesTests
     /****
     ** NormalizePath
     ****/
-    [Test(Description = "Assert that PathUtilities.NormalizePath normalizes paths correctly.")]
+    [Test(Description = $"Assert that {nameof(PathUtilities.NormalizePath)} normalizes paths correctly.")]
     [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
     public void NormalizePath(SamplePath path)
     {
@@ -211,7 +211,7 @@ internal class PathUtilitiesTests
     /****
     ** GetRelativePath
     ****/
-    [Test(Description = "Assert that PathUtilities.GetRelativePath returns the expected values.")]
+    [Test(Description = $"Assert that {nameof(PathUtilities.GetRelativePath)} returns the expected values.")]
 #if SMAPI_FOR_WINDOWS
     [TestCase(
         @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
@@ -273,6 +273,64 @@ internal class PathUtilitiesTests
     public string GetRelativePath(string sourceDir, string targetPath)
     {
         return PathUtilities.GetRelativePath(sourceDir, targetPath);
+    }
+
+    /****
+    ** IsSlug
+    ****/
+    [Test(Description = $"Assert that {nameof(PathUtilities.IsSlug)} returns the expected values.")]
+    [TestCase("example", ExpectedResult = true)]
+    [TestCase("example2", ExpectedResult = true)]
+    [TestCase("ex-ample", ExpectedResult = true)]
+    [TestCase("ex_ample", ExpectedResult = true)]
+    [TestCase("ex.ample", ExpectedResult = true)]
+    [TestCase("ex-ample---text", ExpectedResult = true)]
+    [TestCase("eXAMple", ExpectedResult = true)]
+    [TestCase("example-例子-text", ExpectedResult = true)]
+
+    [TestCase("  example", ExpectedResult = false)]
+    [TestCase("example  ", ExpectedResult = false)]
+    [TestCase("exa  mple", ExpectedResult = false)]
+    [TestCase("exa - mple", ExpectedResult = false)]
+    [TestCase("exam!ple", ExpectedResult = false)]
+    [TestCase("example?", ExpectedResult = false)]
+    [TestCase("#example", ExpectedResult = false)]
+    [TestCase("example~", ExpectedResult = false)]
+    [TestCase("example/", ExpectedResult = false)]
+    [TestCase("example\\", ExpectedResult = false)]
+    [TestCase("example|", ExpectedResult = false)]
+    public bool IsSlug(string input)
+    {
+        return PathUtilities.IsSlug(input);
+    }
+
+    /****
+    ** GetSlug
+    ****/
+    [Test(Description = $"Assert that {nameof(PathUtilities.CreateSlug)} returns the expected values.")]
+    [TestCase("example", ExpectedResult = "example")]
+    [TestCase("example2", ExpectedResult = "example2")]
+    [TestCase("ex-ample", ExpectedResult = "ex-ample")]
+    [TestCase("ex_ample", ExpectedResult = "ex_ample")]
+    [TestCase("ex.ample", ExpectedResult = "ex.ample")]
+    [TestCase("ex-ample---text", ExpectedResult = "ex-ample---text")]
+    [TestCase("eXAMple", ExpectedResult = "eXAMple")]
+    [TestCase("example-例子-text", ExpectedResult = "example-例子-text")]
+
+    [TestCase("  example", ExpectedResult = "example")]
+    [TestCase("example  ", ExpectedResult = "example-")]
+    [TestCase("exa  mple", ExpectedResult = "exa-mple")]
+    [TestCase("exa - mple", ExpectedResult = "exa-mple")]
+    [TestCase("exam!ple", ExpectedResult = "exam-ple")]
+    [TestCase("example?", ExpectedResult = "example-")]
+    [TestCase("#example", ExpectedResult = "example")]
+    [TestCase("example~", ExpectedResult = "example-")]
+    [TestCase("example/", ExpectedResult = "example-")]
+    [TestCase("example\\", ExpectedResult = "example-")]
+    [TestCase("example|", ExpectedResult = "example-")]
+    public string CreateSlug(string input)
+    {
+        return PathUtilities.CreateSlug(input);
     }
 
 

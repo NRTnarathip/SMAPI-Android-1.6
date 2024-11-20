@@ -1,6 +1,11 @@
 &larr; [mod build config](./mod-build-config.md)
 
 ## Release notes
+# 4.3.2
+Released 09 November 2024 for SMAPI 4.1.0 or later.
+
+* Fixed `IgnoreModFilePaths` and `IgnoreModFilePatterns` not working correctly in recent versions.
+
 ## 4.3.1
 Released 04 November 2024 for SMAPI 4.1.0 or later.
 

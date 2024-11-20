@@ -198,7 +198,15 @@ internal class Program
         if (!File.Exists(targetPath) || FileUtilities.GetFileHash(sourcePath) != FileUtilities.GetFileHash(targetPath))
         {
             File.Copy(sourcePath, targetPath, overwrite: true);
-            Program.PrintErrorAndExit($"The '{Path.GetFileName(targetPath)}' file didn't match the game's version. SMAPI fixed it automatically, but you must restart SMAPI for the change to take effect.");
+
+            Console.WriteLine("A new game version was installed, so SMAPI needs to update its settings.");
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("Please exit this window and re-launch SMAPI to play.");
+            Console.ResetColor();
+
+            Thread.Sleep(2500);
+            Environment.Exit(0);
         }
     }
 

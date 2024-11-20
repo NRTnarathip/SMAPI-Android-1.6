@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
+namespace StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 
 /// <summary>A set of changes which can be applied to a mod data field.</summary>
 public class ChangeDescriptor
@@ -13,16 +12,16 @@ public class ChangeDescriptor
     ** Accessors
     *********/
     /// <summary>The values to add to the field.</summary>
-    public ISet<string> Add { get; }
+    public ISet<string> Add { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>The values to remove from the field.</summary>
-    public ISet<string> Remove { get; }
+    public ISet<string> Remove { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>The values to replace in the field, if matched.</summary>
-    public IReadOnlyDictionary<string, string> Replace { get; }
+    public IDictionary<string, string> Replace { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Whether the change descriptor would make any changes.</summary>
-    public bool HasChanges { get; }
+    public bool HasChanges => this.Add.Count > 0 || this.Remove.Count > 0 || this.Replace.Count > 0;
 
     /// <summary>Format a raw value into a normalized form.</summary>
     public Func<string, string> FormatValue { get; }
@@ -32,17 +31,31 @@ public class ChangeDescriptor
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="add">The values to add to the field.</param>
-    /// <param name="remove">The values to remove from the field.</param>
-    /// <param name="replace">The values to replace in the field, if matched.</param>
     /// <param name="formatValue">Format a raw value into a normalized form.</param>
-    public ChangeDescriptor(ISet<string> add, ISet<string> remove, IReadOnlyDictionary<string, string> replace, Func<string, string> formatValue)
+    public ChangeDescriptor(Func<string, string> formatValue)
     {
-        this.Add = add;
-        this.Remove = remove;
-        this.Replace = replace;
-        this.HasChanges = add.Any() || remove.Any() || replace.Any();
         this.FormatValue = formatValue;
+    }
+
+    /// <summary>Add a change to this descriptor.</summary>
+    /// <param name="from">The specific value to replace with the `to` field. For a version number, this must match the exact formatting before the version is parsed.</param>
+    /// <param name="to">The value to use instead of the `from` value.</param>
+    public void AddChange(string? from, string? to)
+    {
+        from = from != null
+            ? this.FormatValue(from)
+            : null;
+
+        to = to != null
+            ? this.FormatValue(to)
+            : null;
+
+        if (from != null && to != null)
+            this.Replace[from] = to;
+        else if (from != null)
+            this.Remove.Add(from);
+        else if (to != null)
+            this.Add.Add(to);
     }
 
     /// <summary>Apply the change descriptors to a comma-delimited field.</summary>
@@ -130,11 +143,7 @@ public class ChangeDescriptor
     /// <param name="formatValue">Format a raw value into a normalized form if needed.</param>
     public static ChangeDescriptor Parse(string? descriptor, out string[] errors, Func<string, string>? formatValue = null)
     {
-        // init
-        formatValue ??= p => p;
-        var add = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var remove = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var replace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var parsed = new ChangeDescriptor(formatValue ?? (p => p));
 
         // parse each change in the descriptor
         if (!string.IsNullOrWhiteSpace(descriptor))
@@ -151,8 +160,8 @@ public class ChangeDescriptor
                 if (entry.Contains('→'))
                 {
                     string[] parts = entry.Split(new[] { '→' }, 2);
-                    string oldValue = formatValue(parts[0].Trim());
-                    string newValue = formatValue(parts[1].Trim());
+                    string oldValue = parts[0].Trim();
+                    string newValue = parts[1].Trim();
 
                     if (oldValue == string.Empty)
                     {
@@ -166,36 +175,31 @@ public class ChangeDescriptor
                         continue;
                     }
 
-                    replace[oldValue] = newValue;
+                    parsed.AddChange(oldValue, newValue);
                 }
 
                 // else as remove
                 else if (entry.StartsWith("-"))
                 {
-                    entry = formatValue(entry.Substring(1).Trim());
-                    remove.Add(entry);
+                    entry = entry.Substring(1).Trim();
+                    parsed.AddChange(entry, null);
                 }
 
                 // else as add
                 else
                 {
                     if (entry.StartsWith("+"))
-                        entry = formatValue(entry.Substring(1).Trim());
-                    add.Add(entry);
+                        entry = entry.Substring(1).Trim();
+                    parsed.AddChange(null, entry);
                 }
             }
 
             errors = rawErrors.ToArray();
         }
         else
-            errors = Array.Empty<string>();
+            errors = [];
 
         // build model
-        return new ChangeDescriptor(
-            add: add,
-            remove: remove,
-            replace: new ReadOnlyDictionary<string, string>(replace),
-            formatValue: formatValue
-        );
+        return parsed;
     }
 }
