@@ -56,6 +56,7 @@ using StardewValley.Characters;
 using StardewModdingAPI.Mobile;
 using Android.Views;
 using Android.App;
+using HarmonyLib;
 
 namespace StardewModdingAPI.Framework;
 
@@ -309,7 +310,9 @@ internal class SCore : IDisposable
         }
 
         // log basic info
+#if !SMAPI_FOR_ANDROID
         this.LogManager.HandleMarkerFiles();
+#endif
         this.LogManager.LogSettingsHeader(this.Settings);
 
         // set window titles
@@ -321,7 +324,10 @@ internal class SCore : IDisposable
 #if SMAPI_FOR_ANDROID
         try
         {
-            SMAPIGameLoader.SMAPIActivity.Instance.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
+            //SMAPIGameLoader.SMAPIActivity.Instance.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
+            var activityField = AccessTools.Field(typeof(MainActivity), nameof(MainActivity.instance));
+            var activity = activityField.GetValue(null) as Android.App.Activity;
+
             Console.WriteLine("try Game.Run()");
             this.IsGameRunning = true;
             StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
@@ -1266,12 +1272,17 @@ internal class SCore : IDisposable
             this.RaiseRenderEvent(events.RenderingStep, spriteBatch, renderTarget, RenderingStepEventArgs.Instance(step));
     }
 
+    public delegate void OnRenderedStepDelegate(RenderSteps step, SpriteBatch spriteBatch, RenderTarget2D? renderTarget);
+    public static event OnRenderedStepDelegate OnRenderedStepEvent;
     /// <summary>Raised when the game finishes a render step in the draw loop.</summary>
     /// <param name="step">The render step being started.</param>
     /// <param name="spriteBatch">The sprite batch being drawn (which might not always be open yet).</param>
     /// <param name="renderTarget">The render target being drawn.</param>
     private void OnRenderedStep(RenderSteps step, SpriteBatch spriteBatch, RenderTarget2D? renderTarget)
     {
+        //fixfix
+        OnRenderedStepEvent?.Invoke(step, spriteBatch, renderTarget);
+
         var events = this.EventManager;
 
         switch (step)
@@ -1299,11 +1310,7 @@ internal class SCore : IDisposable
     private void OnRendered(RenderTarget2D renderTarget)
     {
         this.RaiseRenderEvent(this.EventManager.Rendered, Game1.spriteBatch, renderTarget);
-        EventOnRendered?.Invoke(renderTarget);
     }
-    public delegate void EventOnRenderdDelegate(RenderTarget2D renderTarget);
-    public static event EventOnRenderdDelegate EventOnRendered;
-
 
     /// <summary>Raise a rendering/rendered event, temporarily opening the given sprite batch if needed to let mods draw to it.</summary>
     /// <typeparam name="TEventArgs">The event args type to construct.</typeparam>

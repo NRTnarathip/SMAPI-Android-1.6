@@ -20,9 +20,9 @@ internal static class AndroidPatcher
 
         Log.enabled = true;
 
-        //Harmony.DEBUG = false;
         harmony = new Harmony(nameof(AndroidPatcher));
         harmony.PatchAll();
+        VersionInfoMenu.Setup();
 
         AndroidLogger.Log("Done Setup()");
     }

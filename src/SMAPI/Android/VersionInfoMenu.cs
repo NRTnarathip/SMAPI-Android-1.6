@@ -11,57 +11,32 @@ using StardewValley;
 using Microsoft.Xna.Framework;
 using StardewValley.Mods;
 using StardewModdingAPI.Framework.Events;
+using System.Diagnostics;
 
 namespace StardewModdingAPI.Mobile;
 
 [HarmonyPatch]
 internal static class VersionInfoMenu
 {
-    internal static void Init()
+    internal static void Setup()
     {
-        //SCore.EventOnRendered += OnRendered;
+        SCore.OnRenderedStepEvent += SCore_OnRenderedStepEvent;
     }
 
-    static void OnRendered(RenderTarget2D renderTarget)
+    static void SCore_OnRenderedStepEvent(RenderSteps step, SpriteBatch spriteBatch, RenderTarget2D? renderTarget)
     {
-        var spriteBatch = Game1.spriteBatch;
-        bool wasOpen = spriteBatch.IsOpen(SCore.Instance.GetReflector);
-        bool hadRenderTarget = Game1.graphics.GraphicsDevice.RenderTargetCount > 0;
-
-        if (!hadRenderTarget && !Game1.IsOnMainThread())
-            return; // can't set render target on background thread
-
-        try
+        if (step == RenderSteps.Menu)
         {
-            if (!wasOpen)
-                Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-
-            if (!hadRenderTarget)
-            {
-                renderTarget ??= Game1.game1.uiScreen?.IsDisposed != true
-                    ? Game1.game1.uiScreen
-                    : Game1.nonUIRenderTarget;
-
-                if (renderTarget != null)
-                    Game1.SetRenderTarget(renderTarget);
-            }
-            RenderVerionInfo(spriteBatch, renderTarget);
-        }
-        finally
-        {
-            if (!wasOpen)
-                spriteBatch.End();
-
-            if (!hadRenderTarget && renderTarget != null)
-                Game1.SetRenderTarget(null);
+            RenderVerionInfo(spriteBatch);
         }
     }
 
     static SpriteFont font;
-    private static void RenderVerionInfo(SpriteBatch spriteBatch, RenderTarget2D renderTarget)
+    private static void RenderVerionInfo(SpriteBatch spriteBatch)
     {
         //check if it's on customize character or other sub menu, so we don't should render
-        if (TitleMenu.subMenu != null)
+        var titleMenu = Game1.activeClickableMenu as TitleMenu;
+        if (titleMenu == null || TitleMenu.subMenu != null)
             return;
 
         var viewport = Game1.viewport;
