@@ -1,4 +1,4 @@
-StadewModdingAPI.dll
+StardewModdingAPI.dll
 HtmlAgilityPack.dll
 SMAPI.Toolkit.dll
 SMAPI.Toolkit.CoreInterfaces.dll

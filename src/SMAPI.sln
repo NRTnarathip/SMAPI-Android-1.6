@@ -75,6 +75,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{3B5BF14D-F61
 		..\build\windows\lib\in-place-regex.ps1 = ..\build\windows\lib\in-place-regex.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackSMAPIZip", "PackSMAPIZip\PackSMAPIZip.csproj", "{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Android Debug|Any CPU = Android Debug|Any CPU
@@ -135,6 +137,22 @@ Global
 		{ED8E41FA-DDFA-4A77-932E-9853D279A129}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED8E41FA-DDFA-4A77-932E-9853D279A129}.Release|ARM64.ActiveCfg = Release|ARM64
 		{ED8E41FA-DDFA-4A77-932E-9853D279A129}.Release|ARM64.Build.0 = Release|ARM64
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Debug|ARM64.Build.0 = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Release|Any CPU.Build.0 = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Release|ARM64.ActiveCfg = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Android Release|ARM64.Build.0 = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,50 +7,102 @@ This assumes `find-game-folder.targets` has already been imported and validated.
 
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild">
+  <!--<Target Name="CopySmapiFiles" AfterTargets="AfterBuild">
     <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'SMAPI'">
-    <!-- SMAPI -->
+    -->
+  <!-- SMAPI -->
+  <!--
     <ItemGroup>
       <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
     </ItemGroup>
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />
-    <!--<Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />-->
-    <Copy SourceFiles="$(TargetDir)\$(TargetName)" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />
-    <Copy SourceFiles="$(TargetDir)\Markdig.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Pintail.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\smapi-internal\i18n" />
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\$(TargetName)" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Markdig.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Pintail.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\smapi-internal\i18n" />-->
+  <!--
 
-    <!-- Harmony + dependencies -->
-    <!--<Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
-    <!--<Copy SourceFiles="$(TargetDir)\0Harmony.xml" DestinationFolder="$(GamePath)\smapi-internal" />-->
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <!--<Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+    -->
+  <!-- Harmony + dependencies -->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\0Harmony.xml" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
 
-    <!-- FluentHttpClient + dependencies -->
-    <Copy SourceFiles="$(TargetDir)\Pathoschild.Http.Client.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\System.Net.Http.Formatting.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    -->
+  <!-- FluentHttpClient + dependencies -->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\Pathoschild.Http.Client.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\System.Net.Http.Formatting.dll" DestinationFolder="$(GamePath)\smapi-internal" />-->
+  <!--
 
-    <!-- .NET dependencies -->
-    <Copy SourceFiles="$(TargetDir)\System.Management.dll" DestinationFolder="$(GamePath)\smapi-internal" Condition="$(OS) == 'Windows_NT'" />
+    -->
+  <!-- .NET dependencies -->
+  <!--
+    -->
+  <!--<Copy SourceFiles="$(TargetDir)\System.Management.dll" DestinationFolder="$(GamePath)\smapi-internal" Condition="$(OS) == 'Windows_NT'" />-->
+  <!--
   </Target>
 
+  -->
   <!-- .NET metadata files -->
+  <!--
   <Target Name="CopyNetMetadata" Condition="'$(MSBuildProjectName)' == 'SMAPI.Installer'" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)\assets\runtimeconfig.json" DestinationFiles="$(GamePath)\StardewModdingAPI.runtimeconfig.json" />
     <Copy SourceFiles="$(TargetDir)\assets\windows-exe-config.xml" DestinationFiles="$(GamePath)\StardewModdingAPI.exe.config" Condition="$(OS) == 'Windows_NT'" />
     <Copy SourceFiles="$(GamePath)\Stardew Valley.deps.json" DestinationFiles="$(GamePath)\StardewModdingAPI.deps.json" Condition="!Exists('$(GamePath)\StardewModdingAPI.deps.json')" />
   </Target>
 
+  -->
   <!-- bundled mods -->
+  <!--
   <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
     <ItemGroup>
       <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
@@ -61,7 +113,9 @@ This assumes `find-game-folder.targets` has already been imported and validated.
     <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)\i18n" />
   </Target>
 
+  -->
   <!-- toolkit -->
+  <!--
   <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit'" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
@@ -69,5 +123,5 @@ This assumes `find-game-folder.targets` has already been imported and validated.
   <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit.CoreInterfaces'" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
-  </Target>
+  </Target>-->
 </Project>
