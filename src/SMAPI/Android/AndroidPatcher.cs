@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using HarmonyLib;
+using Microsoft.Xna.Framework.Content;
 using StardewValley;
 
 namespace StardewModdingAPI.Mobile;
@@ -19,7 +20,7 @@ internal static class AndroidPatcher
 
         Log.enabled = true;
 
-        Harmony.DEBUG = false;
+        //Harmony.DEBUG = false;
         harmony = new Harmony(nameof(AndroidPatcher));
         harmony.PatchAll();
 

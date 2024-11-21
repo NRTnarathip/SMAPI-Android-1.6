@@ -1,11 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
@@ -18,6 +20,8 @@ using StardewValley;
 using StardewValley.Logging;
 using StardewValley.Menus;
 using StardewValley.Minigames;
+using StardewValley.Network;
+using xTile.Display;
 
 namespace StardewModdingAPI.Framework;
 
@@ -112,7 +116,6 @@ internal class SGame : Game1
     public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, SInputState input, SModHooks modHooks, IGameLogger gameLogger, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating, Action onContentLoaded, Action<LoadStage> onLoadStageChanged, Action<RenderTarget2D> onRendered)
         : base(playerIndex, instanceIndex)
     {
-        Console.WriteLine("try init XNA Graphic");
         // init XNA
         Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
@@ -121,15 +124,10 @@ internal class SGame : Game1
         Game1.log = gameLogger;
         Game1.multiplayer = this.InitialMultiplayer = multiplayer;
         Game1.hooks = modHooks;
-        Console.WriteLine("done setup hook into game");
 #if SMAPI_FOR_ANDROID
         try
         {
-            var _locationsField = AccessTools.Field(typeof(Game1), nameof(Game1._locations));
-            Console.WriteLine("_locationField: " + _locationsField);
-            var newLocations = new ObservableCollection<GameLocation>();
-            //_locationsField.SetValue(this, newLocations);
-            Console.WriteLine("done set _locations with fake value: " + _locationsField.GetValue(this));
+            //this._locations = new ObservableCollection<GameLocation>();
         }
         catch (Exception ex)
         {
@@ -163,15 +161,7 @@ internal class SGame : Game1
     /// <inheritdoc />
     protected override void LoadContent()
     {
-        try
-        {
-            base.LoadContent();
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("error tri SGame.LoadContent: " + ex);
-        }
+        base.LoadContent();
 
         this.OnContentLoaded();
     }

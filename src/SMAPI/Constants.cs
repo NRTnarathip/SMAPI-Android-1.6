@@ -42,7 +42,13 @@ internal static class EarlyConstants
     public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.GamePath, "smapi-internal");
 
     /// <summary>The target game platform.</summary>
-    internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
+    //fixfix bug & try catch exception it's wil not work
+    //i dont know why
+#if SMAPI_FOR_ANDROID
+    internal static GamePlatform Platform { get; } = GamePlatform.Android;
+#else
+    //internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
+#endif
 
     /// <summary>The game framework running the game.</summary>
     internal static GameFramework GameFramework { get; } = GameFramework.MonoGame;

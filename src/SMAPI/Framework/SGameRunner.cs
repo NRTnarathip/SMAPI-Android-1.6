@@ -325,7 +325,6 @@ internal class SGameRunner : GameRunner
     /// <summary>Update metadata when a split screen is added or removed.</summary>
     private void UpdateForSplitScreenChanges()
     {
-        Console.WriteLine("On UpdateForSplitScreenChanges()");
         HashSet<int> oldScreenIds = new(Context.ActiveScreenIds);
 
         // track active screens
@@ -339,6 +338,5 @@ internal class SGameRunner : GameRunner
             if (!Context.ActiveScreenIds.Contains(id))
                 Context.LastRemovedScreenId = id;
         }
-        Console.WriteLine("end UpdateForSplitScreenChanges()");
     }
 }

@@ -79,6 +79,9 @@
     <Reference Include="MonoMod.Utils">
       <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Utils.dll</HintPath>
     </Reference>
+    <Reference Include="SMAPIGameLoader">
+      <HintPath>..\..\..\Stardew Valley Android\SMAPI\SMAPILoader\SMAPIGameLoader\bin\Release\net8.0-android\SMAPIGameLoader.dll</HintPath>
+    </Reference>
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\StardewValley.dll</HintPath>
     </Reference>

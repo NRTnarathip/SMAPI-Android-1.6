@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using Android.Views;
 
 namespace StardewModdingAPI;
 
@@ -34,6 +35,15 @@ internal class Program
     public static void Main(string[] args)
     {
         AndroidPatcher.Setup();
+        //debug run vanilla game
+        //var gameRunner = new GameRunner();
+        //GameRunner.instance = gameRunner;
+        //SMAPIGameLoader.SMAPIActivity.Instance.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
+        //Console.WriteLine("done set content view");
+        //Console.WriteLine("try run Game Runner: " + GameRunner.instance);
+        //GameRunner.instance.Run();
+        //Console.WriteLine("done GameRunner.Run()");
+        //return;
 
         AndroidLogger.Log("Starting SMAPI Program()...");
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
