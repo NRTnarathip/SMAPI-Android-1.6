@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Force.DeepCloner;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
 using StardewValley;

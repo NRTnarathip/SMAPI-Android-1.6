@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Force.DeepCloner;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,6 +11,7 @@ using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
+using StardewModdingAPI.Mobile;
 using StardewValley;
 using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
@@ -271,7 +273,7 @@ internal class InstructionMetadata
 
 #if SMAPI_FOR_ANDROID
                 //Map Method For Android Only
-                //.MapMethod("Force.DeepCloner.DeepClonerExtensions.DeepClone", )
+                .MapType("Force.DeepCloner.DeepClonerExtensions", typeof(DeepClonerExtensions))
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))

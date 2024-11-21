@@ -17,7 +17,7 @@ public class Game1Facade : Game1, IRewriteFacade
     public bool gamePadControlsImplemented { get; set; }              // never used
     public static bool menuUp { get; set; }                           // mostly unused and always false
     public static Color morningColor { get; set; } = Color.LightBlue; // never used
-    public new IList<GameLocation> _locations => base._locations;         // make like PC
+    public new IList<GameLocation> locations => game1._locations;         // make like PC
 
 
     /*********
