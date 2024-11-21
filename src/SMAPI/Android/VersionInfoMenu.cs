@@ -31,7 +31,10 @@ internal static class VersionInfoMenu
         }
     }
 
+
     static SpriteFont font;
+    static List<string> texts;
+    static float textLineHeight;
     private static void RenderVerionInfo(SpriteBatch spriteBatch)
     {
         //check if it's on customize character or other sub menu, so we don't should render
@@ -39,21 +42,40 @@ internal static class VersionInfoMenu
         if (titleMenu == null || TitleMenu.subMenu != null)
             return;
 
-        var viewport = Game1.viewport;
-        float centerX = viewport.Width / 2f;
+        if (titleMenu.logoFadeTimer > 0)
+            return;
+
         if (font == null && Game1.smallFont != null)
             font = Game1.smallFont;
 
         if (font == null)
             return;
 
-        string text = $"SMAPI Version: {Constants.ApiVersion}";
-        var textSizeRect = font.MeasureString(text);
-        var pos = Vector2.Zero;
-        pos.X = centerX - (textSizeRect.X / 2f);
-        pos.Y = 16;
+        if (texts == null)
+        {
+            texts = new();
+            textLineHeight = font.MeasureString("AAA").Y;
 
-        spriteBatch.DrawString(font, text, pos, Color.White);
-        spriteBatch.DrawString(font, "Port By NRTnarathip", pos + new Vector2(0, textSizeRect.Y), Color.White);
+            texts.Add($"SMAPI Version: {Constants.ApiVersion}");
+            texts.Add($"Game Version: {Constants.GameVersion}");
+            texts.Add("Port By NRTnarathip :: Youtube, Github");
+            texts.Add("Discord: Stardew SMAPI Thai");
+        }
+
+
+        var viewport = Game1.viewport;
+        for (int i = 0; i < texts.Count; i++)
+        {
+            string text = texts[texts.Count - i - 1];
+            var pos = Vector2.Zero;
+            pos.X = 50;
+            pos.Y = viewport.Height - (20 + textLineHeight + (textLineHeight * i));
+
+            //shadow
+            spriteBatch.DrawString(font, text, pos + new Vector2(-2, 2), shadowColor);
+            //text
+            spriteBatch.DrawString(font, text, pos, Color.White);
+        }
     }
+    static Color shadowColor = Color.Black;
 }

@@ -35,16 +35,6 @@ internal class Program
     public static void Main(string[] args)
     {
         AndroidPatcher.Setup();
-        //debug run vanilla game
-        //var gameRunner = new GameRunner();
-        //GameRunner.instance = gameRunner;
-        //SMAPIGameLoader.SMAPIActivity.Instance.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
-        //Console.WriteLine("done set content view");
-        //Console.WriteLine("try run Game Runner: " + GameRunner.instance);
-        //GameRunner.instance.Run();
-        //Console.WriteLine("done GameRunner.Run()");
-        //return;
-
         AndroidLogger.Log("Starting SMAPI Program()...");
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
@@ -266,6 +256,8 @@ internal class Program
 #if SMAPI_FOR_ANDROID
         developerMode = true;
         writeToConsole = false;
+        modsPath = Path.Combine(EarlyConstants.ExternalFilesDir, "Mods");
+        Console.WriteLine("modsPath: " + modsPath);
 #endif
         SCore core = new(modsPath, writeToConsole, developerMode);
         core.RunInteractively();

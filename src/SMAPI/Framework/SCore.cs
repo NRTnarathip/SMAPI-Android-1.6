@@ -324,9 +324,10 @@ internal class SCore : IDisposable
 #if SMAPI_FOR_ANDROID
         try
         {
-            //SMAPIGameLoader.SMAPIActivity.Instance.SetContentView((View)GameRunner.instance.Services.GetService(typeof(View)));
             var activityField = AccessTools.Field(typeof(MainActivity), nameof(MainActivity.instance));
             var activity = activityField.GetValue(null) as Android.App.Activity;
+            var gameView = GameRunner.instance.Services.GetService<View>();
+            activity.SetContentView(gameView);
 
             Console.WriteLine("try Game.Run()");
             this.IsGameRunning = true;
