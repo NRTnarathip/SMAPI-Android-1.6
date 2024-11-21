@@ -205,6 +205,12 @@ internal sealed class SInputState : InputState
     {
         Vector2 screenPixels = new(mouseState.X * zoomMultiplier, mouseState.Y * zoomMultiplier);
         Vector2 tile = new((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+        //fixfix
+        if (Game1.player == null)
+        {
+            return new CursorPosition(absolutePixels, screenPixels, tile, Vector2.Zero);
+        }
+
         Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
             ? tile
             : Game1.player.GetGrabTile();
