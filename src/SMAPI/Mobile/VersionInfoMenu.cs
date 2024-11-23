@@ -56,7 +56,7 @@ internal static class VersionInfoMenu
             texts = new();
             textLineHeight = font.MeasureString("AAA").Y;
 
-            texts.Add($"SMAPI Version: {Constants.ApiVersion}");
+            texts.Add($"SMAPI Version: {Constants.ApiVersionForAndroid}");
             texts.Add($"Game Version: {Constants.GameVersion}");
             texts.Add("Port By NRTnarathip :: Youtube, Github");
             texts.Add("Discord: Stardew SMAPI Thai");
@@ -73,6 +73,9 @@ internal static class VersionInfoMenu
 
             //shadow
             spriteBatch.DrawString(font, text, pos + new Vector2(-2, 2), shadowColor);
+            spriteBatch.DrawString(font, text, pos + new Vector2(2, 2), shadowColor);
+            spriteBatch.DrawString(font, text, pos + new Vector2(-2, -2), shadowColor);
+            spriteBatch.DrawString(font, text, pos + new Vector2(2, -2), shadowColor);
             //text
             spriteBatch.DrawString(font, text, pos, Color.White);
         }
