@@ -1,16 +1,33 @@
 using System.IO.Compression;
 using System.Net;
+using System.Reflection;
+using System.Reflection.Metadata;
+using Mono.Cecil;
+using AssemblyDefinition = Mono.Cecil.AssemblyDefinition;
 
 internal class Program
 {
-    const string PackFolderName = "SMAPI Android";
-    const string PackFileName = PackFolderName + ".zip";
+    const string StardewModdingAPIFileName = "StardewModdingAPI.dll";
+
+    static string GetSMAPIVersion(string dllFilePath)
+    {
+        var assembly = AssemblyDefinition.ReadAssembly(dllFilePath);
+        var constantsType = assembly.MainModule.Types.Single(t => t.FullName == "StardewModdingAPI.EarlyConstants");
+        var RawApiVersionForAndroidField = constantsType.Fields.Single(p => p.Name == "RawApiVersionForAndroid");
+        string version = RawApiVersionForAndroidField.Constant as string;
+        return version;
+    }
+
     private static void Main(string[] args)
     {
 
+        //Create Folder SMAPI-x.x.x.x
         string SMAPIBinDir = GetParentDirectory(Directory.GetCurrentDirectory(), 4);
         SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/ARM64/Android Release");
-        Console.WriteLine(SMAPIBinDir);
+
+        string SMAPIVersionName = GetSMAPIVersion(Path.Combine(SMAPIBinDir, StardewModdingAPIFileName)).ToString();
+        string PackFolderName = $"SMAPI-{SMAPIVersionName}";
+        Console.WriteLine("Start Pack: " + PackFolderName);
         string smapiOutputDir = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName);
         if (Directory.Exists(smapiOutputDir))
             Directory.Delete(smapiOutputDir, true);
@@ -36,7 +53,8 @@ internal class Program
         Console.WriteLine("done added smapi-internal");
 
 
-        string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), PackFileName);
+        //Pack SMAPI-x.x.x.x.zip from directory SMAPI-x.x.x.x
+        string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName + ".zip");
         Console.WriteLine("try pack SMPAI.zip output at " + outputZipFilePath);
         using var zipStream = File.Open(outputZipFilePath, FileMode.Create, FileAccess.ReadWrite);
         ZipFile.CreateFromDirectory(smapiOutputDir, zipStream, CompressionLevel.SmallestSize, true);
@@ -51,13 +69,9 @@ internal class Program
 
         for (int i = 0; i < levelsUp; i++)
         {
-            // ใช้ Directory.GetParent เพื่อย้อนกลับไป 1 ชั้น
             targetDir = Directory.GetParent(targetDir)?.FullName;
-
             if (targetDir == null)
-            {
-                throw new InvalidOperationException("ไม่สามารถย้อนกลับไปได้เนื่องจากถึง root directory แล้ว");
-            }
+                throw new InvalidOperationException("limit directory levels up");
         }
 
         return targetDir;

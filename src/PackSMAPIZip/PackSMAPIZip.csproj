@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mono.Cecil" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="dependencies.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
