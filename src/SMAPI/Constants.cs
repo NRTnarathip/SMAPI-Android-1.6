@@ -61,6 +61,10 @@ internal static class EarlyConstants
 
     /// <summary>SMAPI's current raw semantic version.</summary>
     internal static string RawApiVersion = "4.1.7";
+
+    /// <summary>Current version for android</summary>
+    static int AndroidFixBugVersionCode = 1;
+    internal static string RawApiVersionForAndroid = $"{RawApiVersion}.{AndroidFixBugVersionCode}";
 }
 
 /// <summary>Contains SMAPI's constants and assumptions.</summary>
