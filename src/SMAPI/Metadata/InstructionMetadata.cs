@@ -12,6 +12,7 @@ using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 using StardewModdingAPI.Mobile;
+using StardewModdingAPI.Mobile.Facade;
 using StardewValley;
 using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
@@ -251,6 +252,10 @@ internal class InstructionMetadata
                 .MapFacade<ResourceClump, ResourceClumpFacade>()
                 .MapFacade<Ring, RingFacade>()
                 .MapFacade<ShippingBin, ShippingBinFacade>()
+                //android
+                .MapType(
+                    "StardewValley.Menus.ShopMenu/ShopTabClickableTextureComponent",
+                    typeof(ShopTabClickableTextureComponentFacade))
                 .MapFacade<ShopMenu, ShopMenuFacade>()
                 .MapFacade<Sign, SignFacade>()
                 .MapFacade<Slingshot, SlingshotFacade>()
@@ -274,6 +279,9 @@ internal class InstructionMetadata
 #if SMAPI_FOR_ANDROID
                 //Map Method For Android Only
                 .MapType("Force.DeepCloner.DeepClonerExtensions", typeof(DeepClonerExtensions))
+                .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
+                .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
+                .MapFacade<SaveGame, SaveGameFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))

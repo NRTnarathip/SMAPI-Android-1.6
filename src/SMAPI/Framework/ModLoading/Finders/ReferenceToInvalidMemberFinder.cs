@@ -44,8 +44,15 @@ internal class ReferenceToInvalidMemberFinder : BaseInstructionHandler
             FieldDefinition? targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
 
             // wrong return type
-            if (targetField != null && !RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
-                this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {this.GetMemberDisplayName(fieldRef)} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})");
+            if (targetField != null &&
+                !RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
+            {
+                string fieldReturnsText = $"field returns {targetField.FieldType}";
+                this.MarkFlag(InstructionHandleResult.NotCompatible,
+                    $"reference to {this.GetMemberDisplayName(fieldRef)} ({fieldReturnsText}, not {fieldRef.FieldType})");
+            }
+            //if (targetField != null && !RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
+            //    this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {this.GetMemberDisplayName(fieldRef)} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})");
 
             // missing
             else if (targetField == null || targetField.HasConstant || !RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, targetField.DeclaringType))
