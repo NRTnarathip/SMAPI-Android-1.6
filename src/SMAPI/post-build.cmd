@@ -1,4 +1,5 @@
 
+adb logcat -c
 set AppName=abc.smapi.gameloader
 
 adb shell am force-stop %AppName%
