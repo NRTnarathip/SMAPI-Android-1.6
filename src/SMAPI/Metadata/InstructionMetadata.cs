@@ -283,6 +283,7 @@ internal class InstructionMetadata
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
                 .MapFacade<ICue, ICueFacade>()
+                .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
