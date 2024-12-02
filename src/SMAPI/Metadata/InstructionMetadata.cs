@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Force.DeepCloner;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
-using StardewModdingAPI.AndroidExtens.GameRewriter;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
@@ -287,6 +287,9 @@ internal class InstructionMetadata
                 .MapFacade<ICue, ICueFacade>()
                 .MapFacade<ISoundBank, ISoundBankFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
+                .MapFacade<InventoryPage, InventoryPageFacade>()
+                .MapFacade<Toolbar, ToolbarFacade>()
+                .MapFacade<OptionsPage, OptionsPageFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
@@ -327,7 +330,12 @@ internal class InstructionMetadata
             yield return new MapMethodToStaticMethodRewriter()
                 .Add(typeof(OptionsElement), (method) => method.Name == "draw",
                     typeof(OptionsElementRewriter), (method) => method.Name == "draw",
-                        (map) => { map.AddPramToSrc(typeof(IClickableMenu)); });
+                        (map) => { map.AddPramToSrc(typeof(IClickableMenu)); })
+                .AddWithFullNameMaching(
+                   Texture2DRewriter.GetData_FullNameStartWith,
+                   Texture2DRewriter.GetData_Callback
+                )
+            ;
         }
 
         /****

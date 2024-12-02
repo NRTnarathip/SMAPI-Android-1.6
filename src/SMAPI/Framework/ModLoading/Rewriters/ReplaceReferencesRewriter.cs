@@ -332,9 +332,15 @@ internal class ReplaceReferencesRewriter : BaseInstructionHandler
                 return false;
         }
 
+        // fixfix
         // apply options
-        if (fromMember.Resolve() is not null)
-            return false;
+        //if (fromMember.Resolve() is not null)
+        //{
+        //    Console.WriteLine("from member map: " + fromMember.FullName);
+        //    Console.WriteLine("map type: " + mappedToMethod);
+        //    Console.WriteLine("resolve failed");
+        //    return false;
+        //}
 
         // apply
         switch (mappedToMethod)
