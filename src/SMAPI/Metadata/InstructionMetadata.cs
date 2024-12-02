@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
+using StardewModdingAPI.AndroidExtens.GameRewriter;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
@@ -319,6 +320,12 @@ internal class InstructionMetadata
 
             // 32-bit to 64-bit in Stardew Valley 1.5.5
             yield return new ArchitectureAssemblyRewriter();
+
+            //rewriter virtual method to static method
+            yield return new MapMethodToStaticMethodRewriter()
+                .Add(typeof(OptionsElement), (method) => method.Name == "draw",
+                    typeof(OptionsElementRewriter), (method) => method.Name == "draw",
+                        (map) => { map.AddPramToSrc(typeof(IClickableMenu)); });
         }
 
         /****
