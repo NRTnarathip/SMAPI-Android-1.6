@@ -11,7 +11,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 
-namespace StardewModdingAPI.Mobile;
+namespace StardewModdingAPI.Mobile.Facade;
 
 public static class Texture2DRewriter
 {
@@ -39,10 +39,12 @@ public static class Texture2DRewriter
         MethodReference methodReference,
         ModuleDefinition module, ILProcessor cil, Instruction instruction)
     {
+        if (methodReference.FullName == "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData<Microsoft.Xna.Framework.Color>(!!0[])")
+        {
+            instruction.Operand = module.ImportReference(GetData_Color_MethodInfo_New);
+            return true;
+        }
 
-        Console.WriteLine("on callback: " + methodReference.FullName);
-        instruction.Operand = module.ImportReference(GetData_Color_MethodInfo_New);
-
-        return true;
+        return false;
     }
 }
