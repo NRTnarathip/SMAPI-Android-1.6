@@ -10,6 +10,7 @@ using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.ConsoleWriting;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -118,7 +119,7 @@ internal class LogManager : IDisposable
             {
                 // get input
 #if SMAPI_FOR_ANDROID
-                string? input = null;
+                string? input = MobileConsoleTool.ReadLine();
 #else
                 string? input = Console.ReadLine();
 #endif
