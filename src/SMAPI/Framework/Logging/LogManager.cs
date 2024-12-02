@@ -239,7 +239,12 @@ internal class LogManager : IDisposable
     public void LogIntro(string modsPath, IDictionary<string, object?> customSettings)
     {
         // log platform
+#if SMAPI_FOR_ANDROID
+        this.Monitor.Log($"SMAPI {Constants.ApiVersionForAndroid} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+#else
         this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+#endif
+
 
         // log basic info
         this.Monitor.Log($"Mods go here: {PathUtilities.AnonymizePathForDisplay(modsPath)}", LogLevel.Info);
