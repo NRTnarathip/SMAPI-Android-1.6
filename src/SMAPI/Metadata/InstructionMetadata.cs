@@ -283,7 +283,9 @@ internal class InstructionMetadata
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
+                .MapFacade<IAudioEngine, IAudioEngineFacade>()
                 .MapFacade<ICue, ICueFacade>()
+                .MapFacade<ISoundBank, ISoundBankFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation

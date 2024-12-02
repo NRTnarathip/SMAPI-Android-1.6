@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
-using StardewValley;
+using StardewValley.Audio;
 
 namespace StardewModdingAPI.Mobile.Facade;
 
-internal interface ICueFacade : ICue, IRewriteFacade
+internal interface IAudioEngineFacade : IAudioEngine, IRewriteFacade
 {
-    float Pitch { get; set; }
-    float Volume { get; set; }
-    bool IsPitchBeingControlledByRPC { get; }
+    int GetCategoryIndex(string name);
 }
