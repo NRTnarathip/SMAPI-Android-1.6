@@ -10,31 +10,21 @@ namespace StardewModdingAPI.Mobile;
 internal static class SCoreMobileManager
 {
     static bool isOnLoadMods = false;
-    static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+    static object _lock = new();
     public static bool IsOnLoadMods
     {
         get
         {
-            _lock.EnterReadLock();
-            try
+            lock (_lock)
             {
                 return isOnLoadMods;
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
         set
         {
-            _lock.EnterWriteLock();
-            try
+            lock (_lock)
             {
                 isOnLoadMods = value;
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
         }
     }
