@@ -61,6 +61,13 @@ internal class Program
         Console.WriteLine("done pack & file size: " + zipStream.Length);
         zipStream.Close();
 
+        //clean up
+        Directory.Delete(smapiOutputDir, true);
+        Console.WriteLine("done delete folder: " + smapiOutputDir);
+
+        Console.WriteLine("Successfully Pack SMAPI Zip");
+        Console.WriteLine("result file: " + new FileInfo(outputZipFilePath).Name);
+
         Console.ReadLine();
     }
     static string GetParentDirectory(string currentDir, int levelsUp)
