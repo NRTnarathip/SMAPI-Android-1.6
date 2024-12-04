@@ -50,10 +50,10 @@ public class MenuWithInventoryFacade : MenuWithInventory, IRewriteFacade
         ItemExitBehavior heldItemExitBehavior = ItemExitBehavior.ReturnToPlayer,
         bool allowExitWithHeldItem = false)
         : base(
-            highlighterMethod, okButton, trashCan,
-            xPositionOnScreen: 0, yPositionOnScreen: 0,
-             width: 1280,
-             height: 720)
+            highlighterMethod,
+            okButton,
+            trashCan
+        )
     {
         this.HeldItemExitBehavior = heldItemExitBehavior;
         this.AllowExitWithHeldItem = allowExitWithHeldItem;

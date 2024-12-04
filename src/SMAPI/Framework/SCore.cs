@@ -441,6 +441,10 @@ internal class SCore : IDisposable
         ModToolkit toolkit = new();
         ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
+#if SMAPI_FOR_ANDROID
+        SCoreMobileManager.IsOnLoadMods = true;
+        Task.Run(() =>
+#endif
         // load mods
         {
             this.Monitor.Log("Loading mod metadata...", LogLevel.Debug);
@@ -495,11 +499,18 @@ internal class SCore : IDisposable
             this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
             // check for software likely to cause issues
+#if !SMAPI_FOR_ANDROID
             this.CheckForSoftwareConflicts();
+#endif
 
             // check for updates
             _ = this.CheckForUpdatesAsync(mods); // ignore task since the main thread doesn't need to wait for it
+#if SMAPI_FOR_ANDROID
+            SCoreMobileManager.IsOnLoadMods = false;
+        });
+#else
         }
+#endif
 
         // update window titles
         this.UpdateWindowTitles();
@@ -546,6 +557,12 @@ internal class SCore : IDisposable
     {
         try
         {
+#if SMAPI_FOR_ANDROID
+            if (SCoreMobileManager.IsOnLoadMods)
+            {
+                return;
+            }
+#endif
 
             /*********
             ** Safe queued work

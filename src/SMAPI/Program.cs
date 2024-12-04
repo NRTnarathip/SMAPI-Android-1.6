@@ -34,8 +34,9 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
-        AndroidPatcher.Setup();
         AndroidLogger.Log("Starting SMAPI Program()...");
+        AndroidPatcher.Setup();
+        AppNotRespondFix.Init();
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
 #if !SMAPI_FOR_ANDROID

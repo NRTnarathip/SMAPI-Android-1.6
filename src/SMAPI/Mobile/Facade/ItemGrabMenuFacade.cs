@@ -11,6 +11,7 @@ using static StardewValley.Menus.InventoryMenu;
 
 namespace StardewModdingAPI.Mobile.Facade;
 
+
 public class ItemGrabMenuFacade : ItemGrabMenu, IRewriteFacade
 {
     public ItemGrabMenuFacade(IList<Item> inventory,
@@ -45,7 +46,9 @@ public class ItemGrabMenuFacade : ItemGrabMenu, IRewriteFacade
                 showOrganizeButton,
                 source,
                 sourceItem,
-                whichSpecialButton)
+                whichSpecialButton,
+                allowExitWithHeldItem
+                )
     {
 
     }

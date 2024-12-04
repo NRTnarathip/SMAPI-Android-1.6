@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Audio;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewValley;
 

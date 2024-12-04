@@ -47,4 +47,10 @@ public static class Texture2DRewriter
 
         return false;
     }
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Texture2D), nameof(Texture2D.CopyFromTexture))]
+    static void FixCopyFromTexture(Texture2D other)
+    {
+
+    }
 }
