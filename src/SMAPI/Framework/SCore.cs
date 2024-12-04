@@ -1290,16 +1290,19 @@ internal class SCore : IDisposable
             this.RaiseRenderEvent(events.RenderingStep, spriteBatch, renderTarget, RenderingStepEventArgs.Instance(step));
     }
 
+#if SMAPI_FOR_ANDROID
     public delegate void OnRenderedStepDelegate(RenderSteps step, SpriteBatch spriteBatch, RenderTarget2D? renderTarget);
     public static event OnRenderedStepDelegate OnRenderedStepEvent;
+#endif
     /// <summary>Raised when the game finishes a render step in the draw loop.</summary>
     /// <param name="step">The render step being started.</param>
     /// <param name="spriteBatch">The sprite batch being drawn (which might not always be open yet).</param>
     /// <param name="renderTarget">The render target being drawn.</param>
     private void OnRenderedStep(RenderSteps step, SpriteBatch spriteBatch, RenderTarget2D? renderTarget)
     {
-        //fixfix
+#if SMAPI_FOR_ANDROID
         OnRenderedStepEvent?.Invoke(step, spriteBatch, renderTarget);
+#endif
 
         var events = this.EventManager;
 

@@ -26,39 +26,22 @@ static class MenuWithInventoryPatcher
         typeof(int),  // Parameter 6: width
         typeof(int)   // Parameter 7: height
     })]
-    [HarmonyPrefix]
-    static bool FixCtor(MenuWithInventory __instance, InventoryMenu.highlightThisItem highlighterMethod = null,
+    [HarmonyPostfix]
+    static void FixCtor(MenuWithInventory __instance,
+        InventoryMenu.highlightThisItem highlighterMethod = null,
         bool okButton = false, bool trashCan = false,
         int xPositionOnScreen = 0, int yPositionOnScreen = 0,
         int width = 1280, int height = 720)
     {
+
         var menu = __instance;
+        int xPosOnScreen = menu.xPositionOnScreen;
+        int yPosOnScreen = menu.yPositionOnScreen;
 
-        menu.width = Game1.uiViewport.Width - 2 * Game1.xEdge;
-        menu.xPositionOnScreen = Game1.xEdge;
-        menu.initializeUpperRightCloseButton();
-        menu.yPositionOnScreen = yPositionOnScreen;
-        menu.height = Game1.uiViewport.Height - yPositionOnScreen;
-        if (menu.height > 1080)
-        {
-            height = (menu.height = 1080);
-            yPositionOnScreen = (menu.yPositionOnScreen = (Game1.uiViewport.Height - menu.height) / 2);
-        }
-
-        menu.inventory = new InventoryMenu(menu.xPositionOnScreen, menu.yPositionOnScreen + menu.height / 2, playerInventory: true, null, highlighterMethod, -1, 3, 0, 0, drawSlots: true, menu.width, menu.height / 2 - (MobileDisplay.IsiPhoneX ? 32 : 0), trashCan);
-        menu.inventory.isOnMultiInventoryPage = true;
-        if (okButton)
-        {
-            menu.okButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width + 4, yPositionOnScreen + height - 192 - IClickableMenu.borderWidth, 64, 64), Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46), 1f)
-            {
-                myID = 4857,
-                upNeighborID = 5948,
-                leftNeighborID = 12
-            };
-        }
         if (trashCan)
         {
-            __instance.trashCan = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width + 4, yPositionOnScreen + height - 192 - 32 - IClickableMenu.borderWidth - 104, 64, 104), Game1.mouseCursors, new Rectangle(564 + Game1.player.trashCanLevel * 18, 102, 18, 26), 4f)
+            __instance.trashCan = new ClickableTextureComponent(
+                new Rectangle(xPosOnScreen + width + 4, yPosOnScreen + height - 192 - 32 - IClickableMenu.borderWidth - 104, 64, 104), Game1.mouseCursors, new Rectangle(564 + Game1.player.trashCanLevel * 18, 102, 18, 26), 4f)
             {
                 myID = 5948,
                 downNeighborID = 4857,
@@ -67,10 +50,6 @@ static class MenuWithInventoryPatcher
             };
             Console.WriteLine("Done patch create trashCan Obj in side: " + __instance);
         }
-
-        menu.dropItemInvisibleButton = new ClickableComponent(new Rectangle(xPositionOnScreen - IClickableMenu.borderWidth - IClickableMenu.spaceToClearSideBorder - 128, yPositionOnScreen - 12, 64, 64), "");
-
-        return false;
     }
 
     //[HarmonyPrefix]

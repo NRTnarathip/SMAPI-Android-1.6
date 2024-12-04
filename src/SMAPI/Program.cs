@@ -41,9 +41,6 @@ internal class Program
 
 #if !SMAPI_FOR_ANDROID
         Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
-        
-#else
-        //StardewModdingAPI.Android.VersionInfoMenu.Init();
 #endif
 
         try

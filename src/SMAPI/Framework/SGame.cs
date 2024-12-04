@@ -127,7 +127,7 @@ internal class SGame : Game1
 #if SMAPI_FOR_ANDROID
         try
         {
-            //this._locations = new ObservableCollection<GameLocation>();
+            //]var newLocations = new ObservableCollection<GameLocation>();
         }
         catch (Exception ex)
         {
