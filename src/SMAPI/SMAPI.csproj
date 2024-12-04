@@ -17,6 +17,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>AnyCPU;ARM64</Platforms>
     <Configurations>Debug;Release;Android Debug;Android Release</Configurations>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
@@ -48,6 +49,7 @@
     <PackageReference Include="Pintail" />
     <PackageReference Include="Platonymous.TMXTile" />
     <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="StbImageWriteSharp" />
     <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
 

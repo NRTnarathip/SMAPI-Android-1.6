@@ -29,6 +29,7 @@
     <PackageVersion Include="Pintail" Version="2.6.0" />
     <PackageVersion Include="Platonymous.TMXTile" Version="1.5.9" />
     <PackageVersion Include="SkiaSharp" Version="2.88.9" />
+    <PackageVersion Include="StbImageWriteSharp" Version="1.16.7" />
     <PackageVersion Include="System.Management" Version="8.0.0" />
     <PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageVersion Include="VdfConverter" Version="1.0.3" />
