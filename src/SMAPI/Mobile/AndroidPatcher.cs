@@ -19,12 +19,18 @@ internal static class AndroidPatcher
         AndroidLogger.Log("On AndroidPatcher.Setup()");
 
 
-        Log.enabled = true;
+        try
+        {
+            Log.enabled = true;
 
-        harmony = new Harmony(nameof(AndroidPatcher));
-        harmony.PatchAll();
-        VersionInfoMenu.Setup();
-
+            harmony = new Harmony(nameof(AndroidPatcher));
+            harmony.PatchAll();
+            VersionInfoMenu.Setup();
+        }
+        catch (Exception ex)
+        {
+            AndroidLogger.Log(ex);
+        }
         AndroidLogger.Log("Done Setup()");
     }
 
