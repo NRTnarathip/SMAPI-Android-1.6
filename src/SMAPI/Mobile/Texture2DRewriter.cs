@@ -15,8 +15,6 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
-using StbImageWriteSharp;
-using static Android.Icu.Text.ListFormatter;
 
 namespace StardewModdingAPI.Mobile.Facade;
 [HarmonyPatch]
@@ -83,7 +81,8 @@ public static class Texture2DRewriter
             texture.GetData(data);
             return;
         }
-        Console.WriteLine("try fix GetDataForPC");
+
+        Console.WriteLine($"try fix GetDataForPC(); texture: {texture.Name}, crop resize to: {texture.Width}x{texture.Height}");
 
         //correct to data pixels
         Color[] srcPixels = new Color[texture.ActualWidth * texture.ActualHeight];
@@ -142,36 +141,6 @@ public static class Texture2DRewriter
         dstTexture.SetData(dataInActualSize);
         //done Fix CopyFromTexture
 
-
-
-        //tester only
-        string saveOutputDir = Path.Combine(EarlyConstants.ExternalFilesDir, "Export Png");
-        //save into file
-        string originalFilePath = Path.Combine(saveOutputDir, $"{srcTexture.Name}_src.png");
-        //safe file path
-        string dir = Path.GetDirectoryName(originalFilePath);
-        if (Directory.Exists(dir) == false)
-            Directory.CreateDirectory(dir);
-
-        //original
-        using var imgOriginalStream = File.Create(originalFilePath);
-        srcTexture.SaveAsPng(imgOriginalStream, srcTexture.ActualWidth, srcTexture.ActualHeight);
-
-        //clone
-        using var imgCloneStream = File.Create(
-            Path.Combine(saveOutputDir, $"{dstTexture.Name}_clone.png"));
-        dstTexture.SaveAsPng(imgCloneStream, dstTexture.ActualWidth, dstTexture.ActualHeight);
-
-        int width = dstTexture.Width;
-        int height = dstTexture.Height;
-        var textureCut = new Texture2D(StardewValley.Game1.graphics.GraphicsDevice, width, height);
-        textureCut.SetName($"{dstTexture.Name}_pixel_cut");
-        using var imgPixelCutStream = File.Create(
-            Path.Combine(saveOutputDir, $"{textureCut.Name}_pixelCut.png"));
-        var pixelsCut = new Color[width * height];
-        dstTexture.Fix_GetDataForPC(pixelsCut);
-        textureCut.SavePngWithPixel(pixelsCut, imgPixelCutStream, width, height);
-
         return false;
     }
     static PropertyInfo TexelWidth_Prop = AccessTools.Property(typeof(Texture2D), "TexelWidth");
@@ -198,24 +167,4 @@ public static class Texture2DRewriter
 
         return true;
     }
-    static unsafe void FixSavePng(this Texture2D texture, Stream stream, int width, int height)
-    {
-        Color[] pixels = null;
-        Fix_GetColorData(ref pixels, texture);
-        fixed (Color* data = &pixels[0])
-        {
-            ImageWriter imageWriter = new ImageWriter();
-            imageWriter.WritePng(data, width, height, ColorComponents.RedGreenBlueAlpha, stream);
-        }
-    }
-    static unsafe void SavePngWithPixel(this Texture2D texture, Color[] pixels, Stream stream, int width, int height)
-    {
-        fixed (Color* data = &pixels[0])
-        {
-            ImageWriter imageWriter = new ImageWriter();
-            imageWriter.WritePng(data, width, height, ColorComponents.RedGreenBlueAlpha, stream);
-        }
-    }
-
-
 }
