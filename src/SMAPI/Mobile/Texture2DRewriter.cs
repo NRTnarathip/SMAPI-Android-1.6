@@ -31,7 +31,7 @@ public static class Texture2DRewriter
         //Console.WriteLine($"Crop Pixel: dst size: {dstWidth} x {dstHeight}");
 
         //use simple loop
-        if (dstWidth <= 128 && dstHeight <= 128)
+        if (dstWidth <= 32 && dstHeight <= 32)
         {
             for (int y = 0; y < dstHeight; y++)
             {
@@ -83,6 +83,7 @@ public static class Texture2DRewriter
             texture.GetData(data);
             return;
         }
+        Console.WriteLine("try fix GetDataForPC");
 
         //correct to data pixels
         Color[] srcPixels = new Color[texture.ActualWidth * texture.ActualHeight];
@@ -94,20 +95,22 @@ public static class Texture2DRewriter
             texture.Width, texture.Height);
     }
 
-    public static MethodInfo GetData_Color_MethodInfo_New => AccessTools.Method(typeof(Texture2DRewriter), nameof(Fix_GetDataForPC));
+    public static MethodInfo Fix_GetData_MethodInfo = AccessTools.Method(typeof(Texture2DRewriter), nameof(Fix_GetDataForPC));
     public const string GetData_FullNameStartWith = "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData";
     public static bool GetData_Callback(
         MapMethodWithCallback mapMethod,
-        MethodReference methodReference,
+        MethodReference method,
         ModuleDefinition module, ILProcessor cil, Instruction instruction)
     {
-        if (methodReference.FullName == "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData<Microsoft.Xna.Framework.Color>(!!0[])")
-        {
-            instruction.Operand = module.ImportReference(GetData_Color_MethodInfo_New);
-            return true;
-        }
 
-        return false;
+        switch (method.FullName)
+        {
+            case "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData<Microsoft.Xna.Framework.Color>(!!0[])":
+                instruction.Operand = module.ImportReference(Fix_GetData_MethodInfo);
+                return true;//mark rewrite
+            default:
+                return false;//no rewrite
+        }
     }
 
     [HarmonyPrefix]

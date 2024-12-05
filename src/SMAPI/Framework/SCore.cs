@@ -498,13 +498,14 @@ internal class SCore : IDisposable
             mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
             this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
-            // check for software likely to cause issues
 #if !SMAPI_FOR_ANDROID
+            // check for software likely to cause issues
             this.CheckForSoftwareConflicts();
-#endif
 
             // check for updates
             _ = this.CheckForUpdatesAsync(mods); // ignore task since the main thread doesn't need to wait for it
+#endif
+
 #if SMAPI_FOR_ANDROID
             SCoreMobileManager.IsOnLoadMods = false;
         });
