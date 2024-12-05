@@ -17,8 +17,20 @@ internal class Program
         string version = RawApiVersionForAndroidField.Constant as string;
         return version;
     }
+    static void Main(string[] args)
+    {
+        try
+        {
+            StartRunPack(args);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Console.Read();
+        }
+    }
 
-    private static void Main(string[] args)
+    static void StartRunPack(string[] args)
     {
 
         //Create Folder SMAPI-x.x.x.x
@@ -67,8 +79,6 @@ internal class Program
 
         Console.WriteLine("Successfully Pack SMAPI Zip");
         Console.WriteLine("result file: " + new FileInfo(outputZipFilePath).Name);
-
-        Console.ReadLine();
     }
     static string GetParentDirectory(string currentDir, int levelsUp)
     {
