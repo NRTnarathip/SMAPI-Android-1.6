@@ -280,6 +280,7 @@ internal class InstructionMetadata
 #if SMAPI_FOR_ANDROID
                 //Map Method For Android Only
                 .MapType("Force.DeepCloner.DeepClonerExtensions", typeof(DeepClonerExtensions))
+                .MapFacade<GameMenu, GameMenuFacade>()
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
