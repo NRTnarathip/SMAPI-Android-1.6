@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
+using static Android.Renderscripts.ScriptGroup;
 
 #pragma warning disable 809 // obsolete override of non-obsolete method (this is deliberate)
 namespace StardewModdingAPI.Framework.Input;
@@ -61,6 +65,13 @@ internal sealed class SInputState : InputState
     {
         // update base state
         base.Update();
+
+#if SMAPI_FOR_ANDROID
+        //it important
+        //because _currentTouchState it's need update  into _currentMouseState
+        //and _currentGamepadState too
+        base.UpdateStates();//Don't forget update Input State first
+#endif
 
         // update SMAPI extended data
         // note: Stardew Valley is *not* in UI mode when this code runs
@@ -316,4 +327,42 @@ internal sealed class SInputState : InputState
             .Concat(mouse.GetPressedButtons())
             .Concat(controller.GetPressedButtons());
     }
+
+#if SMAPI_FOR_ANDROID
+    public override void SetMousePosition(int x, int y)
+    {
+        Console.WriteLine($"SInput On SetMousePos x: {x}, y: {y}");
+        var frames = new StackTrace().GetFrames();
+        //foreach (var f in frames)
+        //{
+        //    var method = f.GetMethod();
+        //    Console.WriteLine("f: " + method.DeclaringType + ", name: " + method);
+        //}
+
+        if (!Game1.game1.IsMainInstance)
+        {
+            this._simulatedMousePosition.X = x;
+            this._simulatedMousePosition.Y = y;
+        }
+        else
+        {
+            Console.WriteLine("test set mouse pos case 2");
+            Console.WriteLine($"try Muose.SetPos x: {x}, y: {y}");
+            Mouse.SetPosition(x, y);
+            Console.WriteLine("done Mouse.SetPos()");
+            var nowMouseState = base.GetMouseState();
+            Console.WriteLine($"current now mouse state : {nowMouseState}");
+            Console.WriteLine("_currentMouseState mouseState: " + this._currentMouseState);
+            this._currentMouseState = new MouseState(
+                x, y,
+                this._currentMouseState.ScrollWheelValue,
+                this._currentMouseState.LeftButton,
+                this._currentMouseState.MiddleButton,
+                this._currentMouseState.RightButton,
+                this._currentMouseState.XButton1,
+                this._currentMouseState.XButton2);
+            Console.WriteLine("set set _currentMouseState: " + this._currentMouseState);
+        }
+    }
+#endif
 }
