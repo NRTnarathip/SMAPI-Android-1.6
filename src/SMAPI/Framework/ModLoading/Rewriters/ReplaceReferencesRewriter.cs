@@ -332,7 +332,7 @@ internal class ReplaceReferencesRewriter : BaseInstructionHandler
                 return false;
         }
 
-        // fixfix
+#if SMAPI_FOR_ANDROID
         // apply options
         //if (fromMember.Resolve() is not null)
         //{
@@ -341,6 +341,7 @@ internal class ReplaceReferencesRewriter : BaseInstructionHandler
         //    Console.WriteLine("resolve failed");
         //    return false;
         //}
+#endif
 
         // apply
         switch (mappedToMethod)

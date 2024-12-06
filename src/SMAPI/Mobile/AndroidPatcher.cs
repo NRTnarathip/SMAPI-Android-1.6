@@ -25,7 +25,8 @@ internal static class AndroidPatcher
 
             harmony = new Harmony(nameof(AndroidPatcher));
             harmony.PatchAll();
-            VersionInfoMenu.Setup();
+            VersionInfoMenu.Init();
+            JoystickFreezeFix.Init();
         }
         catch (Exception ex)
         {

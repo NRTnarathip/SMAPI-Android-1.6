@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Mobile;
 [HarmonyPatch]
 internal static class VersionInfoMenu
 {
-    internal static void Setup()
+    internal static void Init()
     {
         SCore.OnRenderedStepEvent += SCore_OnRenderedStepEvent;
     }
