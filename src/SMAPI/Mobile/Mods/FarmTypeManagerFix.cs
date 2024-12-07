@@ -33,6 +33,8 @@ internal static class FarmTypeManagerFix
     {
         var monitor = SCore.Instance.GetMonitorForGame();
         monitor.Log("start FarmTypeManagerFix Apply()");
+        AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
+
         try
         {
             monitor.Log("Start patching fix");
