@@ -327,42 +327,4 @@ internal sealed class SInputState : InputState
             .Concat(mouse.GetPressedButtons())
             .Concat(controller.GetPressedButtons());
     }
-
-#if SMAPI_FOR_ANDROID
-    public override void SetMousePosition(int x, int y)
-    {
-        Console.WriteLine($"SInput On SetMousePos x: {x}, y: {y}");
-        var frames = new StackTrace().GetFrames();
-        //foreach (var f in frames)
-        //{
-        //    var method = f.GetMethod();
-        //    Console.WriteLine("f: " + method.DeclaringType + ", name: " + method);
-        //}
-
-        if (!Game1.game1.IsMainInstance)
-        {
-            this._simulatedMousePosition.X = x;
-            this._simulatedMousePosition.Y = y;
-        }
-        else
-        {
-            Console.WriteLine("test set mouse pos case 2");
-            Console.WriteLine($"try Muose.SetPos x: {x}, y: {y}");
-            Mouse.SetPosition(x, y);
-            Console.WriteLine("done Mouse.SetPos()");
-            var nowMouseState = base.GetMouseState();
-            Console.WriteLine($"current now mouse state : {nowMouseState}");
-            Console.WriteLine("_currentMouseState mouseState: " + this._currentMouseState);
-            this._currentMouseState = new MouseState(
-                x, y,
-                this._currentMouseState.ScrollWheelValue,
-                this._currentMouseState.LeftButton,
-                this._currentMouseState.MiddleButton,
-                this._currentMouseState.RightButton,
-                this._currentMouseState.XButton1,
-                this._currentMouseState.XButton2);
-            Console.WriteLine("set set _currentMouseState: " + this._currentMouseState);
-        }
-    }
-#endif
 }
