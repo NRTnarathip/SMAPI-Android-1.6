@@ -9,22 +9,30 @@ namespace StardewModdingAPI.Mobile;
 
 internal static class SCoreMobileManager
 {
-    static bool isOnLoadMods = false;
+    public enum LoadModsStateEnum
+    {
+        None = 0,
+        Starting = 1,
+        LoadedAndNeedToConfirm = 2,
+        LoadedConfirm = 3,
+    }
     static object _lock = new();
-    public static bool IsOnLoadMods
+    public static Action OnAllModLoaded;
+    static LoadModsStateEnum _loadModsState = LoadModsStateEnum.None;
+    public static LoadModsStateEnum LoadModsState
     {
         get
         {
             lock (_lock)
             {
-                return isOnLoadMods;
+                return _loadModsState;
             }
         }
         set
         {
             lock (_lock)
             {
-                isOnLoadMods = value;
+                _loadModsState = value;
             }
         }
     }

@@ -442,7 +442,8 @@ internal class SCore : IDisposable
         ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
 #if SMAPI_FOR_ANDROID
-        SCoreMobileManager.IsOnLoadMods = true;
+        Console.WriteLine("start loading mods in background thread");
+        SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.Starting;
         Task.Run(() =>
 #endif
         // load mods
@@ -507,7 +508,7 @@ internal class SCore : IDisposable
 #endif
 
 #if SMAPI_FOR_ANDROID
-            SCoreMobileManager.IsOnLoadMods = false;
+            SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm;
         });
 #else
         }
@@ -559,9 +560,15 @@ internal class SCore : IDisposable
         try
         {
 #if SMAPI_FOR_ANDROID
-            if (SCoreMobileManager.IsOnLoadMods)
+            switch (SCoreMobileManager.LoadModsState)
             {
-                return;
+                case SCoreMobileManager.LoadModsStateEnum.Starting:
+                    return;//skip, wait loaded all mod
+
+                case SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm:
+                    SCoreMobileManager.OnAllModLoaded?.Invoke();
+                    SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedConfirm;
+                    break;
             }
 #endif
 

@@ -4,6 +4,7 @@ using System.Reflection;
 using Force.DeepCloner;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
+using StardewModdingAPI.Mobile.Mods;
 using StardewValley;
 
 namespace StardewModdingAPI.Mobile;
@@ -26,6 +27,7 @@ internal static class AndroidPatcher
             harmony = new Harmony(nameof(AndroidPatcher));
             harmony.PatchAll();
             VersionInfoMenu.Init();
+            FarmTypeManagerFix.Apply();
         }
         catch (Exception ex)
         {
