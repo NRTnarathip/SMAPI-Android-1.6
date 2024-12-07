@@ -14,6 +14,7 @@ using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Mobile.Facade;
+using StardewModdingAPI.Mobile.Mods;
 using StardewValley;
 using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
@@ -332,11 +333,10 @@ internal class InstructionMetadata
                 .Add(typeof(OptionsElement), (method) => method.Name == "draw",
                     typeof(OptionsElementRewriter), (method) => method.Name == "draw",
                         (map) => { map.AddPramToSrc(typeof(IClickableMenu)); })
-                .AddWithFullNameMaching(
-                   Texture2DRewriter.GetData_FullNameStartWith,
-                   Texture2DRewriter.GetData_Callback
-                )
-            ;
+                .AddWithTypeFullName(
+                   typeof(Texture2D).FullName,
+                   Texture2DRewriter.RewriterCallback
+                );
         }
 
         /****

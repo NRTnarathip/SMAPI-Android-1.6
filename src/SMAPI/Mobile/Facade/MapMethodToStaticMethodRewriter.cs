@@ -11,7 +11,8 @@ namespace StardewModdingAPI.Mobile;
 
 public sealed class MapMethodWithCallback
 {
-    public readonly string methodFullNameStartWith;
+    public readonly string typeFullName;
+
     public delegate bool CallbackDelegate(
         MapMethodWithCallback mapMethod,
         MethodReference methodReference,
@@ -21,9 +22,9 @@ public sealed class MapMethodWithCallback
 
     public readonly CallbackDelegate callback;
 
-    public MapMethodWithCallback(string methodFullNameStartWith, CallbackDelegate callback)
+    public MapMethodWithCallback(string typeFullName, CallbackDelegate callback)
     {
-        this.methodFullNameStartWith = methodFullNameStartWith;
+        this.typeFullName = typeFullName;
         this.callback = callback;
     }
 }
@@ -63,7 +64,7 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
     //key == Src Method FullName
     public readonly Dictionary<string, MapMethodToStaticKeyValue> MapMethods = new();
 
-    //Key: method.Name;
+    //Key: {return Type} {method.Name};
     public readonly Dictionary<string, MapMethodWithCallback> MapMethodWithCallbacks = new();
 
     public MapMethodToStaticMethodRewriter() : base("Rewrite map method to static method")
@@ -130,9 +131,7 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         if (thisMethod == null)
             return false;
 
-        string fullName = thisMethod.FullName;
-        string fullNameStartWith = fullName.Substring(0, fullName.IndexOf("::" + thisMethod.Name) + thisMethod.Name.Length + 2);
-        if (this.MapMethodWithCallbacks.TryGetValue(fullNameStartWith, out var mapMethodStartWith))
+        if (this.MapMethodWithCallbacks.TryGetValue(thisMethod.DeclaringType.FullName, out var mapMethodStartWith))
         {
             bool isMark = mapMethodStartWith.callback(mapMethodStartWith, thisMethod, module, cil, instruction);
             if (isMark)
@@ -147,13 +146,13 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         return false;
     }
 
-    public MapMethodToStaticMethodRewriter AddWithFullNameMaching(
-        string startWith,
+    public MapMethodToStaticMethodRewriter AddWithTypeFullName(
+        string typeFullName,
         MapMethodWithCallback.CallbackDelegate callback)
     {
 
-        var mapMethod = new MapMethodWithCallback(startWith, callback);
-        this.MapMethodWithCallbacks.TryAdd(startWith, mapMethod);
+        var mapMethod = new MapMethodWithCallback(typeFullName, callback);
+        this.MapMethodWithCallbacks.TryAdd(typeFullName, mapMethod);
 
         return this;
     }

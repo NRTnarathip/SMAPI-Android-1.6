@@ -4,30 +4,146 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using StardewValley.Monsters;
+using StardewValley;
+using StardewModdingAPI.Framework;
+using System.Reflection;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
 internal static class FarmTypeManagerFix
 {
-    internal static void Apply()
+    internal static void Init()
     {
-        SCoreMobileManager.OnAllModLoaded += OnAllModLoaded;
+        AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
     }
 
-    private static void OnAllModLoaded()
+    private static void CurrentDomain_AssemblyLoad(object? sender, AssemblyLoadEventArgs args)
     {
-        Console.WriteLine("start FarmTypeManagerFix Apply()");
-        var hp = new Harmony("Esca.FarmTypeManager");
-        var method = hp.GetPatchedMethods();
-        foreach (var m in method)
+        if (args.LoadedAssembly != null)
         {
-            if (m.Name == "isCollidingPosition")
+            if (args.LoadedAssembly.GetName().Name.StartsWith("FarmTypeManager"))
+                ApplyFix(args.LoadedAssembly);
+        }
+    }
+
+    static void ApplyFix(Assembly ftm)
+    {
+        var monitor = SCore.Instance.GetMonitorForGame();
+        monitor.Log("start FarmTypeManagerFix Apply()");
+        try
+        {
+            monitor.Log("Start patching fix");
+            var harmony = new Harmony(nameof(FarmTypeManagerFix));
+            var HarmonyPatch_OptimizeMonsterCode = ftm.GetType("FarmTypeManager.ModEntry+HarmonyPatch_OptimizeMonsterCode");
+            var ApplyPatch_Original = AccessTools.Method(HarmonyPatch_OptimizeMonsterCode, "ApplyPatch");
+            harmony.Patch(
+                original: ApplyPatch_Original,
+                prefix: AccessTools.Method(typeof(FarmTypeManagerFix), nameof(ApplyPatch_EmptyImpl))
+            );
+
+            monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": prefixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+                prefix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Prefix))
+            );
+
+            monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": postfixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+                postfix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Postfix))
+            );
+        }
+        catch (Exception ex)
+        {
+            monitor.Log(ex.ToString());
+        }
+        finally
+        {
+            monitor.Log("done FarmTypeManagerFix");
+        }
+    }
+    public static bool ApplyPatch_EmptyImpl(Harmony harmony)
+    {
+        Console.WriteLine("prefix ApplyPatch_EmptyImpl");
+        return false;
+    }
+
+    public static void OptimizeMonsterCode_ApplyPatch(Harmony harmony)
+    {
+        var monitor = SCore.Instance.GetMonitorForGame();
+        try
+        {
+            //apply Harmony patches
+            //bug in here
+            monitor.Log($"Applying Harmony patch \"{nameof(OptimizeMonsterCode_ApplyPatch)}\": prefixing SDV method \"GameLocation.isCollidingPosition\".", LogLevel.Trace);
+
+            monitor.Log($"Applying Harmony patch \"{nameof(OptimizeMonsterCode_ApplyPatch)}\": prefixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+                prefix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Prefix))
+            );
+
+            monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": postfixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+                postfix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Postfix))
+            );
+        }
+        catch (Exception ex)
+        {
+            monitor.LogOnce($"Harmony patch \"{nameof(FarmTypeManagerFix)}\" failed to apply. Monsters might slow the game down or cause errors. Full error message: \n{ex.ToString()}", LogLevel.Error);
+        }
+    }
+
+    private static bool Monster_findPlayer_Prefix(ref Farmer __result)
+    {
+        var monitor = SCore.Instance.GetMonitorForGame();
+
+        try
+        {
+            if (!Context.IsMultiplayer) //if this is NOT a multiplayer session
             {
-                hp.Unpatch(m, HarmonyPatchType.All);
-                Console.WriteLine("Fixed isCollidingPosition Unpatch");
-                break;
+                __result = Game1.player; //return the current player
+                return false; //skip the original method
+            }
+            else
+                return true; //call the original method
+        }
+        catch (Exception ex)
+        {
+            monitor.LogOnce($"Harmony patch \"{nameof(Monster_findPlayer_Prefix)}\" has encountered an error. Monsters might cause the game to run slower in single-player mode. Full error message: \n{ex.ToString()}", LogLevel.Error);
+            return true; //call the original method
+        }
+    }
+
+    private static void Monster_findPlayer_Postfix(ref Farmer __result)
+    {
+        var monitor = SCore.Instance.GetMonitorForGame();
+        try
+        {
+            if (__result == null) //if this method failed to return a farmer (possible due to other mods' patches, multiplayer/threading issues, etc)
+            {
+                __result = Game1.player; //assign the local player (should never be null because it causes immediate crashes in most contexts, but may still be possible)
+
+                if (__result == null) //if the result is somehow still null
+                {
+                    monitor.LogOnce($"Monster.findPlayer and Game1.player both returned null. If errors occur, please share your full log file with this mod's developer.", LogLevel.Debug);
+                    return;
+                }
+                else
+                {
+                    monitor.LogOnce($"Monster.findPlayer returned null. Using Game1.player instead.", LogLevel.Trace);
+                    return;
+                }
             }
         }
-        Console.WriteLine("done FarmTypeManagerFix");
+        catch (Exception ex)
+        {
+            monitor.LogOnce($"Harmony patch \"{nameof(Monster_findPlayer_Postfix)}\" has encountered an error. Full error message: \n{ex.ToString()}", LogLevel.Error);
+            return; //call the original method
+        }
     }
 }

@@ -96,7 +96,7 @@ public static class Texture2DRewriter
 
     public static MethodInfo Fix_GetData_MethodInfo = AccessTools.Method(typeof(Texture2DRewriter), nameof(Fix_GetDataForPC));
     public const string GetData_FullNameStartWith = "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData";
-    public static bool GetData_Callback(
+    public static bool RewriterCallback(
         MapMethodWithCallback mapMethod,
         MethodReference method,
         ModuleDefinition module, ILProcessor cil, Instruction instruction)

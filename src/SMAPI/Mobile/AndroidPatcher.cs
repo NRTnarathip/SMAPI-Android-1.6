@@ -27,7 +27,7 @@ internal static class AndroidPatcher
             harmony = new Harmony(nameof(AndroidPatcher));
             harmony.PatchAll();
             VersionInfoMenu.Init();
-            FarmTypeManagerFix.Apply();
+            FarmTypeManagerFix.Init();
         }
         catch (Exception ex)
         {
