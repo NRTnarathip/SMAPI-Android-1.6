@@ -15,61 +15,51 @@ namespace StardewModdingAPI.Mobile.Mods;
 
 internal static class FarmTypeManagerFix
 {
-    internal static void Init()
+    internal static void Init(AndroidModFixManager androidModFixManager)
     {
-        AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+        androidModFixManager.RegisterOnModLoaded("FarmTypeManager", OnAsmLoaded);
     }
-
-    private static void CurrentDomain_AssemblyLoad(object? sender, AssemblyLoadEventArgs args)
+    static void OnAsmLoaded(Assembly asm)
     {
-        if (args.LoadedAssembly != null)
+        var monitor = SCore.Instance.GetMonitorForGame();
+        monitor.Log("start FarmTypeManagerFix");
+        try
         {
-            if (args.LoadedAssembly.GetName().Name.StartsWith("FarmTypeManager"))
-                ApplyFix(args.LoadedAssembly);
+            ApplyFix(asm);
         }
+        catch (Exception ex)
+        {
+            monitor.Log(ex.ToString(), LogLevel.Error);
+        }
+        monitor.Log("done FarmTypeManagerFix");
     }
 
     static void ApplyFix(Assembly ftm)
     {
         var monitor = SCore.Instance.GetMonitorForGame();
-        monitor.Log("start FarmTypeManagerFix Apply()");
-        AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
+        monitor.Log("Start patching fix");
+        var harmony = new Harmony(nameof(FarmTypeManagerFix));
+        var HarmonyPatch_OptimizeMonsterCode = ftm.GetType("FarmTypeManager.ModEntry+HarmonyPatch_OptimizeMonsterCode");
+        var ApplyPatch_Original = AccessTools.Method(HarmonyPatch_OptimizeMonsterCode, "ApplyPatch");
+        harmony.Patch(
+            original: ApplyPatch_Original,
+            prefix: AccessTools.Method(typeof(FarmTypeManagerFix), nameof(ApplyPatch_EmptyImpl))
+        );
 
-        try
-        {
-            monitor.Log("Start patching fix");
-            var harmony = new Harmony(nameof(FarmTypeManagerFix));
-            var HarmonyPatch_OptimizeMonsterCode = ftm.GetType("FarmTypeManager.ModEntry+HarmonyPatch_OptimizeMonsterCode");
-            var ApplyPatch_Original = AccessTools.Method(HarmonyPatch_OptimizeMonsterCode, "ApplyPatch");
-            harmony.Patch(
-                original: ApplyPatch_Original,
-                prefix: AccessTools.Method(typeof(FarmTypeManagerFix), nameof(ApplyPatch_EmptyImpl))
-            );
+        monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": prefixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+        harmony.Patch(
+            original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+            prefix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Prefix))
+        );
 
-            monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": prefixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
-                prefix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Prefix))
-            );
-
-            monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": postfixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
-                postfix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Postfix))
-            );
-        }
-        catch (Exception ex)
-        {
-            monitor.Log(ex.ToString());
-        }
-        finally
-        {
-            monitor.Log("done FarmTypeManagerFix");
-        }
+        monitor.Log($"Applying Harmony patch \"{nameof(FarmTypeManagerFix)}\": postfixing SDV method \"Monster.findPlayer\".", LogLevel.Trace);
+        harmony.Patch(
+            original: AccessTools.Method(typeof(Monster), "findPlayer", new Type[] { }),
+            postfix: new HarmonyMethod(typeof(FarmTypeManagerFix), nameof(Monster_findPlayer_Postfix))
+        );
     }
     public static bool ApplyPatch_EmptyImpl(Harmony harmony)
     {
-        Console.WriteLine("prefix ApplyPatch_EmptyImpl");
         return false;
     }
 

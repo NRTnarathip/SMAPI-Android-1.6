@@ -19,7 +19,6 @@ internal static class AndroidPatcher
         AndroidLogger.Log("===========================");
         AndroidLogger.Log("On AndroidPatcher.Setup()");
 
-
         try
         {
             Log.enabled = true;
@@ -27,7 +26,10 @@ internal static class AndroidPatcher
             harmony = new Harmony(nameof(AndroidPatcher));
             harmony.PatchAll();
             VersionInfoMenu.Init();
-            FarmTypeManagerFix.Init();
+            var modFix = AndroidModFixManager.Init();
+
+            FarmTypeManagerFix.Init(modFix);
+            SpaceCoreFix.Init(modFix);
         }
         catch (Exception ex)
         {
