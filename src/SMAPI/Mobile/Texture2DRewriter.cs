@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Android.Hardware.Lights;
 using HarmonyLib;
-using Java.Lang;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil;
@@ -74,28 +73,35 @@ public static class Texture2DRewriter
     }
     public static void Fix_GetDataForPC(this Texture2D texture, Color[] data)
     {
-        if (texture.ActualWidth == texture.Width
-            && texture.ActualHeight == texture.Height)
+        try
         {
-            //correct size
-            texture.GetData(data);
-            return;
+            if (texture.ActualWidth == texture.Width
+                && texture.ActualHeight == texture.Height)
+            {
+                //correct size
+                texture.GetData(data);
+                return;
+            }
+
+            var monitor = SCore.Instance.GetMonitorForGame();
+            monitor.Log($"try fix GetDataForPC(); texture: {texture.Name}, crop resize to: {texture.Width}x{texture.Height}");
+
+            //correct to data pixels
+            Color[] srcPixels = new Color[texture.ActualWidth * texture.ActualHeight];
+            texture.GetData(srcPixels);
+
+            //crop image
+            CropPixels(srcPixels, data,
+                texture.ActualWidth, texture.ActualHeight,
+                texture.Width, texture.Height);
         }
-
-        Console.WriteLine($"try fix GetDataForPC(); texture: {texture.Name}, crop resize to: {texture.Width}x{texture.Height}");
-
-        //correct to data pixels
-        Color[] srcPixels = new Color[texture.ActualWidth * texture.ActualHeight];
-        texture.GetData(srcPixels);
-
-        //crop image
-        CropPixels(srcPixels, data,
-            texture.ActualWidth, texture.ActualHeight,
-            texture.Width, texture.Height);
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     public static MethodInfo Fix_GetData_MethodInfo = AccessTools.Method(typeof(Texture2DRewriter), nameof(Fix_GetDataForPC));
-    public const string GetData_FullNameStartWith = "System.Void Microsoft.Xna.Framework.Graphics.Texture2D::GetData";
     public static bool RewriterCallback(
         MapMethodWithCallback mapMethod,
         MethodReference method,
