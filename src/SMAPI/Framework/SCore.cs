@@ -57,6 +57,7 @@ using StardewModdingAPI.Mobile;
 using Android.Views;
 using Android.App;
 using HarmonyLib;
+using static Android.Provider.CalendarContract;
 
 namespace StardewModdingAPI.Framework;
 
@@ -664,6 +665,16 @@ internal class SCore : IDisposable
         }
     }
 
+#if SMAPI_FOR_ANDROID
+    internal void SetupOnReadyGameLaunched()
+    {
+        EventManager events = this.EventManager;
+
+        if (events.GameLaunched.HasListeners)
+            events.GameLaunched.Raise(new GameLaunchedEventArgs());
+    }
+#endif
+
     /// <summary>Raised when the game instance for a local player is updating (once per <see cref="OnGameUpdating"/> per player).</summary>
     /// <param name="instance">The game instance being updated.</param>
     /// <param name="gameTime">A snapshot of the game timing state.</param>
@@ -1123,18 +1134,16 @@ internal class SCore : IDisposable
                 *********/
                 // game launched (not raised for secondary players in split-screen mode)
 #if SMAPI_FOR_ANDROID
-                if (!Context.IsGameLaunched
-                    && SCoreMobileManager.LoadModsState == SCoreMobileManager.LoadModsStateEnum.LoadedConfirm
-                    && SGameAndroidPatcher.IsAfterLoadContent)
+                //init events at OnAfterLoadContent
 #else
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
-#endif
                 {
                     Context.IsGameLaunched = true;
 
                     if (events.GameLaunched.HasListeners)
                         events.GameLaunched.Raise(new GameLaunchedEventArgs());
                 }
+#endif
 
                 // preloaded
                 if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready && Game1.dayOfMonth != 0)
@@ -1153,15 +1162,10 @@ internal class SCore : IDisposable
             *********/
             {
                 bool isOneSecond = SCore.TicksElapsed % 60 == 0;
-#if SMAPI_FOR_ANDROID
-                if (SGameAndroidPatcher.IsAfterLoadContent)
-                {
-                    events.UnvalidatedUpdateTicking.RaiseEmpty();
-                    events.UpdateTicking.RaiseEmpty();
-                    if (isOneSecond)
-                        events.OneSecondUpdateTicking.RaiseEmpty();
-                }
-#endif
+                events.UnvalidatedUpdateTicking.RaiseEmpty();
+                events.UpdateTicking.RaiseEmpty();
+                if (isOneSecond)
+                    events.OneSecondUpdateTicking.RaiseEmpty();
                 try
                 {
                     instance.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
@@ -1172,13 +1176,10 @@ internal class SCore : IDisposable
                     this.LogManager.MonitorForGame.Log($"An error occurred in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                 }
 
-                if (SGameAndroidPatcher.IsAfterLoadContent)
-                {
-                    events.UnvalidatedUpdateTicked.RaiseEmpty();
-                    events.UpdateTicked.RaiseEmpty();
-                    if (isOneSecond)
-                        events.OneSecondUpdateTicked.RaiseEmpty();
-                }
+                events.UnvalidatedUpdateTicked.RaiseEmpty();
+                events.UpdateTicked.RaiseEmpty();
+                if (isOneSecond)
+                    events.OneSecondUpdateTicked.RaiseEmpty();
             }
 
             /*********

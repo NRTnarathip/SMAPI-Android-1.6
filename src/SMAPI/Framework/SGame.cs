@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
@@ -23,6 +24,7 @@ using StardewValley.Menus;
 using StardewValley.Minigames;
 using StardewValley.Network;
 using xTile.Display;
+using static Android.Provider.CalendarContract;
 
 namespace StardewModdingAPI.Framework;
 
@@ -178,6 +180,8 @@ internal class SGame : Game1
 
         //so we should call OnContentLoaded
         //after 	private void AfterLoadContent()
+        //wait to load mods in background thread
+        ManagedEventAndroidManager.SkipRaise = true;
         SGameAndroidPatcher.OnAfterLoadContent += this.OnAfterLoadContent;
 #else
         this.OnContentLoaded();
@@ -187,8 +191,14 @@ internal class SGame : Game1
 #if SMAPI_FOR_ANDROID
     void OnAfterLoadContent()
     {
-        Console.WriteLine("Postfix OnAfterLoadContent");
+        //ready game launched
+        Console.WriteLine("Ready for Game Launched");
+        //setup
+        ManagedEventAndroidManager.SkipRaise = false;
+
+        //raise events
         this.OnContentLoaded();
+        SCore.Instance.SetupOnReadyGameLaunched();
     }
 #endif
 

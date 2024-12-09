@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Mobile;
 
 namespace StardewModdingAPI.Framework.Events;
 
@@ -100,6 +101,11 @@ internal class ManagedEvent<TEventArgs> : IManagedEvent
         // skip if no handlers
         if (this.Handlers.Count == 0)
             return;
+
+#if SMAPI_FOR_ANDROID
+        if (ManagedEventAndroidManager.SkipRaise)
+            return;
+#endif
 
         // raise event
         foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
