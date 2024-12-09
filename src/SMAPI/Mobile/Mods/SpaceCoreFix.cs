@@ -14,6 +14,7 @@ namespace StardewModdingAPI.Mobile.Mods;
 
 internal static class SpaceCoreFix
 {
+    static Assembly modAssembly;
     public static void Init(AndroidModFixManager androidModFix)
     {
         androidModFix.RegisterOnModLoaded("SpaceCore", OnModLoaded);
@@ -21,6 +22,7 @@ internal static class SpaceCoreFix
 
     static void OnModLoaded(Assembly asm)
     {
+        modAssembly = asm;
         var monitor = SCore.Instance.GetMonitorForGame();
         monitor.Log("Start SpaceCoreFix");
         try
@@ -39,6 +41,18 @@ internal static class SpaceCoreFix
     {
         var harmony = new Harmony(nameof(SpaceCoreFix));
         DisableQuickSave.TryInit(harmony);
+        //fix private void GatherLocals()
+        var SpaceCoreModEntry = modAssembly.GetType("SpaceCore.SpaceCore");
+        harmony.Patch(
+            original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),
+            prefix: AccessTools.Method(typeof(SpaceCoreFix), nameof(Prefix_GatherLocals))
+        );
+    }
+    static bool Prefix_GatherLocals()
+    {
+        var monitor = SCore.Instance.GetMonitorForGame();
+        monitor.Log("bypass GatherLocals() in mod SpaceCore");
+        return false;
     }
 
     static class DisableQuickSave

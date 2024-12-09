@@ -32,7 +32,11 @@ internal class AndroidModFixManager
     {
         string name = asm.GetName().Name;
         if (this.OnModLoadedRegistry.TryGetValue(name, out Action<Assembly> cb))
+        {
             cb.Invoke(asm);
+            this.OnModLoadedRegistry.Remove(name);
+            //cleanup
+        }
 
     }
 
