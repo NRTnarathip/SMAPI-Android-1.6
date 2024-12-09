@@ -15,6 +15,7 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Logging;
@@ -163,8 +164,33 @@ internal class SGame : Game1
     {
         base.LoadContent();
 
+#if SMAPI_FOR_ANDROID
+        //on android it's use GetLoadContentEnumerator();
+        //LoadContentEnumerator = GetLoadContentEnumerator();
+        //if (!ShouldLoadIncrementally)
+        //{
+        //    while (LoadContentEnumerator.MoveNext())
+        //    {
+        //    }
+        //    LoadContentEnumerator = null;
+        //    AfterLoadContent();
+        //}
+
+        //so we should call OnContentLoaded
+        //after 	private void AfterLoadContent()
+        SGameAndroidPatcher.OnAfterLoadContent += this.OnAfterLoadContent;
+#else
+        this.OnContentLoaded();
+#endif
+    }
+
+#if SMAPI_FOR_ANDROID
+    void OnAfterLoadContent()
+    {
+        Console.WriteLine("Postfix OnAfterLoadContent");
         this.OnContentLoaded();
     }
+#endif
 
     /// <inheritdoc />
     public override bool ShouldDrawOnBuffer()

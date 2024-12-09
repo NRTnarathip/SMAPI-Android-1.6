@@ -77,11 +77,21 @@ internal static class SpaceCoreFix
             original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),
             prefix: AccessTools.Method(typeof(SpaceCoreFix), nameof(Prefix_GatherLocals))
         );
+
     }
     static bool Prefix_GatherLocals()
     {
         var monitor = SCore.Instance.GetMonitorForGame();
-        monitor.Log("bypass GatherLocals() in mod SpaceCore");
+        monitor.Log("call GatherLocals() for android");
+        try
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
         return false;
     }
 

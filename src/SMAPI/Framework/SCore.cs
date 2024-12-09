@@ -1122,7 +1122,13 @@ internal class SCore : IDisposable
                 ** Game update
                 *********/
                 // game launched (not raised for secondary players in split-screen mode)
+#if SMAPI_FOR_ANDROID
+                if (!Context.IsGameLaunched
+                    && SCoreMobileManager.LoadModsState == SCoreMobileManager.LoadModsStateEnum.LoadedConfirm
+                    && SGameAndroidPatcher.IsAfterLoadContent)
+#else
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
+#endif
                 {
                     Context.IsGameLaunched = true;
 
@@ -1147,10 +1153,15 @@ internal class SCore : IDisposable
             *********/
             {
                 bool isOneSecond = SCore.TicksElapsed % 60 == 0;
-                events.UnvalidatedUpdateTicking.RaiseEmpty();
-                events.UpdateTicking.RaiseEmpty();
-                if (isOneSecond)
-                    events.OneSecondUpdateTicking.RaiseEmpty();
+#if SMAPI_FOR_ANDROID
+                if (SGameAndroidPatcher.IsAfterLoadContent)
+                {
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    events.UpdateTicking.RaiseEmpty();
+                    if (isOneSecond)
+                        events.OneSecondUpdateTicking.RaiseEmpty();
+                }
+#endif
                 try
                 {
                     instance.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
@@ -1161,10 +1172,13 @@ internal class SCore : IDisposable
                     this.LogManager.MonitorForGame.Log($"An error occurred in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                 }
 
-                events.UnvalidatedUpdateTicked.RaiseEmpty();
-                events.UpdateTicked.RaiseEmpty();
-                if (isOneSecond)
-                    events.OneSecondUpdateTicked.RaiseEmpty();
+                if (SGameAndroidPatcher.IsAfterLoadContent)
+                {
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    events.UpdateTicked.RaiseEmpty();
+                    if (isOneSecond)
+                        events.OneSecondUpdateTicked.RaiseEmpty();
+                }
             }
 
             /*********
