@@ -9,15 +9,45 @@ using StardewModdingAPI.Framework;
 using StardewValley.Menus;
 using StardewValley;
 using Microsoft.Xna.Framework;
+using Mono.Cecil;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
 internal static class SpaceCoreFix
 {
     static Assembly modAssembly;
+    const string SpaceCoreAssemblyName = "SpaceCore";
     public static void Init(AndroidModFixManager androidModFix)
     {
-        androidModFix.RegisterOnModLoaded("SpaceCore", OnModLoaded);
+        androidModFix.RegisterOnModLoaded(SpaceCoreAssemblyName, OnModLoaded);
+        androidModFix.RegisterOnRewriterModAssemblyDef(SpaceCoreAssemblyName, OnRewriterAssembly);
+    }
+    static void OnRewriterAssembly(Mono.Cecil.AssemblyDefinition assemblyDef)
+    {
+        Console.WriteLine("try rewrite SpaceCore.dll");
+        var mainModule = assemblyDef.MainModule;
+
+        //Fix FarmerAlwaysAcceptVirtualCurrencyPatch1
+        {
+            var FarmerAlwaysAcceptVirtualCurrencyPatch1
+                = mainModule.GetType("SpaceCore.VanillaAssetExpansion.FarmerAlwaysAcceptVirtualCurrencyPatch1");
+
+            var harmonyPatchAttribute = FarmerAlwaysAcceptVirtualCurrencyPatch1.CustomAttributes[0];
+            var harmonyPatch_Types = harmonyPatchAttribute.ConstructorArguments[2];
+            var argTypeArray = harmonyPatch_Types.Value as CustomAttributeArgument[];
+
+            var boolType = mainModule.ImportReference(typeof(bool));
+            var newArgBoolType = new CustomAttributeArgument(boolType, boolType);
+            var argTypeList = new List<CustomAttributeArgument>();
+            argTypeList.AddRange(argTypeArray);
+            argTypeList.Add(newArgBoolType);
+            harmonyPatchAttribute.ConstructorArguments[2] = new CustomAttributeArgument(
+                harmonyPatch_Types.Type,
+                argTypeList.ToArray()
+            );
+        }
+
+
     }
 
     static void OnModLoaded(Assembly asm)
