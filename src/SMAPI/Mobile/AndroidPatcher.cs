@@ -35,7 +35,6 @@ internal static class AndroidPatcher
         {
             AndroidLogger.Log(ex);
         }
-        AndroidLogger.Log("Done Setup()");
     }
 
     [HarmonyPrefix]

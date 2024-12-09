@@ -509,6 +509,14 @@ internal class SCore : IDisposable
 #endif
 
 #if SMAPI_FOR_ANDROID
+            //debug
+            //check make sure
+            // Game1.OnAfterLoadContent it will called when is LoadModsStateEnum.LoadedConfirm
+            //while (true)
+            //{
+            //    Console.WriteLine("Sleep 1 second at LoadMods");
+            //    Thread.Sleep(1000);
+            //}
             SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm;
         });
 #else
@@ -564,11 +572,14 @@ internal class SCore : IDisposable
             switch (SCoreMobileManager.LoadModsState)
             {
                 case SCoreMobileManager.LoadModsStateEnum.Starting:
-                    return;//skip, wait loaded all mod
+                    //skip, wait loaded all mod
+                    return;
 
                 case SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm:
-                    SCoreMobileManager.OnAllModLoaded?.Invoke();
+                    //setup state
                     SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedConfirm;
+                    //continue LoadContentEnumerator.MoveNext() in Game1._update()
+                    //it will call Game1.OnAfterLoadContent
                     break;
             }
 #endif
@@ -1134,7 +1145,7 @@ internal class SCore : IDisposable
                 *********/
                 // game launched (not raised for secondary players in split-screen mode)
 #if SMAPI_FOR_ANDROID
-                //init events at OnAfterLoadContent
+                //called after Game1.OnAfterLoadContent
 #else
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
                 {

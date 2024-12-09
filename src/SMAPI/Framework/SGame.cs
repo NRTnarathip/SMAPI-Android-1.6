@@ -181,7 +181,6 @@ internal class SGame : Game1
         //so we should call OnContentLoaded
         //after 	private void AfterLoadContent()
         //wait to load mods in background thread
-        ManagedEventAndroidManager.SkipRaise = true;
         SGameAndroidPatcher.OnAfterLoadContent += this.OnAfterLoadContent;
 #else
         this.OnContentLoaded();
@@ -194,7 +193,7 @@ internal class SGame : Game1
         //ready game launched
         Console.WriteLine("Ready for Game Launched");
         //setup
-        ManagedEventAndroidManager.SkipRaise = false;
+        ManagedEventModAndroidManager.SkipRaise = false;//ready to raise all mods
 
         //raise events
         this.OnContentLoaded();

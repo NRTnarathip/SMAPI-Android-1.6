@@ -34,7 +34,6 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
-        AndroidLogger.Log("Starting SMAPI Program()...");
         AndroidPatcher.Setup();
         AppNotRespondFix.Init();
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
@@ -52,7 +51,6 @@ internal class Program
             Program.AssertSmapiVersions();
             Program.AssertDepsJson();
 #endif
-            Console.WriteLine("try Program.Start()");
             Program.Start(args);
         }
         catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
@@ -65,7 +63,6 @@ internal class Program
             Console.WriteLine($"SMAPI failed to initialize: {ex}");
             Program.PressAnyKeyToExit(true);
         }
-        AndroidLogger.Log("End SMAPI Program()");
     }
 
 
@@ -213,7 +210,6 @@ internal class Program
     /// <remarks>This method is separate from <see cref="Main"/> because that can't contain any references to assemblies loaded by <see cref="CurrentDomain_AssemblyResolve"/> (e.g. via <see cref="Constants"/>), or Mono will incorrectly show an assembly resolution error before assembly resolution is set up.</remarks>
     private static void Start(string[] args)
     {
-        AndroidLogger.Log("On SMAPI.Program.Start(args)");
         // get flags
         bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
@@ -255,7 +251,6 @@ internal class Program
         developerMode = true;
         writeToConsole = false;
         modsPath = Path.Combine(EarlyConstants.ExternalFilesDir, "Mods");
-        Console.WriteLine("modsPath: " + modsPath);
 #endif
         SCore core = new(modsPath, writeToConsole, developerMode);
         core.RunInteractively();

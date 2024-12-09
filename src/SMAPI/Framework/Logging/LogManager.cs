@@ -111,7 +111,6 @@ internal class LogManager : IDisposable
             .Add(new HarmonySummaryCommand(), this.Monitor)
             .Add(new ReloadI18nCommand(reloadTranslations), this.Monitor);
 
-        Console.WriteLine("try start handle command");
         // start handling command line input
         Thread inputThread = new(() =>
         {
@@ -133,11 +132,9 @@ internal class LogManager : IDisposable
         });
         inputThread.Start();
 
-        Console.WriteLine("done inputThread.Start()");
         // keep console thread alive while the game is running
         while (continueWhile())
             Thread.Sleep(1000 / 10);
-        Console.WriteLine("End RunConsoleInputLoop()");
     }
 
     /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

@@ -103,7 +103,7 @@ internal class ManagedEvent<TEventArgs> : IManagedEvent
             return;
 
 #if SMAPI_FOR_ANDROID
-        if (ManagedEventAndroidManager.SkipRaise)
+        if (ManagedEventModAndroidManager.SkipRaise)
             return;
 #endif
 

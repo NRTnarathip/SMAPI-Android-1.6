@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StardewModdingAPI.Mobile;
 
-internal static class ManagedEventAndroidManager
+internal static class ManagedEventModAndroidManager
 {
-    public static bool SkipRaise = false;
+    public static bool SkipRaise = true;
 }

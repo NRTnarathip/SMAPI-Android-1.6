@@ -17,7 +17,6 @@ internal static class SCoreMobileManager
         LoadedConfirm = 3,
     }
     static object _lock = new();
-    public static Action OnAllModLoaded;
     static LoadModsStateEnum _loadModsState = LoadModsStateEnum.None;
     public static LoadModsStateEnum LoadModsState
     {
@@ -36,4 +35,5 @@ internal static class SCoreMobileManager
             }
         }
     }
+    public static bool IsLoadedAllMod => LoadModsState == LoadModsStateEnum.LoadedConfirm;
 }
