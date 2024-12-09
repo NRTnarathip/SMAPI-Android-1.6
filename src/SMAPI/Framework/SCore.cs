@@ -569,6 +569,9 @@ internal class SCore : IDisposable
         try
         {
 #if SMAPI_FOR_ANDROID
+            //current load content step
+            //IEnumerator<int> LoadContentEnumerator = (IEnumerator<int>)AccessTools.Field(typeof(Game1), "LoadContentEnumerator").GetValue(null);
+            //Console.WriteLine("load content step: " + LoadContentEnumerator.Current);
             switch (SCoreMobileManager.LoadModsState)
             {
                 case SCoreMobileManager.LoadModsStateEnum.Starting:
@@ -747,6 +750,55 @@ internal class SCore : IDisposable
             *********/
             // Run async tasks synchronously to avoid issues due to mod events triggering
             // concurrently with game code.
+
+#if SMAPI_FOR_ANDROID
+            //run with enumerator
+            if (Game1.currentLoader != null)
+            {
+                // raise load stage changed
+                Game1.game1.UpdateTitleScreenDuringLoadingMode();
+
+                int? step = Game1.currentLoader?.Current;
+                bool isLoaded = step == null;
+                if (!isLoaded)
+                    ManagedEventModAndroidManager.SkipRaise = true;
+                else
+                    ManagedEventModAndroidManager.SkipRaise = false;
+
+                Console.WriteLine("step: " + step);
+
+                switch (step)
+                {
+                    case 20 when (SaveGame.loaded != null):
+                        ManagedEventModAndroidManager.SkipRaise = false;
+                        this.OnLoadStageChanged(LoadStage.SaveParsed);
+                        ManagedEventModAndroidManager.SkipRaise = true;
+                        break;
+
+                    case 36:
+                        ManagedEventModAndroidManager.SkipRaise = false;
+                        this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
+                        ManagedEventModAndroidManager.SkipRaise = true;
+                        break;
+
+                    case 50:
+                        ManagedEventModAndroidManager.SkipRaise = false;
+                        this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
+                        ManagedEventModAndroidManager.SkipRaise = true;
+                        break;
+
+                    default:
+                        if (Game1.gameMode == Game1.playingGameMode)
+                        {
+                            ManagedEventModAndroidManager.SkipRaise = false;
+                            this.OnLoadStageChanged(LoadStage.Preloaded);
+                            ManagedEventModAndroidManager.SkipRaise = true;
+                        }
+                        break;
+                }
+            }
+#else
+
             bool saveParsed = false;
             if (Game1.currentLoader != null)
             {
@@ -787,6 +839,7 @@ internal class SCore : IDisposable
                 this.Monitor.Log("Game loader done.", Monitor.ContextLogLevel);
             }
 
+#endif
             // While a background task is in progress, the game may make changes to the game
             // state while mods are running their code. This is risky, because data changes can
             // conflict (e.g. collection changed during enumeration errors) and data may change

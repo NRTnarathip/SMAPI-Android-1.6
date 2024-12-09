@@ -65,9 +65,21 @@ internal class SModHooks : DelegatingModHooks
     /// <inheritdoc />
     public override Task StartTask(Task task, string id)
     {
+#if SMAPI_FOR_ANDROID
+        //original code
+
+        //task.Start();
+        //return task;
+
+        //Android Fix
+        this.Monitor.Log($"SModHooks StartTask id: {id} for android");
+        task.Start();
+        this.Monitor.Log("Task completed");
+#else
         this.Monitor.Log($"Synchronizing '{id}' task...");
         task.RunSynchronously();
         this.Monitor.Log("   task complete.");
+#endif
         return task;
     }
 
