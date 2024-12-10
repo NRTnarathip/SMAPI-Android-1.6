@@ -66,13 +66,7 @@ internal class SModHooks : DelegatingModHooks
     public override Task StartTask(Task task, string id)
     {
 #if SMAPI_FOR_ANDROID
-        //original code
-
-        //task.Start();
-        //return task;
-
-        //Android Fix
-        this.Monitor.Log($"SModHooks StartTask id: {id} for android");
+        this.Monitor.Log($"StartTask id: {id} in Thread Pool for android");
         task.Start();
         this.Monitor.Log("Task completed");
 #else

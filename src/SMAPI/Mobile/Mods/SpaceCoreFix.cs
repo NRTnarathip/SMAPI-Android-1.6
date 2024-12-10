@@ -10,6 +10,7 @@ using StardewValley.Menus;
 using StardewValley;
 using Microsoft.Xna.Framework;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
@@ -47,7 +48,17 @@ internal static class SpaceCoreFix
             );
         }
 
-
+        //SerializationPatcher
+        {
+            var SerializationPatcherType = mainModule.GetType("SpaceCore.Patches.SerializationPatcher");
+            Console.WriteLine("SerializationPatcherType: " + SerializationPatcherType);
+            var applyMehtod = SerializationPatcherType.GetMethods().Single(m => m.Name == "Apply");
+            Console.WriteLine("apply method: " + applyMehtod);
+            var ilProcessor = applyMehtod.Body.GetILProcessor();
+            //remove 2 IL code
+            ilProcessor.RemoveAt(0);
+            ilProcessor.RemoveAt(0);
+        }
     }
 
     static void OnModLoaded(Assembly asm)
@@ -58,7 +69,7 @@ internal static class SpaceCoreFix
         try
         {
             monitor.Log("Start SpaceCoreFix.ApplyFix()");
-            ApplyFix();
+            ApplyFixOnModLoaded();
         }
         catch (Exception ex)
         {
@@ -67,7 +78,7 @@ internal static class SpaceCoreFix
 
         monitor.Log("Done SpaceCoreFix");
     }
-    static void ApplyFix()
+    static void ApplyFixOnModLoaded()
     {
         var harmony = new Harmony(nameof(SpaceCoreFix));
         DisableQuickSave.TryInit(harmony);

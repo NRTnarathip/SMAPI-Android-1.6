@@ -67,9 +67,17 @@ internal class Program
 
         //Pack SMAPI-x.x.x.x.zip from directory SMAPI-x.x.x.x
         string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName + ".zip");
+        //add date after version
+        string stardewModdingAPIFilePath = Path.Combine(SMAPIBinDir, StardewModdingAPIFileName);
+        DateTime fileDateTime = File.GetLastWriteTime(stardewModdingAPIFilePath);
+        long unixTimestamp = ((DateTimeOffset)fileDateTime).ToUnixTimeSeconds();
+
+        outputZipFilePath = outputZipFilePath.Replace(".zip", $"-({unixTimestamp}).zip");
+
+
         Console.WriteLine("try pack SMPAI.zip output at " + outputZipFilePath);
         using var zipStream = File.Open(outputZipFilePath, FileMode.Create, FileAccess.ReadWrite);
-        ZipFile.CreateFromDirectory(smapiOutputDir, zipStream, CompressionLevel.SmallestSize, true);
+        ZipFile.CreateFromDirectory(smapiOutputDir, zipStream, CompressionLevel.Fastest, true);
         Console.WriteLine("done pack & file size: " + zipStream.Length);
         zipStream.Close();
 

@@ -757,43 +757,28 @@ internal class SCore : IDisposable
             {
                 // raise load stage changed
                 Game1.game1.UpdateTitleScreenDuringLoadingMode();
-
                 int? step = Game1.currentLoader?.Current;
-                bool isLoaded = step == null;
-                if (!isLoaded)
-                    ManagedEventModAndroidManager.SkipRaise = true;
-                else
-                    ManagedEventModAndroidManager.SkipRaise = false;
-
-                Console.WriteLine("step: " + step);
-
                 switch (step)
                 {
+                    case null:
+                        //done run task loader
+                        break;
+
                     case 20 when (SaveGame.loaded != null):
-                        ManagedEventModAndroidManager.SkipRaise = false;
                         this.OnLoadStageChanged(LoadStage.SaveParsed);
-                        ManagedEventModAndroidManager.SkipRaise = true;
                         break;
 
                     case 36:
-                        ManagedEventModAndroidManager.SkipRaise = false;
                         this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
-                        ManagedEventModAndroidManager.SkipRaise = true;
                         break;
 
                     case 50:
-                        ManagedEventModAndroidManager.SkipRaise = false;
                         this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
-                        ManagedEventModAndroidManager.SkipRaise = true;
                         break;
 
                     default:
                         if (Game1.gameMode == Game1.playingGameMode)
-                        {
-                            ManagedEventModAndroidManager.SkipRaise = false;
                             this.OnLoadStageChanged(LoadStage.Preloaded);
-                            ManagedEventModAndroidManager.SkipRaise = true;
-                        }
                         break;
                 }
             }
