@@ -54,28 +54,35 @@ internal class AndroidModFixManager
     }
 
     //key: AssemblyName, value: callback
-    Dictionary<string, Action<Mono.Cecil.AssemblyDefinition>> OnDoneRewriterModDictionary = new();
-    internal void RegisterOnRewriterModAssemblyDef(string v, Action<Mono.Cecil.AssemblyDefinition> callback)
+    Dictionary<string, Action<Mono.Cecil.AssemblyDefinition>> OnRewriteModDictionary = new();
+    internal void RegisterRewriteModAssemblyDef(string v, Action<Mono.Cecil.AssemblyDefinition> callback)
     {
-        this.OnDoneRewriterModDictionary.TryAdd(v, callback);
+        this.OnRewriteModDictionary.TryAdd(v, callback);
     }
 
-    internal void OnDoneRewriterMod(Framework.ModLoading.AssemblyParseResult assembly)
+    internal void TryRewriteMod(Framework.ModLoading.AssemblyParseResult assembly, out bool hasRewrite, out Exception exception)
     {
         string assemblyName = assembly.Definition.Name.Name;
-        if (this.OnDoneRewriterModDictionary.TryGetValue(assemblyName, out var callback))
+        hasRewrite = false;
+        exception = null;
+
+        if (this.OnRewriteModDictionary.TryGetValue(assemblyName, out var callback))
         {
+            var monitor = SCore.Instance.GetMonitorForGame();
+            this.OnRewriteModDictionary.Remove(assemblyName);
+
+            monitor.Log("Try ModFixManager rewrite mod: " + assembly.Definition.Name);
             try
             {
                 callback.Invoke(assembly.Definition);
+                hasRewrite = true;
+                monitor.Log("Done rewrite mod: " + assembly.Definition.Name);
             }
             catch (Exception ex)
             {
-                var monitor = SCore.Instance.GetMonitorForGame();
                 monitor.Log(ex.ToString(), LogLevel.Error);
+                exception = ex;
             }
-            //clean up
-            this.OnDoneRewriterModDictionary.Remove(assemblyName);
         }
     }
 }

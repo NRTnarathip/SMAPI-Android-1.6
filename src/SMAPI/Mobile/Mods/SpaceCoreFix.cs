@@ -11,6 +11,10 @@ using StardewValley;
 using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
+using Mono.Cecil.Cil;
+using Iced.Intel;
+using MonoMod.Utils;
+using StardewValley.Extensions;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
@@ -21,7 +25,7 @@ internal static class SpaceCoreFix
     public static void Init(AndroidModFixManager androidModFix)
     {
         androidModFix.RegisterOnModLoaded(SpaceCoreAssemblyName, OnModLoaded);
-        androidModFix.RegisterOnRewriterModAssemblyDef(SpaceCoreAssemblyName, OnRewriterAssembly);
+        androidModFix.RegisterRewriteModAssemblyDef(SpaceCoreAssemblyName, OnRewriterAssembly);
     }
     static void OnRewriterAssembly(Mono.Cecil.AssemblyDefinition assemblyDef)
     {
@@ -51,13 +55,29 @@ internal static class SpaceCoreFix
         //SerializationPatcher
         {
             var SerializationPatcherType = mainModule.GetType("SpaceCore.Patches.SerializationPatcher");
-            Console.WriteLine("SerializationPatcherType: " + SerializationPatcherType);
             var applyMehtod = SerializationPatcherType.GetMethods().Single(m => m.Name == "Apply");
-            Console.WriteLine("apply method: " + applyMehtod);
             var ilProcessor = applyMehtod.Body.GetILProcessor();
             //remove 2 IL code
             ilProcessor.RemoveAt(0);
             ilProcessor.RemoveAt(0);
+        }
+
+        //ForgeMenuPatcher
+        {
+            var SerializationPatcherType = mainModule.GetType("SpaceCore.Patches.ForgeMenuPatcher");
+            var applyMehtod = SerializationPatcherType.GetMethods().Single(m => m.Name == "Apply");
+            var ilProcessor = applyMehtod.Body.GetILProcessor();
+            //return, skip apply
+            ilProcessor.Body.Instructions.Insert(0, ilProcessor.Create(OpCodes.Ret));
+        }
+        //SkillBuffPatcher
+        {
+            var SkillBuffPatcher = mainModule.GetType("SpaceCore.Patches.SkillBuffPatcher");
+            var applyMehtod = SkillBuffPatcher.GetMethods().Single(m => m.Name == "Apply");
+            var ilProcessor = applyMehtod.Body.GetILProcessor();
+            var instructions = ilProcessor.Body.Instructions;
+            //remove patch Transpile_IClickableMenu_DrawHoverText
+            applyMehtod.Body.Instructions.RemoveWhere(il => il.Offset > 0x54 && il.Offset < 0x01ef);
         }
     }
 
@@ -88,6 +108,7 @@ internal static class SpaceCoreFix
             original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),
             prefix: AccessTools.Method(typeof(SpaceCoreFix), nameof(Prefix_GatherLocals))
         );
+        SpaceCore_SkillBufferPatcherFix.Apply(harmony);
 
     }
     static bool Prefix_GatherLocals()

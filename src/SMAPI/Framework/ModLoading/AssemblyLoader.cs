@@ -161,7 +161,17 @@ internal class AssemblyLoader : IDisposable
 
 #if SMAPI_FOR_ANDROID
             if (mod.Warnings != ModWarning.BrokenCodeLoaded)
-                AndroidModFixManager.Instance.OnDoneRewriterMod(assembly);
+            {
+                AndroidModFixManager.Instance.TryRewriteMod(assembly, out bool hasRewriteMod, out var err);
+                if (err != null)
+                {
+                    mod.SetWarning(ModWarning.BrokenCodeLoaded);
+                }
+                else if (hasRewriteMod)
+                {
+                    changed = true;
+                }
+            }
 #endif
 
             // load assembly
