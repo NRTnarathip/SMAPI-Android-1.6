@@ -70,11 +70,21 @@ internal class SModHooks : DelegatingModHooks
         this.Monitor.Log($"StartTask id: {id} in Thread Pool for android");
         Task.Run(() =>
         {
-            var st = Stopwatch.StartNew();
-            task.RunSynchronously();
-            st.Stop();
-            this.Monitor.Log($"Task completed in {st.Elapsed.TotalMilliseconds}ms");
-        });
+            try
+            {
+
+                var st = Stopwatch.StartNew();
+                task.RunSynchronously();
+                st.Stop();
+                this.Monitor.Log($"Task id: {id} completed in {st.Elapsed.TotalMilliseconds}ms");
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"Exception on task id: {id}");
+                this.Monitor.Log($"{ex.GetLogSummary()}");
+            }
+        }
+        );
 #else
         this.Monitor.Log($"Synchronizing '{id}' task...");
         task.RunSynchronously();

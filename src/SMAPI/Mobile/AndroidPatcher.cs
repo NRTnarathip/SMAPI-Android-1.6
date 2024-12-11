@@ -1,11 +1,17 @@
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Force.DeepCloner;
 using HarmonyLib;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Mobile.Mods;
 using StardewValley;
+using StardewValley.Pathfinding;
+using StardewValley.SpecialOrders.Objectives;
 
 namespace StardewModdingAPI.Mobile;
 
@@ -35,19 +41,5 @@ internal static class AndroidPatcher
         {
             AndroidLogger.Log(ex);
         }
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Game1), "TranslateFields")]
-    static void PrefixTranslateFields()
-    {
-        Console.WriteLine("prefix TranslateFields");
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Game1), "TranslateFields")]
-    static void PostfixTranslateFields()
-    {
-        Console.WriteLine("post TranslateFields");
     }
 }

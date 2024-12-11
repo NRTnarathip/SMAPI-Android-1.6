@@ -1,0 +1,53 @@
+Bug crash if you patch 2 method
+and print method or get type from stack
+
+
+[HarmonyPostfix]
+[HarmonyPatch(typeof(Game1), nameof(Game1.loadForNewGame))]
+static void Post_AfterLoadNewGame(bool loadedGame)
+{
+    Console.WriteLine("Prefix_AfterLoadNewGame");
+}
+
+[HarmonyPrefix]
+[HarmonyPatch(typeof(WarpPathfindingCache), nameof(WarpPathfindingCache.PopulateCache))]
+private static bool PrefixPopulateRoutes()
+{
+    try
+    {
+        Console.WriteLine("Strt stack trace");
+        var stack = new StackTrace();
+        Console.WriteLine("try get frames");
+        var frames = stack.GetFrames();
+        Console.WriteLine("done get frames len: " + frames.Length);
+        for (int i = 0; i < frames.Length; i++)
+        {
+            try
+            {
+                var f = frames[i];
+                var method = f.GetMethod();
+                Console.WriteLine($"fL {method}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("error try print frame: " + ex);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("pre-populating pathfinding cache. " + ex);
+        return true;
+    }
+    return false;
+}
+
+
+บั๊กเกิดจาก
+
+var f = frames[i];
+var method = f.GetMethod();
+Console.WriteLine("try get method toString");
+string methodString = method.ToString();
+Console.WriteLine("method: " + methodString);
+
