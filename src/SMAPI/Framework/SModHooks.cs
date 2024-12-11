@@ -67,8 +67,11 @@ internal class SModHooks : DelegatingModHooks
     {
 #if SMAPI_FOR_ANDROID
         this.Monitor.Log($"StartTask id: {id} in Thread Pool for android");
-        task.Start();
-        this.Monitor.Log("Task completed");
+        Task.Run(() =>
+        {
+            task.Start();
+            this.Monitor.Log("Task completed");
+        });
 #else
         this.Monitor.Log($"Synchronizing '{id}' task...");
         task.RunSynchronously();

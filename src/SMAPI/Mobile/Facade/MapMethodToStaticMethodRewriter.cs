@@ -101,8 +101,6 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
     {
 
         var srcMethod = this.HandleSelectorMethod(srcType, srcMethodSelector);
-        Console.WriteLine("MapMethodToStatic src: " + srcMethod);
-
         if (srcMethod == null)
         {
             Console.WriteLine("Error not found src method in type: " + srcType);

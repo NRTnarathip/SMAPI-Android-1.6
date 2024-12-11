@@ -35,6 +35,7 @@ internal class Monitor : IMonitor
     /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
     private readonly Func<int?> GetScreenIdForLog;
 
+    public readonly object _lock = new object();
 
     /*********
     ** Accessors
@@ -90,30 +91,43 @@ internal class Monitor : IMonitor
     /// <inheritdoc />
     public void LogOnce(string message, LogLevel level = LogLevel.Trace)
     {
-        if (this.LogOnceCache.Add(new LogOnceCacheKey(message, level)))
-            this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
+        lock (this._lock)
+        {
+            if (this.LogOnceCache.Add(new LogOnceCacheKey(message, level)))
+                this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
+        }
     }
 
     /// <inheritdoc />
     public void VerboseLog(string message)
     {
-        if (this.IsVerbose)
-            this.Log(message);
+        lock (this._lock)
+        {
+            if (this.IsVerbose)
+                this.Log(message);
+        }
     }
 
     /// <inheritdoc />
     public void VerboseLog([InterpolatedStringHandlerArgument("")] ref VerboseLogStringHandler message)
     {
-        if (this.IsVerbose)
-            this.Log(message.ToString());
+        lock (this._lock)
+        {
+            if (this.IsVerbose)
+                this.Log(message.ToString());
+        }
     }
 
     /// <summary>Write a newline to the console and log file.</summary>
     internal void Newline()
     {
-        if (this.WriteToConsole)
-            Console.WriteLine();
-        this.LogFile.WriteLine("");
+        lock (this._lock)
+        {
+            if (this.WriteToConsole)
+                Console.WriteLine();
+            this.LogFile.WriteLine("");
+            AndroidLogger.Log("");
+        }
     }
 
     /// <summary>Log a fatal error message.</summary>
@@ -127,9 +141,13 @@ internal class Monitor : IMonitor
     /// <param name="input">The user input to log.</param>
     internal void LogUserInput(string input)
     {
-        // user input already appears in the console, so just need to write to file
-        string prefix = this.GenerateMessagePrefix(this.Source, (ConsoleLogLevel)LogLevel.Info);
-        this.LogFile.WriteLine($"{prefix} $>{input}");
+        lock (this._lock)
+        {
+            // user input already appears in the console, so just need to write to file
+            string prefix = this.GenerateMessagePrefix(this.Source, (ConsoleLogLevel)LogLevel.Info);
+            this.LogFile.WriteLine($"{prefix} $>{input}");
+            AndroidLogger.Log($"{prefix} $>{input}");
+        }
     }
 
 
@@ -142,20 +160,21 @@ internal class Monitor : IMonitor
     /// <param name="level">The log level.</param>
     private void LogImpl(string source, string message, ConsoleLogLevel level)
     {
-        // generate message
-        string prefix = this.GenerateMessagePrefix(source, level);
-        string fullMessage = $"{prefix} {message}";
-        string consoleMessage = this.ShowFullStampInConsole ? fullMessage : $"[{source}] {message}";
+        lock (this._lock)
+        {
+            // generate message
+            string prefix = this.GenerateMessagePrefix(source, level);
+            string fullMessage = $"{prefix} {message}";
+            string consoleMessage = this.ShowFullStampInConsole ? fullMessage : $"[{source}] {message}";
 
-        // write to console
-        if (this.WriteToConsole && (this.ShowTraceInConsole || level != ConsoleLogLevel.Trace))
-            this.ConsoleWriter.WriteLine(consoleMessage, level);
+            // write to console
+            if (this.WriteToConsole && (this.ShowTraceInConsole || level != ConsoleLogLevel.Trace))
+                this.ConsoleWriter.WriteLine(consoleMessage, level);
 
-        // write to log file
-        this.LogFile.WriteLine(fullMessage);
-#if SMAPI_FOR_ANDROID
-        AndroidLogger.Log("Log(): " + fullMessage);
-#endif
+            // write to log file
+            this.LogFile.WriteLine(fullMessage);
+            AndroidLogger.Log("Log(): " + fullMessage);
+        }
     }
 
     /// <summary>Generate a message prefix for the current time.</summary>
