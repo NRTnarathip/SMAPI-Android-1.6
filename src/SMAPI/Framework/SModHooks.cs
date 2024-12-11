@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -69,8 +70,10 @@ internal class SModHooks : DelegatingModHooks
         this.Monitor.Log($"StartTask id: {id} in Thread Pool for android");
         Task.Run(() =>
         {
-            task.Start();
-            this.Monitor.Log("Task completed");
+            var st = Stopwatch.StartNew();
+            task.RunSynchronously();
+            st.Stop();
+            this.Monitor.Log($"Task completed in {st.Elapsed.TotalMilliseconds}ms");
         });
 #else
         this.Monitor.Log($"Synchronizing '{id}' task...");
