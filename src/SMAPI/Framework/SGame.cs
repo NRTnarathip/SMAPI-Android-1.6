@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using HarmonyLib;
+using Java.Time;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
@@ -161,43 +164,36 @@ internal class SGame : Game1
         return inputHandler.GetState(button);
     }
 
+
+#if SMAPI_FOR_ANDROID
+    public static IEnumerator<int> LoadContentEnumerator
+    {
+        get => (IEnumerator<int>)AccessTools.Field(typeof(Game1), "LoadContentEnumerator").GetValue(null);
+        set => AccessTools.Field(typeof(Game1), "LoadContentEnumerator").SetValue(null, value);
+    }
+    public static IEnumerator<int> GetLoadContentEnumerator()
+    {
+        return (IEnumerator<int>)AccessTools.Method(typeof(Game1), "GetLoadContentEnumerator").Invoke(game1, null);
+    }
+
+#endif
+
     /// <inheritdoc />
     protected override void LoadContent()
     {
         base.LoadContent();
-
 #if SMAPI_FOR_ANDROID
-        //on android it's use GetLoadContentEnumerator();
-        //LoadContentEnumerator = GetLoadContentEnumerator();
-        //if (!ShouldLoadIncrementally)
-        //{
-        //    while (LoadContentEnumerator.MoveNext())
-        //    {
-        //    }
-        //    LoadContentEnumerator = null;
-        //    AfterLoadContent();
-        //}
-
-        //so we should call OnContentLoaded
-        //after 	private void AfterLoadContent()
-        //wait to load mods in background thread
-        SGameAndroidPatcher.OnAfterLoadContent += this.OnAfterLoadContent;
+        //  this.OnContentLoaded(); postfix at Game1.AfterLoadContent()
 #else
         this.OnContentLoaded();
 #endif
     }
 
 #if SMAPI_FOR_ANDROID
-    void OnAfterLoadContent()
+    internal void OnAndroidContentLoaded()
     {
-        //ready game launched
-        Console.WriteLine("Ready for Game Launched");
-        //setup
-        ManagedEventModAndroidManager.SkipRaise = false;//ready to raise all mods
-
-        //raise events
         this.OnContentLoaded();
-        SCore.Instance.SetupOnReadyGameLaunched();
+        Console.WriteLine("Ready for Game Launched");
     }
 #endif
 

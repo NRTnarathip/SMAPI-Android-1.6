@@ -566,25 +566,47 @@ internal class SCore : IDisposable
     /// <param name="runGameUpdate">Invoke the game's update logic.</param>
     private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
     {
+        bool skipThisFrame = false;
         try
         {
 #if SMAPI_FOR_ANDROID
-            //current load content step
-            //IEnumerator<int> LoadContentEnumerator = (IEnumerator<int>)AccessTools.Field(typeof(Game1), "LoadContentEnumerator").GetValue(null);
-            //Console.WriteLine("load content step: " + LoadContentEnumerator.Current);
+
+            //assert load mods
             switch (SCoreMobileManager.LoadModsState)
             {
                 case SCoreMobileManager.LoadModsStateEnum.Starting:
                     //skip, wait loaded all mod
-                    return;
+                    skipThisFrame = true;
+                    break;
 
                 case SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm:
                     //setup state
                     SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedConfirm;
-                    //continue LoadContentEnumerator.MoveNext() in Game1._update()
+                    skipThisFrame = true;
+
                     //it will call Game1.OnAfterLoadContent
                     break;
             }
+
+            //assert load content
+            if (!skipThisFrame)
+            {
+                //wait until loaded content
+                switch (AndroidLoadContentManager.LoadState)
+                {
+                    case AndroidLoadContentManager.LoadStateEnum.None:
+                    case AndroidLoadContentManager.LoadStateEnum.Loading:
+                        AndroidLoadContentManager.UpdateMoveNextLoadContent();
+                        skipThisFrame = true;
+                        break;
+
+                    case AndroidLoadContentManager.LoadStateEnum.Loaded:
+                        break;
+                }
+            }
+
+            if (skipThisFrame)
+                return;
 #endif
 
             /*********
@@ -674,20 +696,15 @@ internal class SCore : IDisposable
         }
         finally
         {
-            SCore.TicksElapsed++;
-            SCore.ProcessTicksElapsed++;
+#if SMAPI_FOR_ANDROID
+            if (!skipThisFrame)
+            {
+                SCore.TicksElapsed++;
+                SCore.ProcessTicksElapsed++;
+            }
+#endif
         }
     }
-
-#if SMAPI_FOR_ANDROID
-    internal void SetupOnReadyGameLaunched()
-    {
-        EventManager events = this.EventManager;
-
-        if (events.GameLaunched.HasListeners)
-            events.GameLaunched.Raise(new GameLaunchedEventArgs());
-    }
-#endif
 
     /// <summary>Raised when the game instance for a local player is updating (once per <see cref="OnGameUpdating"/> per player).</summary>
     /// <param name="instance">The game instance being updated.</param>
@@ -1183,7 +1200,14 @@ internal class SCore : IDisposable
                 *********/
                 // game launched (not raised for secondary players in split-screen mode)
 #if SMAPI_FOR_ANDROID
-                //called after Game1.OnAfterLoadContent
+                if (instance.IsFirstTick && !Context.IsGameLaunched)
+                {
+                    Context.IsGameLaunched = true;
+
+                    Console.WriteLine("Score call event GameLaunched");
+                    if (events.GameLaunched.HasListeners)
+                        events.GameLaunched.Raise(new GameLaunchedEventArgs());
+                }
 #else
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
                 {

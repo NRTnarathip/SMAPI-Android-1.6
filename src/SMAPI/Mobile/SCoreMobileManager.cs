@@ -35,5 +35,6 @@ internal static class SCoreMobileManager
             }
         }
     }
-    public static bool IsLoadedAllMod => LoadModsState == LoadModsStateEnum.LoadedConfirm;
+
+    public static int WaitFirstTickForContentLoaded { get; internal set; }
 }

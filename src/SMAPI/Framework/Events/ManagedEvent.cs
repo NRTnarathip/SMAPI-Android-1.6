@@ -102,11 +102,6 @@ internal class ManagedEvent<TEventArgs> : IManagedEvent
         if (this.Handlers.Count == 0)
             return;
 
-#if SMAPI_FOR_ANDROID
-        if (ManagedEventModAndroidManager.SkipRaise)
-            return;
-#endif
-
         // raise event
         foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
         {
