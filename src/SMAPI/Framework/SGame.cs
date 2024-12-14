@@ -183,7 +183,14 @@ internal class SGame : Game1
     {
         base.LoadContent();
 #if SMAPI_FOR_ANDROID
-        //  this.OnContentLoaded(); postfix at Game1.AfterLoadContent()
+        //Load All Mods First
+        //before calling method
+        //this.bigCraftableData = DataLoader.BigCraftables(content); in Game1.cs
+        Console.WriteLine("Done base.LoadContent()");
+        Console.WriteLine("try call InitializeBeforeFirstAssetLoaded for load all mod");
+        var InitializeBeforeFirstAssetLoaded = typeof(SCore).GetMethod("InitializeBeforeFirstAssetLoaded",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        InitializeBeforeFirstAssetLoaded.Invoke(SCore.Instance, null);
 #else
         this.OnContentLoaded();
 #endif

@@ -97,7 +97,13 @@ internal class GameContentManager : BaseContentManager
         if (GameContentManager.IsFirstLoad)
         {
             GameContentManager.IsFirstLoad = false;
+#if SMAPI_FOR_ANDROID
+            //we will call this.OnLoadingFirstAsset();
+            //after base.LoadContent(); in SGame.cs
+            Console.WriteLine("skip this.OnLoadingFirstAsset()");
+#else
             this.OnLoadingFirstAsset();
+#endif
         }
 
         // get from cache

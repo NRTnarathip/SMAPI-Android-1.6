@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HarmonyLib;
 using StardewModdingAPI.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Mobile;
 
-internal static class AndroidLoadContentManager
+internal static class AndroidContentLoaderManager
 {
     public static bool IsLoaded => LoadState == LoadStateEnum.Loaded;
 
@@ -29,19 +25,24 @@ internal static class AndroidLoadContentManager
         get => (bool)AccessTools.Field(typeof(Game1), "FinishedFirstInitSounds").GetValue(null);
         set => AccessTools.Field(typeof(Game1), "FinishedFirstInitSounds").SetValue(null, value);
     }
-
+    static int CallingTick = 0;
     public static void UpdateMoveNextLoadContent()
     {
+        CallingTick++;
+
         if (IsLoaded)
             return;
 
-        var loadEnumerator = SGame.LoadContentEnumerator;
-        //Console.WriteLine("current state: " + loadEnumerator.Current);
-        if (loadEnumerator.Current == 0)
+        Console.WriteLine("Calling Tick: " + CallingTick);
+        if (CallingTick == 1)
         {
             LoadState = LoadStateEnum.Loading;
         }
+
+        var loadEnumerator = SGame.LoadContentEnumerator;
         bool isLoadContentFinish = loadEnumerator.MoveNext() is false;
+        Console.WriteLine("move next & current state: " + loadEnumerator.Current);
+
         if (isLoadContentFinish)
         {
             FinishedFirstLoadContent = true;
@@ -60,6 +61,7 @@ internal static class AndroidLoadContentManager
         //Console.WriteLine("after move next current step: " + loadEnumerator.Current);
         //Console.WriteLine("is loaded: " + IsLoaded);
     }
+
     public enum LoadStateEnum
     {
         None,

@@ -423,6 +423,7 @@ internal class SCore : IDisposable
     }
 
 
+
     /*********
     ** Private methods
     *********/
@@ -444,7 +445,7 @@ internal class SCore : IDisposable
 
 #if SMAPI_FOR_ANDROID
         Console.WriteLine("start loading mods in background thread");
-        SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.Starting;
+        AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.Starting;
         Task.Run(() =>
 #endif
         // load mods
@@ -517,7 +518,7 @@ internal class SCore : IDisposable
             //    Console.WriteLine("Sleep 1 second at LoadMods");
             //    Thread.Sleep(1000);
             //}
-            SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm;
+            AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm;
         });
 #else
         }
@@ -561,52 +562,54 @@ internal class SCore : IDisposable
 #endif
     }
 
+#if SMAPI_FOR_ANDROID
+    internal static bool SkipThisFameForGameUpdate;
+#endif
     /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
     /// <param name="gameTime">A snapshot of the game timing state.</param>
     /// <param name="runGameUpdate">Invoke the game's update logic.</param>
     private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
     {
-        bool skipThisFrame = false;
         try
         {
 #if SMAPI_FOR_ANDROID
-
+            SkipThisFameForGameUpdate = false;
             //assert load mods
-            switch (SCoreMobileManager.LoadModsState)
+            switch (AndroidModLoaderManager.CurrentStatus)
             {
-                case SCoreMobileManager.LoadModsStateEnum.Starting:
-                    //skip, wait loaded all mod
-                    skipThisFrame = true;
+                case AndroidModLoaderManager.LoadStatus.Starting:
+                    //skip it, wait until loaded all mod
+                    SkipThisFameForGameUpdate = true;
                     break;
 
-                case SCoreMobileManager.LoadModsStateEnum.LoadedAndNeedToConfirm:
-                    //setup state
-                    SCoreMobileManager.LoadModsState = SCoreMobileManager.LoadModsStateEnum.LoadedConfirm;
-                    skipThisFrame = true;
-
-                    //it will call Game1.OnAfterLoadContent
+                case AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm:
+                    //confirm status
+                    AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedConfirm;
                     break;
             }
 
             //assert load content
-            if (!skipThisFrame)
+            if (!SkipThisFameForGameUpdate)
             {
                 //wait until loaded content
-                switch (AndroidLoadContentManager.LoadState)
+                switch (AndroidContentLoaderManager.LoadState)
                 {
-                    case AndroidLoadContentManager.LoadStateEnum.None:
-                    case AndroidLoadContentManager.LoadStateEnum.Loading:
-                        AndroidLoadContentManager.UpdateMoveNextLoadContent();
-                        skipThisFrame = true;
+                    case AndroidContentLoaderManager.LoadStateEnum.None:
+                    case AndroidContentLoaderManager.LoadStateEnum.Loading:
+                        AndroidContentLoaderManager.UpdateMoveNextLoadContent();
+                        SkipThisFameForGameUpdate = true;
+                        Console.WriteLine("skip frame on Loading Asset on MoveNext ");
                         break;
 
-                    case AndroidLoadContentManager.LoadStateEnum.Loaded:
+                    case AndroidContentLoaderManager.LoadStateEnum.Loaded:
                         break;
                 }
             }
 
-            if (skipThisFrame)
+            if (SkipThisFameForGameUpdate)
+            {
                 return;
+            }
 #endif
 
             /*********
@@ -696,13 +699,8 @@ internal class SCore : IDisposable
         }
         finally
         {
-#if SMAPI_FOR_ANDROID
-            if (!skipThisFrame)
-            {
-                SCore.TicksElapsed++;
-                SCore.ProcessTicksElapsed++;
-            }
-#endif
+            SCore.TicksElapsed++;
+            SCore.ProcessTicksElapsed++;
         }
     }
 
