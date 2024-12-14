@@ -45,7 +45,11 @@ internal class SGameRunner : GameRunner
     private readonly Action<LoadStage> OnLoadStageChanged;
 
     /// <summary>Raised when XNA is updating (roughly 60 times per second).</summary>
+#if SMAPI_FOR_ANDROID
+    internal Action<GameTime, Action> OnGameUpdating;
+#else
     private readonly Action<GameTime, Action> OnGameUpdating;
+#endif
 
     /// <summary>Raised when the game instance for a local split-screen player is updating (once per <see cref="OnGameUpdating"/> per player).</summary>
     private readonly Action<SGame, GameTime, Action> OnPlayerInstanceUpdating;

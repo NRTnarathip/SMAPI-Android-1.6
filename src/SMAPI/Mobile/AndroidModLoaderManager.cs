@@ -126,6 +126,7 @@ internal static class AndroidModLoaderManager
     {
         StardewModdingAPI.Framework.Monitor.UnregisterOnLogImpl(OnLogImpl);
         IsStopLogger = true;
+        Console.WriteLine("stop mod loader logger");
     }
 
     static void OnLogImpl(ConsoleLogLevel logLevel, string msg)
@@ -170,7 +171,6 @@ internal static class AndroidModLoaderManager
 
             if (GetLoglevel(lineData, ref currentLogLevel))
             {
-                Console.WriteLine("new log level: " + currentLogLevel);
                 //update new log level
                 switch (currentLogLevel)
                 {
@@ -185,7 +185,6 @@ internal static class AndroidModLoaderManager
                         lineColor = new(255, 146, 56);
                         break;
                     case LogLevel.Error:
-                        Console.WriteLine("apply color error");
                         lineColor = new(255, 56, 70);
                         break;
                     default:
@@ -218,7 +217,6 @@ internal static class AndroidModLoaderManager
     static bool GetLoglevel(string lineData, ref LogLevel logLevel)
     {
         string logLevelText = lineData[(lineData.IndexOf("<ConsoleLogLevel>") + 17)..lineData.IndexOf("</ConsoleLogLevel>")];
-        Console.WriteLine("logLevelText: " + logLevelText);
         if (Enum.TryParse(typeof(LogLevel), logLevelText, ignoreCase: true, out object logLevelEnum))
         {
             logLevel = (LogLevel)logLevelEnum;

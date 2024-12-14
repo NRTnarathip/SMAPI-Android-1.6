@@ -289,7 +289,12 @@ internal class SCore : IDisposable
 
                 onGameContentLoaded: this.OnInstanceContentLoaded,
                 onLoadStageChanged: this.OnLoadStageChanged,
+#if SMAPI_FOR_ANDROID
+                onGameUpdating: this.OnGameUpdateForModLoader,
+#else
+
                 onGameUpdating: this.OnGameUpdating,
+#endif
                 onPlayerInstanceUpdating: this.OnPlayerInstanceUpdating,
                 onPlayerInstanceRendered: this.OnRendered,
                 onGameExiting: this.OnGameExiting
@@ -564,7 +569,65 @@ internal class SCore : IDisposable
     }
 
 #if SMAPI_FOR_ANDROID
-    internal static bool SkipThisFameForGameUpdate;
+    private void OnGameUpdateForModLoader(GameTime gameTime, Action runGameUpdate)
+    {
+        try
+        {
+            //assert load mods
+            switch (AndroidModLoaderManager.CurrentStatus)
+            {
+                case AndroidModLoaderManager.LoadStatus.Starting:
+                    //skip it, wait until loaded all mod
+                    AndroidModLoaderManager.TickUpdate();
+                    break;
+
+                case AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm:
+                    //confirm status
+                    //loaded all every thing
+                    //ready to run OnGameUpdating original
+                    Console.WriteLine("AndroidModLoader set status to LoadedConfirm");
+                    AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedConfirm;
+                    SGameRunner.Instance.OnGameUpdating = this.OnGameUpdateForContentLoaderAndroid;
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private void OnGameUpdateForContentLoaderAndroid(GameTime gameTime, Action runGameUpdate)
+    {
+        try
+        {
+            //wait until loaded content
+            switch (AndroidContentLoaderManager.LoadState)
+            {
+                case AndroidContentLoaderManager.LoadStateEnum.None:
+                case AndroidContentLoaderManager.LoadStateEnum.Loading:
+                    AndroidContentLoaderManager.UpdateMoveNextLoadContent();
+                    break;
+
+                case AndroidContentLoaderManager.LoadStateEnum.Loaded:
+                    //loaded all game asset
+                    Console.WriteLine("AndroidContentLoader set status to Loaded");
+                    break;
+            }
+
+            //wait until game has show splash screen icon
+            if (Game1.activeClickableMenu != null)
+            {
+                AndroidModLoaderManager.StopLoggerToScreen();
+                SGameRunner.Instance.OnGameUpdating = this.OnGameUpdating;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
 #endif
     /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
     /// <param name="gameTime">A snapshot of the game timing state.</param>
@@ -573,47 +636,6 @@ internal class SCore : IDisposable
     {
         try
         {
-#if SMAPI_FOR_ANDROID
-            SkipThisFameForGameUpdate = false;
-            //assert load mods
-            switch (AndroidModLoaderManager.CurrentStatus)
-            {
-                case AndroidModLoaderManager.LoadStatus.Starting:
-                    //skip it, wait until loaded all mod
-                    SkipThisFameForGameUpdate = true;
-                    AndroidModLoaderManager.TickUpdate();
-                    break;
-
-                case AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm:
-                    //confirm status
-                    AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedConfirm;
-                    AndroidModLoaderManager.StopLoggerToScreen();
-                    break;
-            }
-
-            //assert load content
-            if (!SkipThisFameForGameUpdate)
-            {
-                //wait until loaded content
-                switch (AndroidContentLoaderManager.LoadState)
-                {
-                    case AndroidContentLoaderManager.LoadStateEnum.None:
-                    case AndroidContentLoaderManager.LoadStateEnum.Loading:
-                        AndroidContentLoaderManager.UpdateMoveNextLoadContent();
-                        SkipThisFameForGameUpdate = true;
-                        break;
-
-                    case AndroidContentLoaderManager.LoadStateEnum.Loaded:
-                        break;
-                }
-            }
-
-            if (SkipThisFameForGameUpdate)
-            {
-                return;
-            }
-#endif
-
             /*********
             ** Safe queued work
             *********/
