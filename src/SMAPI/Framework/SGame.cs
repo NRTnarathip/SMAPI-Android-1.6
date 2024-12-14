@@ -302,6 +302,7 @@ internal class SGame : Game1
         {
             base._draw(gameTime, target_screen);
             this.OnRendered(target_screen);
+            AndroidModLoaderManager.Draw(gameTime, target_screen);
             this.DrawCrashTimer.Reset();
         }
         catch (Exception ex)

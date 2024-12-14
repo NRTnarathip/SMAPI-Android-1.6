@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Mobile;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;

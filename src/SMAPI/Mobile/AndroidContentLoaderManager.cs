@@ -33,7 +33,6 @@ internal static class AndroidContentLoaderManager
         if (IsLoaded)
             return;
 
-        Console.WriteLine("Calling Tick: " + CallingTick);
         if (CallingTick == 1)
         {
             LoadState = LoadStateEnum.Loading;
@@ -41,7 +40,7 @@ internal static class AndroidContentLoaderManager
 
         var loadEnumerator = SGame.LoadContentEnumerator;
         bool isLoadContentFinish = loadEnumerator.MoveNext() is false;
-        Console.WriteLine("move next & current state: " + loadEnumerator.Current);
+        //Console.WriteLine("move next & current state: " + loadEnumerator.Current);
 
         if (isLoadContentFinish)
         {
@@ -54,7 +53,7 @@ internal static class AndroidContentLoaderManager
             LoadState = LoadStateEnum.Loaded;
             SGame.LoadContentEnumerator = null;
             AccessTools.Method(typeof(Game1), "AfterLoadContent").Invoke(Game1.game1, null);
-            Console.WriteLine("End called AfterLoadContent");
+            //Console.WriteLine("End called AfterLoadContent");
             (SGame.game1 as SGame).OnAndroidContentLoaded();
         }
 

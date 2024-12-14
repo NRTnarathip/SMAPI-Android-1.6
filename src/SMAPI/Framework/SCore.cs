@@ -446,6 +446,7 @@ internal class SCore : IDisposable
 #if SMAPI_FOR_ANDROID
         Console.WriteLine("start loading mods in background thread");
         AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.Starting;
+        AndroidModLoaderManager.StartLoggerToScreen();
         Task.Run(() =>
 #endif
         // load mods
@@ -580,11 +581,13 @@ internal class SCore : IDisposable
                 case AndroidModLoaderManager.LoadStatus.Starting:
                     //skip it, wait until loaded all mod
                     SkipThisFameForGameUpdate = true;
+                    AndroidModLoaderManager.TickUpdate();
                     break;
 
                 case AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm:
                     //confirm status
                     AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedConfirm;
+                    AndroidModLoaderManager.StopLoggerToScreen();
                     break;
             }
 
@@ -598,7 +601,6 @@ internal class SCore : IDisposable
                     case AndroidContentLoaderManager.LoadStateEnum.Loading:
                         AndroidContentLoaderManager.UpdateMoveNextLoadContent();
                         SkipThisFameForGameUpdate = true;
-                        Console.WriteLine("skip frame on Loading Asset on MoveNext ");
                         break;
 
                     case AndroidContentLoaderManager.LoadStateEnum.Loaded:
@@ -2018,7 +2020,11 @@ internal class SCore : IDisposable
                 // call entry method
                 try
                 {
+#if SMAPI_FOR_ANDROID
+                    AndroidModLoaderManager.TryStartModEntry(mod);
+#else
                     mod.Entry(mod.Helper);
+#endif
                 }
                 catch (Exception ex)
                 {
