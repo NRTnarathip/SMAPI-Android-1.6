@@ -46,14 +46,7 @@ internal class LogFileManager : IDisposable
         // always use Windows-style line endings for convenience
         // (Linux/macOS editors are fine with them, Windows editors often require them)
         this.Stream.Write(message + "\r\n");
-#if SMAPI_FOR_ANDROID
-        OnWriteLine?.Invoke(this, message);
-#endif
     }
-
-#if SMAPI_FOR_ANDROID
-    public static Action<LogFileManager, string> OnWriteLine;
-#endif
 
     /// <summary>Release all resources.</summary>
     public void Dispose()

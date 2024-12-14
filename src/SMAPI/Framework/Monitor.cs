@@ -173,9 +173,35 @@ internal class Monitor : IMonitor
 
             // write to log file
             this.LogFile.WriteLine(fullMessage);
+#if SMAPI_FOR_ANDROID
             AndroidLogger.Log("Log(): " + fullMessage);
+            lock (_lock_OnLogImpl)
+            {
+                _OnLogImpl?.Invoke(level, fullMessage);
+            }
+#endif
         }
     }
+
+#if SMAPI_FOR_ANDROID
+    static object _lock_OnLogImpl = new();
+    static Action<ConsoleLogLevel, string> _OnLogImpl;
+    internal static void RegisterOnLogImpl(Action<ConsoleLogLevel, string> callback)
+    {
+        lock (_lock_OnLogImpl)
+        {
+            _OnLogImpl += callback;
+        }
+    }
+    internal static void UnregisterOnLogImpl(Action<ConsoleLogLevel, string> callback)
+    {
+        lock (_lock_OnLogImpl)
+        {
+            _OnLogImpl -= callback;
+        }
+    }
+#endif
+
 
     /// <summary>Generate a message prefix for the current time.</summary>
     /// <param name="source">The name of the mod logging the message.</param>
