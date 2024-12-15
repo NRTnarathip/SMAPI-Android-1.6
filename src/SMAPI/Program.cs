@@ -35,7 +35,6 @@ internal class Program
     public static void Main(string[] args)
     {
         AndroidPatcher.Setup();
-        AppNotRespondFix.Init();
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
 
 #if !SMAPI_FOR_ANDROID
