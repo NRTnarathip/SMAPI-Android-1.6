@@ -161,13 +161,25 @@ internal static class AndroidModLoaderManager
         LogLevel currentLogLevel = LogLevel.Trace;
         for (int lineIndex = 0; lineIndex < lineCount; lineIndex++)
         {
-            //TODO: not sure is for safe access
             string lineData;
             lock (_lock_logLines)
             {
                 lineData = logLines[lineCount - lineIndex - 1];
             }
 
+            //draw from Left, Bottom
+            const float K_fontScale = 1.3f;
+            Vector2 pos = Vector2.Zero;
+            const int startYPadding = 30;
+            float lineHeight = K_fontScale * K_textLineHeight;
+            pos.Y = viewport.Height - (startYPadding + lineHeight + (lineHeight * lineIndex));
+            pos.X = 100;
+
+            if (pos.Y < 0)
+            {
+                //stop draw
+                break;
+            }
 
             if (GetLoglevel(lineData, ref currentLogLevel))
             {
@@ -192,14 +204,6 @@ internal static class AndroidModLoaderManager
 
                 }
             }
-
-            //draw from Left, Bottom
-            const float K_fontScale = 1.3f;
-            Vector2 pos = Vector2.Zero;
-            const int startYPadding = 30;
-            float lineHeight = K_fontScale * K_textLineHeight;
-            pos.Y = viewport.Height - (startYPadding + lineHeight + (lineHeight * lineIndex));
-            pos.X = 100;
 
             //bug not works
             //if you have use harmony patching method between mod load entry point
