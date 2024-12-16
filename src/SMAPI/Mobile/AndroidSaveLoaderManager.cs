@@ -20,22 +20,13 @@ internal static class AndroidSaveLoaderManager
         monitor = SCore.Instance.GetMonitorForGame() as Monitor;
         monitor.Log("Game loader with AndroidSaveLoader currentLoader.MoveNext()", Monitor.ContextLogLevel);
 
-        AndroidGameLoopManager.SetOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
+        AndroidGameLoopManager.RegisterOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
     }
 
     //run Save.currentLoader.NextMove() within main game updating
     static void OnGameUpdating_AndroidSaveLoader(GameTime gameTime)
     {
-        //copy code from Game1.UpdateTitleScreen(GameTime time);
-        switch (Game1.gameMode)
-        {
-            case 6:
-                Game1.game1.UpdateTitleScreenDuringLoadingMode();
-                break;
-            case 7:
-                Game1.currentLoader.MoveNext();
-                break;
-        }
+        Game1.game1.UpdateTitleScreenDuringLoadingMode();
 
         bool saveParsed = AndroidSaveLoaderManager.IsSaveParsed;
         var score = SCore.Instance;
@@ -70,7 +61,7 @@ internal static class AndroidSaveLoaderManager
             //save game loaded
             //break; // done
             monitor.Log("Game loader done.", Monitor.ContextLogLevel);
-            AndroidGameLoopManager.RestoreOnGameUpdating();
+            AndroidGameLoopManager.RemoveOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
         }
         else
         {

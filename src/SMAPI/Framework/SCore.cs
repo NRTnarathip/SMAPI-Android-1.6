@@ -634,13 +634,22 @@ internal class SCore : IDisposable
     /// <param name="gameTime">A snapshot of the game timing state.</param>
     /// <param name="runGameUpdate">Invoke the game's update logic.</param>
 #if SMAPI_FOR_ANDROID
+
     internal void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
-#else
-    private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
-#endif
     {
         try
         {
+            AndroidGameLoopManager.OnGameUpdating(gameTime);
+            if (AndroidGameLoopManager.IsSkipOriginalGameUpdating)
+                return;
+#else
+
+    private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
+    {
+        try
+        {
+
+#endif
             /*********
             ** Safe queued work
             *********/

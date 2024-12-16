@@ -68,24 +68,7 @@ internal class SModHooks : DelegatingModHooks
     public override Task StartTask(Task task, string id)
     {
 #if SMAPI_FOR_ANDROID
-        this.Monitor.Log($"StartTask id: {id} in Thread Pool for android");
-        Task.Run(() =>
-        {
-            try
-            {
-
-                var st = Stopwatch.StartNew();
-                task.RunSynchronously();
-                st.Stop();
-                this.Monitor.Log($"Task id: {id} completed in {st.Elapsed.TotalMilliseconds}ms");
-            }
-            catch (Exception ex)
-            {
-                this.Monitor.Log($"Exception on task id: {id}");
-                this.Monitor.Log($"{ex.GetLogSummary()}");
-            }
-        }
-        );
+        return AndroidSModHooks.StartTask(task, id);
 #else
         this.Monitor.Log($"Synchronizing '{id}' task...");
         task.RunSynchronously();
