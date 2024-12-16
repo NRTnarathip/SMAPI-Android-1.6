@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mobile;
 
 internal static class AndroidGameLoopManager
 {
-    internal delegate void OnGameUpdatingDelegate(GameTime gameTime);
+    internal delegate bool OnGameUpdatingDelegate(GameTime gameTime);
     static List<OnGameUpdatingDelegate> listOnGameUpdating = new();
     static List<OnGameUpdatingDelegate> queueOnGameUpdatingToAdd = new();
     static List<OnGameUpdatingDelegate> queueOnGameUpdatingToRemove = new();
@@ -20,16 +20,17 @@ internal static class AndroidGameLoopManager
         queueOnGameUpdatingToAdd.Add(onGameUpdate);
     }
 
-    internal static void RemoveOnGameUpdating(OnGameUpdatingDelegate onGameUpdate)
+    internal static void UnregisterOnGameUpdating(OnGameUpdatingDelegate onGameUpdate)
     {
         queueOnGameUpdatingToRemove.Add(onGameUpdate);
     }
 
-    public static bool IsSkipOriginalGameUpdating = true;
+    public static bool IsSkipOriginalGameUpdating = false;
     internal static void OnGameUpdating(GameTime gameTime)
     {
         //reset
         IsSkipOriginalGameUpdating = false;
+
         if (queueOnGameUpdatingToAdd.Count > 0)
         {
             foreach (var item in queueOnGameUpdatingToAdd)
@@ -38,7 +39,6 @@ internal static class AndroidGameLoopManager
                     listOnGameUpdating.Add(item);
             }
         }
-
 
         if (queueOnGameUpdatingToRemove.Count > 0)
         {
@@ -49,16 +49,12 @@ internal static class AndroidGameLoopManager
             }
         }
 
-
-        if (listOnGameUpdating.Count > 0)
+        foreach (var callback in listOnGameUpdating)
         {
-            IsSkipOriginalGameUpdating = true;
-
-            foreach (var callback in listOnGameUpdating)
+            if (callback(gameTime))
             {
-                callback(gameTime);
+                IsSkipOriginalGameUpdating = true;
             }
         }
     }
-
 }

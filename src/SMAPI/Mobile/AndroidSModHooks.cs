@@ -15,32 +15,37 @@ namespace StardewModdingAPI.Mobile;
 internal static class AndroidSModHooks
 {
     static IMonitor Monitor => SCore.Instance.GetMonitorForGame();
-    internal static void OnGameUpdating_TaskUpdate(GameTime time)
+    internal static bool OnGameUpdating_TaskUpdate(GameTime time)
     {
 
-#if false
+#if true
         //debug only
         if (SCore.ProcessTicksElapsed % 30 == 0)
         {
             Console.WriteLine();
             Console.WriteLine("wait mod hook task...");
-            foreach (var currentModHookTask in tasks)
+            foreach (var task in tasks)
             {
-                Console.WriteLine($"status task ID: {currentModHookTask.Id}");
-                Console.WriteLine($"  run time: {stopwatch.Elapsed.TotalMilliseconds}ms");
-                Console.WriteLine($"  IsCanceled: {currentModHookTask.IsCanceled}");
-                Console.WriteLine($"  IsCompleted: {currentModHookTask.IsCompleted}");
-                Console.WriteLine($"  IsCompletedSuccessfully: {currentModHookTask.IsCompletedSuccessfully}");
-                Console.WriteLine($"  IsFaulted: {currentModHookTask.IsFaulted}");
+                Console.WriteLine($"status task ID: {task.Id}");
+                Console.WriteLine($"  status: {task.Status}");
+                Console.WriteLine($"  IsCanceled: {task.IsCanceled}");
+                Console.WriteLine($"  IsCompleted: {task.IsCompleted}");
+                Console.WriteLine($"  IsCompletedSuccessfully: {task.IsCompletedSuccessfully}");
+                Console.WriteLine($"  IsFaulted: {task.IsFaulted}");
             }
         }
 #endif
 
-        tasks.RemoveWhere(task => task.IsCompleted);
-        if (tasks.Count == 0)
+        if (tasks.Count > 0)
         {
-            AndroidGameLoopManager.RemoveOnGameUpdating(OnGameUpdating_TaskUpdate);
+            int removeCount = tasks.RemoveAll(task => task.IsCompleted);
         }
+
+        //done
+        if (tasks.Count == 0)
+            return false;
+
+        return true;
     }
     static List<Task> tasks = new();
     internal static Task StartTask(Task gameTask, string nameID)
@@ -67,12 +72,16 @@ internal static class AndroidSModHooks
 
         Console.WriteLine("try add new task, current task count: " + tasks.Count);
         tasks.Add(currentModHookTask);
-        AndroidGameLoopManager.RegisterOnGameUpdating(OnGameUpdating_TaskUpdate);
 
         //ready
         currentModHookTask.Start();
 
         Console.WriteLine($"End & return StartTask name: '{nameID}', taskIDNumber: {currentModHookTask.Id}");
         return currentModHookTask;
+    }
+
+    internal static void Init()
+    {
+        AndroidGameLoopManager.RegisterOnGameUpdating(OnGameUpdating_TaskUpdate);
     }
 }

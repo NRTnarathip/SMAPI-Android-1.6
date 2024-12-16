@@ -24,7 +24,7 @@ internal static class AndroidSaveLoaderManager
     }
 
     //run Save.currentLoader.NextMove() within main game updating
-    static void OnGameUpdating_AndroidSaveLoader(GameTime gameTime)
+    static bool OnGameUpdating_AndroidSaveLoader(GameTime gameTime)
     {
         Game1.game1.UpdateTitleScreenDuringLoadingMode();
 
@@ -61,11 +61,9 @@ internal static class AndroidSaveLoaderManager
             //save game loaded
             //break; // done
             monitor.Log("Game loader done.", Monitor.ContextLogLevel);
-            AndroidGameLoopManager.RemoveOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
+            AndroidGameLoopManager.UnregisterOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
         }
-        else
-        {
-            Game1.game1.UpdateTitleScreenDuringLoadingMode();
-        }
+
+        return true;
     }
 }

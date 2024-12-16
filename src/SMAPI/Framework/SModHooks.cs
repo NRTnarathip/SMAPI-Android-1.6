@@ -55,6 +55,10 @@ internal class SModHooks : DelegatingModHooks
         this.OnStageChanged = onStageChanged;
         this.OnRenderingStep = onRenderingStep;
         this.OnRenderedStep = onRenderedStep;
+
+#if SMAPI_FOR_ANDROID
+        AndroidSModHooks.Init();
+#endif
     }
 
     /// <inheritdoc />
