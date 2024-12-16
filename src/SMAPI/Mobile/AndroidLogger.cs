@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using HarmonyLib;
+using StardewValley;
 using AndroidUtils = Android.Util;
 
 namespace StardewModdingAPI.Mobile;
@@ -36,4 +38,12 @@ public static class AndroidLogger
         LogToFileStream.WriteLine(msg);
         LogToFileStream.Flush();
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(SaveGame), "LogVerbose")]
+    private static void Prefix_SaveGame_LogVerbose(string message)
+    {
+        Console.WriteLine("Prefix_SaveGame_LogVerbose: " + message);
+    }
 }
+

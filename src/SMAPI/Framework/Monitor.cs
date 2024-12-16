@@ -174,7 +174,7 @@ internal class Monitor : IMonitor
             // write to log file
             this.LogFile.WriteLine(fullMessage);
 #if SMAPI_FOR_ANDROID
-            AndroidLogger.Log("Log(): " + fullMessage);
+            AndroidLogger.Log(fullMessage);
             lock (_lock_OnLogImpl)
             {
                 _OnLogImpl?.Invoke(level, fullMessage);

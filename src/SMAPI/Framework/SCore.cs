@@ -177,6 +177,7 @@ internal class SCore : IDisposable
     internal static uint ProcessTicksElapsed { get; private set; }
 
 
+
     /*********
     ** Public methods
     *********/
@@ -632,7 +633,11 @@ internal class SCore : IDisposable
     /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
     /// <param name="gameTime">A snapshot of the game timing state.</param>
     /// <param name="runGameUpdate">Invoke the game's update logic.</param>
+#if SMAPI_FOR_ANDROID
+    internal void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
+#else
     private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
+#endif
     {
         try
         {
@@ -780,6 +785,7 @@ internal class SCore : IDisposable
             // This should *always* run, even when suppressing mod events, since the game uses
             // this too. For example, doing this after mod event suppression would prevent the
             // user from doing anything on the overnight shipping screen.
+
             SInputState inputState = instance.Input;
             if (this.Game.IsActive)
                 inputState.TrueUpdate();
@@ -791,35 +797,11 @@ internal class SCore : IDisposable
             // concurrently with game code.
 
 #if SMAPI_FOR_ANDROID
-            //run with enumerator
+            //run game loop with enumerator
             if (Game1.currentLoader != null)
             {
-                // raise load stage changed
-                Game1.game1.UpdateTitleScreenDuringLoadingMode();
-                int? step = Game1.currentLoader?.Current;
-                switch (step)
-                {
-                    case null:
-                        //done run task loader
-                        break;
-
-                    case 20 when (SaveGame.loaded != null):
-                        this.OnLoadStageChanged(LoadStage.SaveParsed);
-                        break;
-
-                    case 36:
-                        this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
-                        break;
-
-                    case 50:
-                        this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
-                        break;
-
-                    default:
-                        if (Game1.gameMode == Game1.playingGameMode)
-                            this.OnLoadStageChanged(LoadStage.Preloaded);
-                        break;
-                }
+                AndroidSaveLoaderManager.StartLoader();
+                return;
             }
 #else
 
@@ -975,6 +957,7 @@ internal class SCore : IDisposable
                     this.OnLoadStageChanged(LoadStage.None);
                 else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
                 {
+                    //fixme
                     // print context
                     string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.GetLocale()}.";
                     if (Context.IsMultiplayer)
@@ -991,8 +974,12 @@ internal class SCore : IDisposable
                     this.UpdateWindowTitles();
 
                     // raise events
+                    Console.WriteLine("Try set LoadStateTo Ready");
                     this.OnLoadStageChanged(LoadStage.Ready);
+                    Console.WriteLine("End set LoadStateTo Ready");
+                    Console.WriteLine("try raise SaveLoaded");
                     events.SaveLoaded.RaiseEmpty();
+                    Console.WriteLine("try raise DayStarted");
                     events.DayStarted.RaiseEmpty();
                 }
 
