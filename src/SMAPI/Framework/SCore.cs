@@ -805,7 +805,7 @@ internal class SCore : IDisposable
             // Run async tasks synchronously to avoid issues due to mod events triggering
             // concurrently with game code.
 
-#if SMAPI_FOR_ANDROID
+#if true
             //run game loop with enumerator
             if (Game1.currentLoader != null)
             {
@@ -1217,16 +1217,6 @@ internal class SCore : IDisposable
                 ** Game update
                 *********/
                 // game launched (not raised for secondary players in split-screen mode)
-#if SMAPI_FOR_ANDROID
-                if (instance.IsFirstTick && !Context.IsGameLaunched)
-                {
-                    Context.IsGameLaunched = true;
-
-                    Console.WriteLine("Score call event GameLaunched");
-                    if (events.GameLaunched.HasListeners)
-                        events.GameLaunched.Raise(new GameLaunchedEventArgs());
-                }
-#else
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
                 {
                     Context.IsGameLaunched = true;
@@ -1234,7 +1224,6 @@ internal class SCore : IDisposable
                     if (events.GameLaunched.HasListeners)
                         events.GameLaunched.Raise(new GameLaunchedEventArgs());
                 }
-#endif
 
                 // preloaded
                 if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready && Game1.dayOfMonth != 0)

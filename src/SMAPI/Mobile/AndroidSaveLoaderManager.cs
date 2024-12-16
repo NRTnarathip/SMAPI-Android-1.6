@@ -27,16 +27,13 @@ internal static class AndroidSaveLoaderManager
     static bool OnGameUpdating_AndroidSaveLoader(GameTime gameTime)
     {
         Game1.game1.UpdateTitleScreenDuringLoadingMode();
-
-        bool saveParsed = AndroidSaveLoaderManager.IsSaveParsed;
         var score = SCore.Instance;
-        int? step = Game1.currentLoader?.Current;
 
         // raise load stage changed
+        int? step = Game1.currentLoader?.Current;
         switch (step)
         {
-            case 20 when (!saveParsed && SaveGame.loaded != null):
-                saveParsed = true;
+            case 20 when (!IsSaveParsed && SaveGame.loaded != null):
                 score.OnLoadStageChanged(LoadStage.SaveParsed);
                 break;
 
@@ -50,9 +47,7 @@ internal static class AndroidSaveLoaderManager
 
             default:
                 if (Game1.gameMode == Game1.playingGameMode)
-                {
                     score.OnLoadStageChanged(LoadStage.Preloaded);
-                }
                 break;
         }
 
@@ -62,8 +57,11 @@ internal static class AndroidSaveLoaderManager
             //break; // done
             monitor.Log("Game loader done.", Monitor.ContextLogLevel);
             AndroidGameLoopManager.UnregisterOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
+            return false;
         }
-
-        return true;
+        else
+        {
+            return true;
+        }
     }
 }

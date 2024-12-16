@@ -18,7 +18,7 @@ internal static class AndroidSModHooks
     internal static bool OnGameUpdating_TaskUpdate(GameTime time)
     {
 
-#if true
+#if false
         //debug only
         if (SCore.ProcessTicksElapsed % 30 == 0)
         {
