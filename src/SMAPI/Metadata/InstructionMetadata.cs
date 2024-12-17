@@ -285,7 +285,8 @@ internal class InstructionMetadata
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
-                .MapFacade<IAudioEngine, IAudioEngineFacade>()
+                //debug
+                //.MapFacade<IAudioEngine, IAudioEngineFacade>()
                 .MapFacade<ICue, ICueFacade>()
                 .MapFacade<ISoundBank, ISoundBankFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
@@ -333,6 +334,10 @@ internal class InstructionMetadata
                 .Add(typeof(OptionsElement), (method) => method.Name == "draw",
                     typeof(OptionsElementRewriter), (method) => method.Name == "draw",
                         (map) => { map.AddPramToSrc(typeof(IClickableMenu)); })
+                .AddWithMethodFullName(
+                    "System.Int32 StardewValley.Audio.IAudioEngine::GetCategoryIndex(System.String)",
+                   StardewAudioMethods.IAudioEngine_GetCategoryIndex_MethodInfo
+                )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
                    Texture2DRewriter.RewriterCallback

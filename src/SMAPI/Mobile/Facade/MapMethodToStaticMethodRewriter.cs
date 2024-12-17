@@ -1,5 +1,6 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using MonoMod.Utils;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using System;
@@ -128,6 +129,15 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         var thisMethod = RewriteHelper.AsMethodReference(instruction);
         if (thisMethod == null)
             return false;
+        string thisMethodFullName = thisMethod.FullName;
+
+#if true
+        //debug only
+        if (thisMethodFullName.Contains("Audio"))
+        {
+            Console.WriteLine(thisMethodFullName);
+        }
+#endif
 
         if (this.MapMethodWithCallbacks.TryGetValue(thisMethod.DeclaringType.FullName, out var mapMethodStartWith))
         {
@@ -136,9 +146,15 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
                 return this.MarkRewritten();
         }
 
-        if (this.MapMethods.TryGetValue(thisMethod.FullName, out var newMethodRef))
+        if (this.MapMethods.ContainsKey(thisMethodFullName))
         {
-            instruction.Operand = module.ImportReference(newMethodRef.newMethod);
+            instruction.Operand = module.ImportReference(this.MapMethods[thisMethodFullName].newMethod);
+            return this.MarkRewritten();
+        }
+
+        if (this.MapMethodWithFullName.ContainsKey(thisMethodFullName))
+        {
+            instruction.Operand = module.ImportReference(this.MapMethodWithFullName[thisMethodFullName]);
             return this.MarkRewritten();
         }
         return false;
@@ -152,6 +168,15 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         var mapMethod = new MapMethodWithCallback(typeFullName, callback);
         this.MapMethodWithCallbacks.TryAdd(typeFullName, mapMethod);
 
+        return this;
+    }
+
+    Dictionary<string, MethodInfo> MapMethodWithFullName = new();
+    public MapMethodToStaticMethodRewriter AddWithMethodFullName(
+        string originalMethodFullName, MethodInfo newMethodToReplace)
+    {
+
+        this.MapMethodWithFullName[originalMethodFullName] = newMethodToReplace;
         return this;
     }
 }
