@@ -12,6 +12,7 @@ internal static class AndroidMainThread
     internal static Thread MainThread { get; private set; }
     internal static int MainThreadID => MainThread.ManagedThreadId;
     internal static bool IsOnMainThread => Thread.CurrentThread.ManagedThreadId == MainThreadID;
+    internal static bool IsOnBackgroundThread => IsOnMainThread is false;
 
     //init at Program entry point
     public static void Init(string[] args)

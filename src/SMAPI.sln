@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE
 		..\.gitignore = ..\.gitignore
 		Directory.Packages.props = Directory.Packages.props
 		..\LICENSE.txt = ..\LICENSE.txt
+		..\..\Stardew Valley Android\Mods Download\Maggs Immersive Sam (x)Spicy or Sweet 2.0.7-28035-2-0-7-1733945998.zip = ..\..\Stardew Valley Android\Mods Download\Maggs Immersive Sam (x)Spicy or Sweet 2.0.7-28035-2-0-7-1733945998.zip
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4B1CEB70-F756-4A57-AAE8-8CD78C475F25}"

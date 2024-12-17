@@ -39,6 +39,18 @@ internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
         if (source == null)
             throw new ArgumentNullException(nameof(source), "Can't patch from null source data.");
 
+#if SMAPI_FOR_ANDROID
+        if (AndroidMainThread.IsOnBackgroundThread)
+        {
+            AndroidMainThread.InvokeOnMainThread(() =>
+            {
+                this.PatchImage(source, sourceArea, targetArea, patchMode);
+            }, "PatchImage");
+
+            return;
+        }
+#endif
+
         // get normalized bounds
         this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
         if (source.Data.Length < (sourceArea.Value.Bottom - 1) * source.Width + sourceArea.Value.Right)
@@ -83,6 +95,16 @@ internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
         if (source == null)
             throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
 
+#if SMAPI_FOR_ANDROID
+        if (AndroidMainThread.IsOnBackgroundThread)
+        {
+            AndroidMainThread.InvokeOnMainThread(() =>
+            {
+                this.PatchImage(source, sourceArea, targetArea, patchMode);
+            });
+            return;
+        }
+#endif
         // get normalized bounds
         this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
         if (!source.Bounds.Contains(sourceArea.Value))
