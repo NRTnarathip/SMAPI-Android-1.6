@@ -131,9 +131,9 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
             return false;
         string thisMethodFullName = thisMethod.FullName;
 
-#if true
+#if false
         //debug only
-        if (thisMethodFullName.Contains("Audio"))
+        if (thisMethodFullName.Contains("SoundBank"))
         {
             Console.WriteLine(thisMethodFullName);
         }
@@ -143,22 +143,30 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         {
             bool isMark = mapMethodStartWith.callback(mapMethodStartWith, thisMethod, module, cil, instruction);
             if (isMark)
+            {
+                this.Phrases.Add($"Replace Method: {thisMethodFullName}");
                 return this.MarkRewritten();
+            }
         }
 
         if (this.MapMethods.ContainsKey(thisMethodFullName))
         {
             instruction.Operand = module.ImportReference(this.MapMethods[thisMethodFullName].newMethod);
+            this.Phrases.Add($"Replace Method: {thisMethodFullName}");
+
             return this.MarkRewritten();
         }
 
         if (this.MapMethodWithFullName.ContainsKey(thisMethodFullName))
         {
             instruction.Operand = module.ImportReference(this.MapMethodWithFullName[thisMethodFullName]);
+            this.Phrases.Add($"Replace Method: {thisMethodFullName}");
+
             return this.MarkRewritten();
         }
         return false;
     }
+
 
     public MapMethodToStaticMethodRewriter AddWithTypeFullName(
         string typeFullName,

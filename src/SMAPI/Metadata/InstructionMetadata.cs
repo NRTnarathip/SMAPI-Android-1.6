@@ -288,7 +288,7 @@ internal class InstructionMetadata
                 //debug
                 //.MapFacade<IAudioEngine, IAudioEngineFacade>()
                 .MapFacade<ICue, ICueFacade>()
-                .MapFacade<ISoundBank, ISoundBankFacade>()
+                //.MapFacade<ISoundBank, ISoundBankFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
                 .MapFacade<InventoryPage, InventoryPageFacade>()
                 .MapFacade<Toolbar, ToolbarFacade>()
@@ -336,7 +336,11 @@ internal class InstructionMetadata
                         (map) => { map.AddPramToSrc(typeof(IClickableMenu)); })
                 .AddWithMethodFullName(
                     "System.Int32 StardewValley.Audio.IAudioEngine::GetCategoryIndex(System.String)",
-                   StardewAudioMethods.IAudioEngine_GetCategoryIndex_MethodInfo
+                   StardewAudioMethods.IAudioEngine_GetCategoryIndex_MI
+                )
+                .AddWithMethodFullName(
+                    "System.Void StardewValley.ISoundBank::AddCue(Microsoft.Xna.Framework.Audio.CueDefinition)",
+                   StardewAudioMethods.ISoundBank_AddCue_MI
                 )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
