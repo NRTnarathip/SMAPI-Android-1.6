@@ -119,33 +119,27 @@ public class OggStreamSoundEffect : SoundEffect
             // สร้าง VorbisReader สำหรับอ่านข้อมูล Ogg
             var oggFileStrem = File.OpenRead(this.OggFileName);
             VorbisReader vorbisReader = new(oggFileStrem);
-            Console.WriteLine("vorbisReader");
-            Console.WriteLine($"- fileName: {this.OggFileName}");
 
             //fixme
-            //this works
-            Console.WriteLine($"- TotalSamples: {vorbisReader.TotalSamples}");
-
-            //this error
-            Console.WriteLine($"- TotalSamplesPerChannel: {this.TotalSamplesPerChannel}");
-
-            Console.WriteLine($"- current pos: {vorbisReader.SamplePosition}");
+            //this works, fix bug:
+            //System.ArgumentOutOfRangeException: Index was out of range.
+            //Must be non - negative and less than the size of the collection. (Parameter 'index')
+            //NVorbis.Ogg.StreamPageReader.GetPageRaw(Int32 pageIndex, Int64& pageGranulePos)
+            long totalSamples = vorbisReader.TotalSamples;
 
             try
             {
                 // เริ่มการอ่านจากตำแหน่งเริ่มต้น
                 do
                 {
-                    Console.WriteLine($"try set pos to 0");
                     vorbisReader.SeekTo(0); // รีเซ็ตตำแหน่งการอ่าน
-                    Console.WriteLine($"current pos: {vorbisReader.SamplePosition}");
                     while (!sound.IsDisposed)
                     {
-                        while (queue.Count < 3 && vorbisReader.SamplePosition < this.TotalSamplesPerChannel)
+                        while (queue.Count < 3 && vorbisReader.SamplePosition < totalSamples)
                         {
                             // เลือกบัฟเฟอร์ที่จะใช้
                             byte[] currentBuffer = finalSmallBuffer;
-                            int samplesToRead = Math.Min(8192, (int)((this.TotalSamplesPerChannel - vorbisReader.SamplePosition) * (long)this.Channels));
+                            int samplesToRead = Math.Min(8192, (int)((totalSamples - vorbisReader.SamplePosition) * (long)this.Channels));
 
                             if (samplesToRead == 8192)
                             {
@@ -163,7 +157,7 @@ public class OggStreamSoundEffect : SoundEffect
                             // ใส่ข้อมูลที่อ่านได้ลงในคิว
                             queue.Enqueue(currentBuffer);
 
-                            if (vorbisReader.SamplePosition >= this.TotalSamplesPerChannel)
+                            if (vorbisReader.SamplePosition >= totalSamples)
                             {
                                 goto endReadingLoop;
                             }
