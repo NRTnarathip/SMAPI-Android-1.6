@@ -1,8 +1,11 @@
 using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Mobile;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content;
@@ -140,6 +143,21 @@ internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
     /// <exception cref="InvalidOperationException">The content being read isn't an image.</exception>
     private void PatchImageImpl(Color[] sourceData, int sourceWidth, int sourceHeight, Rectangle sourceArea, Rectangle targetArea, PatchMode patchMode, int startRow = 0)
     {
+#if SMAPI_FOR_ANDROID
+        if (AndroidMainThread.IsOnMainThread is false)
+        {
+            Console.WriteLine("Warning!! you are try to patchImage with thread ID: " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("but your main thread id: " + AndroidMainThread.MainThread.ManagedThreadId);
+            //try invoke on main thread
+            AndroidMainThread.InvokeOnMainThread(() =>
+            {
+                this.PatchImageImpl(sourceData, sourceWidth, sourceHeight, sourceArea, targetArea, patchMode, startRow);
+            }, "PatchImageImpl");
+
+            return;
+        }
+#endif
+
         // get texture info
         Texture2D target = this.Data;
         int pixelCount = sourceArea.Width * sourceArea.Height;

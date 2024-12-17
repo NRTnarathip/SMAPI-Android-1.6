@@ -983,12 +983,11 @@ internal class SCore : IDisposable
                     this.UpdateWindowTitles();
 
                     // raise events
-                    Console.WriteLine("Try set LoadStateTo Ready");
+                    this.Monitor.Log("Try OnLoadStageChanged to Ready");
                     this.OnLoadStageChanged(LoadStage.Ready);
-                    Console.WriteLine("End set LoadStateTo Ready");
-                    Console.WriteLine("try raise SaveLoaded");
+                    this.Monitor.Log("Try raise SaveLoaded");
                     events.SaveLoaded.RaiseEmpty();
-                    Console.WriteLine("try raise DayStarted");
+                    this.Monitor.Log("Try raise DayStarted");
                     events.DayStarted.RaiseEmpty();
                 }
 

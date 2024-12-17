@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
@@ -238,6 +239,9 @@ internal class LogManager : IDisposable
         // log platform
 #if SMAPI_FOR_ANDROID
         this.Monitor.Log($"SMAPI {Constants.ApiVersionForAndroid} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+        DateTime fileDateTime = File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location);
+        long unixTimestamp = ((DateTimeOffset)fileDateTime).ToUnixTimeSeconds();
+        this.Monitor.Log($"SMAPI Build: {unixTimestamp}", LogLevel.Debug);
 #else
         this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
 #endif

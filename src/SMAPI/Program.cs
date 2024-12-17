@@ -34,9 +34,11 @@ internal class Program
     /// <param name="args">The command-line arguments.</param>
     public static void Main(string[] args)
     {
+#if SMAPI_FOR_ANDROID
+        AndroidMainThread.Init(args);
         AndroidPatcher.Setup();
+#endif
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; // per StardewValley.Program.Main
-
 #if !SMAPI_FOR_ANDROID
         Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
 #endif
