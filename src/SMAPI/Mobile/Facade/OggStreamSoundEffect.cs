@@ -55,7 +55,7 @@ public class OggStreamSoundEffect : SoundEffect
             ogg.TotalSamplesPerChannel = reader.TotalSamples;
             ogg.SampleRate = reader.SampleRate;
             ogg.Channels = ((reader.Channels != 2) ? AudioChannels.Mono : AudioChannels.Stereo);
-            Console.WriteLine("done create ogg sonud file Name: " + oggFileName);
+            Console.WriteLine("done create OggSoundEffect file Name: " + oggFileName);
         }
 
         return ogg;
@@ -111,16 +111,24 @@ public class OggStreamSoundEffect : SoundEffect
             // สร้าง buffer หมุนวนสำหรับจัดเก็บข้อมูล byte
             byte[][] rotatingByteBuffers = new byte[4][]
             {
-                new byte[16384], new byte[16384], new byte[16384], new byte[16384]
+                new byte[16384], new byte[16384],
+                new byte[16384], new byte[16384]
             };
             byte[] finalSmallBuffer = new byte[remainingBufferSize]; // บัฟเฟอร์สำหรับข้อมูลสุดท้ายที่ไม่เต็มขนาด
 
             // สร้าง VorbisReader สำหรับอ่านข้อมูล Ogg
-            var oggFileStrema = File.OpenRead(this.OggFileName);
-            VorbisReader vorbisReader = new VorbisReader(oggFileStrema);
+            var oggFileStrem = File.OpenRead(this.OggFileName);
+            VorbisReader vorbisReader = new(oggFileStrem);
             Console.WriteLine("vorbisReader");
             Console.WriteLine($"- fileName: {this.OggFileName}");
+
+            //fixme
+            //this works
+            Console.WriteLine($"- TotalSamples: {vorbisReader.TotalSamples}");
+
+            //this error
             Console.WriteLine($"- TotalSamplesPerChannel: {this.TotalSamplesPerChannel}");
+
             Console.WriteLine($"- current pos: {vorbisReader.SamplePosition}");
 
             try

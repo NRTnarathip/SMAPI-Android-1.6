@@ -196,7 +196,6 @@ public static class StardewAudioMethods
     {
         try
         {
-            Console.WriteLine("On Prefix_ApplyCueModification() key:  " + key);
             var cueModificationData = __instance.cueModificationData;
 
             if (!cueModificationData.TryGetValue(key, out var modification_data))
@@ -271,7 +270,6 @@ public static class StardewAudioMethods
         {
             Console.WriteLine(ex);
         }
-
 
         return false;
     }
