@@ -25,6 +25,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="NUnit" Version="4.2.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageVersion Include="NVorbis" Version="0.10.5" />
     <PackageVersion Include="Pathoschild.Http.FluentClient" Version="4.4.1" />
     <PackageVersion Include="Pintail" Version="2.6.0" />
     <PackageVersion Include="Platonymous.TMXTile" Version="1.5.9" />

@@ -8,6 +8,7 @@ using Force.DeepCloner;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using StardewModdingAPI.Mobile.Facade;
 using StardewModdingAPI.Mobile.Mods;
 using StardewValley;
 using StardewValley.Pathfinding;
@@ -36,6 +37,7 @@ internal static class AndroidPatcher
 
             FarmTypeManagerFix.Init(modFix);
             SpaceCoreFix.Init(modFix);
+            StardewAudioMethods.Init(modFix);
         }
         catch (Exception ex)
         {

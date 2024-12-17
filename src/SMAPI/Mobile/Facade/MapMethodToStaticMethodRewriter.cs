@@ -131,9 +131,9 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
             return false;
         string thisMethodFullName = thisMethod.FullName;
 
-#if false
+#if true
         //debug only
-        if (thisMethodFullName.Contains("SoundBank"))
+        if (thisMethodFullName.Contains("ICue"))
         {
             Console.WriteLine(thisMethodFullName);
         }

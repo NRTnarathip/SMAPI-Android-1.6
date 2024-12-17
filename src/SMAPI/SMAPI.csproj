@@ -45,6 +45,7 @@
     <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Mono.Cecil" />
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="NVorbis" />
     <PackageReference Include="Pathoschild.Http.FluentClient" />
     <PackageReference Include="Pintail" />
     <PackageReference Include="Platonymous.TMXTile" />

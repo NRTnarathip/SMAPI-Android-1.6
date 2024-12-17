@@ -286,7 +286,7 @@ internal class InstructionMetadata
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
                 //need to fix, interface it not works good, you need to implement
-                .MapFacade<ICue, ICueFacade>()
+                //.MapFacade<ICue, ICueFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
                 .MapFacade<InventoryPage, InventoryPageFacade>()
                 .MapFacade<Toolbar, ToolbarFacade>()
@@ -340,6 +340,14 @@ internal class InstructionMetadata
                 .AddWithMethodFullName(
                     "System.Void StardewValley.ISoundBank::AddCue(Microsoft.Xna.Framework.Audio.CueDefinition)",
                    StardewAudioMethods.ISoundBank_AddCue_MI
+                )
+                .AddWithMethodFullName(
+                    StardewAudioMethods.get_Volume_FullName,
+                    StardewAudioMethods.ICue_get_Volume_MI
+                )
+                .AddWithMethodFullName(
+                    StardewAudioMethods.set_Volume_FullName,
+                    StardewAudioMethods.ICue_set_Volume_MI
                 )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
