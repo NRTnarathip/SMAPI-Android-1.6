@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Java.Util;
@@ -12,20 +13,28 @@ internal static class AndroidGameLoopManager
 {
     internal delegate bool OnGameUpdatingDelegate(GameTime gameTime);
     static List<OnGameUpdatingDelegate> listOnGameUpdating = new();
-    static List<OnGameUpdatingDelegate> queueOnGameUpdatingToAdd = new();
-    static List<OnGameUpdatingDelegate> queueOnGameUpdatingToRemove = new();
+    static Queue<OnGameUpdatingDelegate> queueOnGameUpdatingToAdd = new();
+    static Queue<OnGameUpdatingDelegate> queueOnGameUpdatingToRemove = new();
 
+    /// <summary>
+    /// Register On Main Thread Only!!
+    /// </summary>
+    /// <param name="onGameUpdate"></param>
     internal static void RegisterOnGameUpdating(OnGameUpdatingDelegate onGameUpdate)
     {
-        queueOnGameUpdatingToAdd.Add(onGameUpdate);
+        queueOnGameUpdatingToAdd.Enqueue(onGameUpdate);
     }
 
+    /// <summary>
+    /// Unregister On Main Thread Only!!
+    /// </summary>
+    /// <param name="onGameUpdate"></param>
     internal static void UnregisterOnGameUpdating(OnGameUpdatingDelegate onGameUpdate)
     {
-        queueOnGameUpdatingToRemove.Add(onGameUpdate);
+        queueOnGameUpdatingToRemove.Enqueue(onGameUpdate);
     }
 
-    public static bool IsSkipOriginalGameUpdating = false;
+    public static bool IsSkipOriginalGameUpdating { get; private set; } = false;
     internal static void OnGameUpdating(GameTime gameTime)
     {
         //reset
@@ -33,7 +42,7 @@ internal static class AndroidGameLoopManager
 
         if (queueOnGameUpdatingToAdd.Count > 0)
         {
-            foreach (var item in queueOnGameUpdatingToAdd)
+            while (queueOnGameUpdatingToAdd.TryDequeue(out OnGameUpdatingDelegate item))
             {
                 if (listOnGameUpdating.Contains(item) is false)
                     listOnGameUpdating.Add(item);
@@ -42,7 +51,7 @@ internal static class AndroidGameLoopManager
 
         if (queueOnGameUpdatingToRemove.Count > 0)
         {
-            foreach (var item in queueOnGameUpdatingToRemove)
+            while (queueOnGameUpdatingToRemove.TryDequeue(out OnGameUpdatingDelegate item))
             {
                 if (listOnGameUpdating.Contains(item))
                     listOnGameUpdating.Remove(item);
