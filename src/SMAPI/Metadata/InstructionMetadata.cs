@@ -285,14 +285,13 @@ internal class InstructionMetadata
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
-                //debug
-                //.MapFacade<IAudioEngine, IAudioEngineFacade>()
+                //need to fix, interface it not works good, you need to implement
                 .MapFacade<ICue, ICueFacade>()
-                //.MapFacade<ISoundBank, ISoundBankFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
                 .MapFacade<InventoryPage, InventoryPageFacade>()
                 .MapFacade<Toolbar, ToolbarFacade>()
                 .MapFacade<OptionsPage, OptionsPageFacade>()
+                .MapFacade<SocialPage, SocialPageFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
