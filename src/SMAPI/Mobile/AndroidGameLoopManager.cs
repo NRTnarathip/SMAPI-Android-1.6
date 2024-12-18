@@ -3,16 +3,19 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using Java.Util;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework;
+using StardewValley;
 
 namespace StardewModdingAPI.Mobile;
 
+[HarmonyPatch]
 internal static class AndroidGameLoopManager
 {
     internal delegate bool OnGameUpdatingDelegate(GameTime gameTime);
-    static List<OnGameUpdatingDelegate> listOnGameUpdating = new();
+    static HashSet<OnGameUpdatingDelegate> listOnGameUpdating = new();
     static Queue<OnGameUpdatingDelegate> queueOnGameUpdatingToAdd = new();
     static Queue<OnGameUpdatingDelegate> queueOnGameUpdatingToRemove = new();
 
@@ -35,7 +38,7 @@ internal static class AndroidGameLoopManager
     }
 
     public static bool IsSkipOriginalGameUpdating { get; private set; } = false;
-    internal static void OnGameUpdating(GameTime gameTime)
+    internal static void UpdateFrame_OnGameUpdating(GameTime gameTime)
     {
         //reset
         IsSkipOriginalGameUpdating = false;
@@ -44,8 +47,7 @@ internal static class AndroidGameLoopManager
         {
             while (queueOnGameUpdatingToAdd.TryDequeue(out OnGameUpdatingDelegate item))
             {
-                if (listOnGameUpdating.Contains(item) is false)
-                    listOnGameUpdating.Add(item);
+                listOnGameUpdating.Add(item);
             }
         }
 
@@ -53,17 +55,34 @@ internal static class AndroidGameLoopManager
         {
             while (queueOnGameUpdatingToRemove.TryDequeue(out OnGameUpdatingDelegate item))
             {
-                if (listOnGameUpdating.Contains(item))
-                    listOnGameUpdating.Remove(item);
+                listOnGameUpdating.Remove(item);
             }
         }
 
+        //Console.WriteLine("Android Looper OnGameUpdating...");
         foreach (var callback in listOnGameUpdating)
         {
             if (callback(gameTime))
             {
                 IsSkipOriginalGameUpdating = true;
             }
+        }
+    }
+
+    //fix game update freeze on GameTick & IsFixedTimeStep
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Game), "DoUpdate")]
+    static void Postfix_DoUpdate(GameTime gameTime)
+    {
+        var game = SGameRunner.instance as Game;
+        var _accumulatedElapsedTime_Field = AccessTools.Field(game.GetType(), "_accumulatedElapsedTime");
+        var accumulatedElapsedTime = (TimeSpan)_accumulatedElapsedTime_Field.GetValue(game);
+
+        if (accumulatedElapsedTime.TotalSeconds > 0.15f)
+        {
+            accumulatedElapsedTime = TimeSpan.FromSeconds(0f);
+            _accumulatedElapsedTime_Field.SetValue(game, accumulatedElapsedTime);
+            //release freeze loop Game.DoUpdate()
         }
     }
 }

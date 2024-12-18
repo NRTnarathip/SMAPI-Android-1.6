@@ -43,7 +43,8 @@ internal static class AndroidContentLoaderManager
         {
             FinishedFirstLoadContent = true;
             //update additional content
-            UpdateMyLoadContent();
+            //debug
+            FinishedCustomLoadContent = true;
         }
 
 
@@ -57,9 +58,6 @@ internal static class AndroidContentLoaderManager
             AccessTools.Method(typeof(Game1), "AfterLoadContent").Invoke(Game1.game1, null);
             OnPostfix_AfterLoadContent();
         }
-
-        //Console.WriteLine("after move next current step: " + loadEnumerator.Current);
-        //Console.WriteLine("is loaded: " + IsLoaded);
     }
     static void OnSetupFirstTick()
     {
@@ -72,19 +70,8 @@ internal static class AndroidContentLoaderManager
     static IMonitor Monitor => SCore.Instance.GetMonitorForGame();
     static void Log(string msg) => Monitor.Log(msg);
 
-    static void UpdateMyLoadContent()
-    {
-        CustomAudioCueModificationManager.Instance.UpdateLoadContent(out bool isCustomCueLoaded);
-
-        if (isCustomCueLoaded)
-        {
-            FinishedCustomLoadContent = true;
-        }
-    }
-
     static void OnPrefix_AfterLoadContent()
     {
-
     }
 
     static void OnPostfix_AfterLoadContent()

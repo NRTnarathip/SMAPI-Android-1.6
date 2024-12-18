@@ -72,7 +72,7 @@ internal class SModHooks : DelegatingModHooks
     public override Task StartTask(Task task, string id)
     {
 #if SMAPI_FOR_ANDROID
-        return AndroidSModHooks.StartTask(task, id);
+        return AndroidSModHooks.StartTaskBackground(task, id);
 #else
         this.Monitor.Log($"Synchronizing '{id}' task...");
         task.RunSynchronously();

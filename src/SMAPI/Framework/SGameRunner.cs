@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 using StardewValley.Logging;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Framework;
 
@@ -343,4 +344,31 @@ internal class SGameRunner : GameRunner
                 Context.LastRemovedScreenId = id;
         }
     }
+
+#if SMAPI_FOR_ANDROID
+    public static event Action<GameTime>? _EventOnDraw;
+    protected override void Draw(GameTime time)
+    {
+        base.Draw(time);
+
+        try
+        {
+            _EventOnDraw?.Invoke(time);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            this.Monitor.Log(ex.GetLogSummary(), LogLevel.Error);
+        }
+    }
+
+    internal static void RegisterOnDraw(Action<GameTime> draw)
+    {
+        _EventOnDraw += draw;
+    }
+    internal static void UnregisterOnDraw(Action<GameTime> draw)
+    {
+        _EventOnDraw -= draw;
+    }
+#endif
 }

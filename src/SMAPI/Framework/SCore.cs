@@ -268,7 +268,11 @@ internal class SCore : IDisposable
 
             // check content integrity
             // we start this before initializing the game, in case content issues crash its initialization
+#if SMAPI_FOR_ANDROID
+            //no need to check
+#else
             Task.Run(this.LogContentIntegrityIssues);
+#endif
 
             // override game
             this.Multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
@@ -634,14 +638,21 @@ internal class SCore : IDisposable
     /// <param name="gameTime">A snapshot of the game timing state.</param>
     /// <param name="runGameUpdate">Invoke the game's update logic.</param>
 #if SMAPI_FOR_ANDROID
-
     internal void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
     {
         try
         {
-            AndroidGameLoopManager.OnGameUpdating(gameTime);
+            AndroidGameLoopManager.UpdateFrame_OnGameUpdating(gameTime);
             if (AndroidGameLoopManager.IsSkipOriginalGameUpdating)
+            {
+                //var frames = new StackTrace().GetFrames();
+                //foreach (var f in frames)
+                //{
+                //    var method = f.GetMethod();
+                //    Console.WriteLine($" method: {method.DeclaringType}::{method}");
+                //}
                 return;
+            }
 #else
 
     private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)

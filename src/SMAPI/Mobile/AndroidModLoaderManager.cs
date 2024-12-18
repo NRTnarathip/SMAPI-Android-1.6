@@ -65,9 +65,9 @@ internal static class AndroidModLoaderManager
         {
             try
             {
-                Console.WriteLine($"taskModEntry.RunSynchronously(); ID: {taskModEntry.Id} on Main Thread");
+                //Console.WriteLine($"taskModEntry.RunSynchronously(); ID: {taskModEntry.Id} on Main Thread");
                 taskModEntry.RunSynchronously();
-                Console.WriteLine("End taskModEntry.RunSynchronously() in main thread");
+                //Console.WriteLine("End taskModEntry.RunSynchronously() in main thread");
             }
             catch (Exception ex)
             {
@@ -90,8 +90,8 @@ internal static class AndroidModLoaderManager
         }
 
         //wait
-        Console.WriteLine("task id: " + taskModEntry.Id + ", mod name: " + mod.GetType());
-        Console.WriteLine("taskModEntry.Wait()...");
+        //Console.WriteLine("task id: " + taskModEntry.Id + ", mod name: " + mod.GetType());
+        //Console.WriteLine("taskModEntry.Wait()...");
         try
         {
             taskModEntry.Wait();
@@ -102,8 +102,7 @@ internal static class AndroidModLoaderManager
         }
         finally
         {
-
-            Console.WriteLine("finally taskModEntry.Wait()");
+            //Console.WriteLine("finally taskModEntry.Wait()");
             //Console.WriteLine(" task exception: " + taskModEntry.Exception);
             //Console.WriteLine(" task IsCompleted: " + taskModEntry.IsCompleted);
             //Console.WriteLine(" task IsCompletedSuccessfully: " + taskModEntry.IsCompletedSuccessfully);
@@ -113,20 +112,32 @@ internal static class AndroidModLoaderManager
     }
 
     static object _lock_logLines = new object();
+
+    static int queueNumberShowLogger = 0;
+    static bool IsShowLogger => queueNumberShowLogger > 0;
+
     internal static void StartLoggerToScreen()
     {
+
+        //initialize
+        if (content is null)
+        {
+            content = Game1.game1.CreateContentManager(Game1.content.ServiceProvider, Game1.content.RootDirectory);
+            smallFont = content.Load<SpriteFont>("Fonts\\SmallFont");
+            K_textLineHeight = smallFont.MeasureString("AAA").Y;
+            SGameRunner.RegisterOnDraw(Draw);
+        }
+        // ready
         StardewModdingAPI.Framework.Monitor.RegisterOnLogImpl(OnLogImpl);
-        content = Game1.game1.CreateContentManager(Game1.content.ServiceProvider, Game1.content.RootDirectory);
-        smallFont = content.Load<SpriteFont>("Fonts\\SmallFont");
-        K_textLineHeight = smallFont.MeasureString("AAA").Y;
+        queueNumberShowLogger++;
+        Console.WriteLine("On start mod logger");
     }
 
-    static bool IsStopLogger = false;
     internal static void StopLoggerToScreen()
     {
+        Console.WriteLine("On stop mod loader logger");
         StardewModdingAPI.Framework.Monitor.UnregisterOnLogImpl(OnLogImpl);
-        IsStopLogger = true;
-        Console.WriteLine("stop mod loader logger");
+        queueNumberShowLogger--;
     }
 
     static void OnLogImpl(ConsoleLogLevel logLevel, string msg)
@@ -140,12 +151,13 @@ internal static class AndroidModLoaderManager
         }
     }
 
-    internal static void Draw(GameTime gameTime, RenderTarget2D target_screen)
+    internal static void Draw(GameTime gameTime)
     {
-        if (IsStopLogger)
+        if (IsShowLogger is false)
+        {
             return;
+        }
 
-        Game1.PushUIMode();
         var spriteBatch = Game1.spriteBatch;
         spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
 
@@ -155,7 +167,7 @@ internal static class AndroidModLoaderManager
             lineCount = logLines.Count;
         }
 
-        var viewport = Game1.viewport;
+        var screenSize = Game1.game1.localMultiplayerWindow;
         Game1.game1.GraphicsDevice.Clear(Color.Black);
         Color lineColor = Color.White;
         LogLevel currentLogLevel = LogLevel.Trace;
@@ -170,9 +182,9 @@ internal static class AndroidModLoaderManager
             //draw from Left, Bottom
             const float K_fontScale = 1.3f;
             Vector2 pos = Vector2.Zero;
-            const int startYPadding = 30;
             float lineHeight = K_fontScale * K_textLineHeight;
-            pos.Y = viewport.Height - (startYPadding + lineHeight + (lineHeight * lineIndex));
+            int startDrawY = screenSize.Height - 30;
+            pos.Y = startDrawY - (lineHeight + (lineHeight * lineIndex));
             pos.X = 100;
 
             if (pos.Y < 0)
@@ -205,10 +217,6 @@ internal static class AndroidModLoaderManager
                 }
             }
 
-            //bug not works
-            //if you have use harmony patching method between mod load entry point
-            //such as mod Thai Font Adjuster
-            //so we should modify ModLoader at mod.Entry() with sync main thread
             string lineText = lineData[(lineData.IndexOf("<line>") + 6)..lineData.IndexOf("</line>")];
             spriteBatch.DrawString(smallFont, lineText, pos, lineColor,
                 0f, Vector2.Zero, K_fontScale, SpriteEffects.None, 10);
@@ -216,7 +224,6 @@ internal static class AndroidModLoaderManager
         }
 
         spriteBatch.End();
-        Game1.PopUIMode();
     }
     static bool GetLoglevel(string lineData, ref LogLevel logLevel)
     {

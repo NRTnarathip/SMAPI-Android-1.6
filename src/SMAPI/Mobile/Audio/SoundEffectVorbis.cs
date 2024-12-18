@@ -24,20 +24,17 @@ public class SoundEffectVorbis : SoundEffect
     }
     public static SoundEffectVorbis CreateFromFileStream(string soundFilePath, bool vorbis)
     {
-        Console.WriteLine("==========");
         var st = Stopwatch.StartNew();
         using FileStream stream = new FileStream(soundFilePath, FileMode.Open);
         var sound = AccessTools.CreateInstance<SoundEffectVorbis>();
 
         AccessTools.Method(typeof(SoundEffect), "Initialize").Invoke(sound, null);
         var _duration_FI = AccessTools.Field(typeof(SoundEffect), "_duration");
+        Console.WriteLine("starting load sound vorbis: " + soundFilePath);
 
-        Console.WriteLine("try create SoundEffectVorbis from file: " + soundFilePath);
         using (VorbisReader vorbis_reader = new VorbisReader(stream, closeOnDispose: true))
         {
 
-            Console.WriteLine("using vorbis_reader = new()");
-            Console.WriteLine("start ReadSamples");
             const int bytes_per_sample = 2;
 
             float[] float_buffer = new float[vorbis_reader.TotalSamples * vorbis_reader.Channels];
@@ -51,7 +48,7 @@ public class SoundEffectVorbis : SoundEffect
             //ReadSamples(vorbis_reader, out byte[] xna_buffer);
 
             _duration_FI.SetValue(sound, vorbis_reader.TotalTime);
-            Console.WriteLine("done _duration setvalue: " + vorbis_reader.TotalTime);
+            //Console.WriteLine("done _duration setvalue: " + vorbis_reader.TotalTime);
 
             var PlatformInitializePcm = AccessTools.Method(typeof(SoundEffect), "PlatformInitializePcm");
             PlatformInitializePcm.Invoke(sound, [
@@ -60,12 +57,9 @@ public class SoundEffectVorbis : SoundEffect
                     (AudioChannels)vorbis_reader.Channels, 0,
                     (int)vorbis_reader.TotalSamples
             ]);
-            Console.WriteLine("done PlatformInitializePcm");
         }
 
         Console.WriteLine($"created SoundEffectVorbis in {st.Elapsed.TotalSeconds}s");
-        Console.WriteLine("==========");
-
         return sound;
     }
 }

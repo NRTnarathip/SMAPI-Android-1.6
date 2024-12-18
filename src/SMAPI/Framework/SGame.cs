@@ -101,6 +101,10 @@ internal class SGame : Game1
     [NonInstancedStatic]
     public static Func<IServiceProvider, string, LocalizedContentManager>? CreateContentManagerImpl;
 
+#if SMAPI_FOR_ANDROID
+    internal static SGame Instance { get; private set; }
+#endif
+
 
     /*********
     ** Public methods
@@ -131,6 +135,8 @@ internal class SGame : Game1
         Game1.multiplayer = this.InitialMultiplayer = multiplayer;
         Game1.hooks = modHooks;
 #if SMAPI_FOR_ANDROID
+        SGame.Instance = this;
+
         try
         {
             //]var newLocations = new ObservableCollection<GameLocation>();
@@ -302,7 +308,6 @@ internal class SGame : Game1
         {
             base._draw(gameTime, target_screen);
             this.OnRendered(target_screen);
-            AndroidModLoaderManager.Draw(gameTime, target_screen);
             this.DrawCrashTimer.Reset();
         }
         catch (Exception ex)

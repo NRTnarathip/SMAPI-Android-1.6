@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal;
@@ -19,6 +20,12 @@ namespace StardewModdingAPI.Mobile.Audio;
 [HarmonyPatch]
 internal class CustomAudioCueModificationManager : AudioCueModificationManager
 {
+    public enum LoadStage
+    {
+        None,
+        Loading,
+        Loaded,
+    }
     public static CustomAudioCueModificationManager Instance { get; private set; }
     IMonitor monitor;
     public CustomAudioCueModificationManager()
@@ -27,13 +34,15 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
         this.monitor = SCore.Instance.GetMonitorForGame();
     }
 
-    [HarmonyPatch(typeof(AudioCueModificationManager))]
     [HarmonyPrefix]
+    [HarmonyPatch(typeof(AudioCueModificationManager), nameof(OnStartup))]
     static bool Prefix_OnStartup()
     {
+        Instance.MyStartUp();
         return false;
     }
 
+    public LoadStage loadStage = LoadStage.None;
 
     void MyStartUp()
     {
@@ -41,21 +50,49 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
         this.cueModificationData = DataLoader.AudioChanges(Game1.content);
         this.ApplyAllCueModifications();
     }
-    Task[] allTask_ApplyCueModification;
+
     public override void ApplyAllCueModifications()
     {
         try
         {
             Console.WriteLine("Start ApplyAllCueModifications count: " + this.cueModificationData.Count);
 
-            this.allTask_ApplyCueModification = this.cueModificationData.Keys.Select(key =>
-                Task.Run(() => this.ApplyCueModification(key))).ToArray();
+            if (this.cueModificationData.Count == 0)
+                return;
+
+            //starting
+            this.loadStage = LoadStage.Loading;
+            AndroidModLoaderManager.StartLoggerToScreen();
+            AndroidGameLoopManager.RegisterOnGameUpdating(this.OnGameUpdating);
+
+            foreach (string key in this.cueModificationData.Keys)
+            {
+                AndroidSModHooks.AddTaskRunOnMainThread(() =>
+                {
+                    this.ApplyCueModification(key);
+                }, $"ApplyCueModification key: {key}");
+            }
         }
         catch (Exception ex)
         {
             this.monitor.Log(ex.GetLogSummary(), LogLevel.Error);
         }
     }
+    bool OnGameUpdating(GameTime time)
+    {
+        bool isLoaded = this.cueLoadedDict.Count == this.cueModificationData.Count;
+        if (isLoaded)
+        {
+            AndroidGameLoopManager.UnregisterOnGameUpdating(this.OnGameUpdating);
+            AndroidModLoaderManager.StopLoggerToScreen();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    ConcurrentDictionary<string, CueDefinition> cueLoadedDict = new();
 
     public override void ApplyCueModification(string key)
     {
@@ -129,7 +166,6 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
             soundBank.AddCue(cue_definition);
             //successfully
             this.cueLoadedDict.TryAdd(key, cue_definition);
-
         }
         catch (NoAudioHardwareException)
         {
@@ -139,40 +175,5 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
         {
             this.monitor.Log(ex.ToString(), LogLevel.Error);
         }
-    }
-    ConcurrentDictionary<string, CueDefinition> cueLoadedDict = new();
-    public bool IsLoaded { get; private set; }
-
-    int tickUpdate = 0;
-    internal void UpdateLoadContent(out bool isLoaded)
-    {
-        this.tickUpdate++;
-        if (this.tickUpdate == 1)
-        {
-            //first tick init 
-            this.MyStartUp();
-        }
-
-        //debug
-        if (SCore.ProcessTicksElapsed % 30 == 0)
-        {
-            this.LogLoadingProgress();
-        }
-
-        //check all loaded
-        if (this.cueLoadedDict.Count == this.cueModificationData.Count)
-        {
-            this.LogLoadingProgress();
-            this.monitor.Log("Loaded CustomAudioCueModification");
-            this.IsLoaded = true;
-        }
-
-
-        isLoaded = this.IsLoaded;
-    }
-    void LogLoadingProgress()
-    {
-        float percent = (this.cueLoadedDict.Count / (float)this.cueModificationData.Count) * 100;
-        this.monitor.Log($"Loading cueModificationData {this.cueLoadedDict.Count}/{this.cueModificationData.Count} : {percent}%");
     }
 }
