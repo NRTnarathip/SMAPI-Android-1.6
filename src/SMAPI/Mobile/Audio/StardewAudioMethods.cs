@@ -166,7 +166,6 @@ public static class StardewAudioMethods
     readonly static Dictionary<ICue, float> holder_Pitch = new();
     internal static float Get_Pitch_Proxy(this ICue icue)
     {
-        Console.WriteLine($"On Pitch Getter: {icue}");
         switch (icue)
         {
             case DummyCue dummy:
@@ -187,8 +186,6 @@ public static class StardewAudioMethods
                 //get value from current type
                 var pitchProperty = AccessTools.Property(icue.GetType(), "Pitch");
                 float result = (float)pitchProperty.GetValue(icue);
-                Console.WriteLine("result gatter from current type: " + result);
-
                 return result;
         }
     }
@@ -209,7 +206,6 @@ public static class StardewAudioMethods
                 AccessTools.Property(icue.GetType(), "Pitch").SetValue(icue, newValue);
                 break;
         }
-        Console.WriteLine($"On Set_Pitch_Proxy {icue} value: {newValue}");
     }
 
 
@@ -220,10 +216,8 @@ public static class StardewAudioMethods
     static bool Get_IsPitchBeingControlledByRPC_Proxy(this ICue icue)
     {
         //TODO
-        Console.WriteLine("On Get_IsPitchBeingControlledByRPC_Proxy");
         return false;
     }
-
 
     #endregion
 }
