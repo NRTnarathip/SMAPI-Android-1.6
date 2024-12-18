@@ -119,8 +119,6 @@ public static class StardewAudioMethods
 
     //TODO
     //SoundHelper PlayLocal it don't use cue.Volume
-    static readonly PropertyInfo ICue_Volume_PI = AccessTools.Property(typeof(ICue), "Volume");
-
     static readonly Dictionary<ICue, float> holder_Volume = new();
     internal const string get_Volume_FullName = "System.Single StardewValley.ICue::get_Volume()";
     internal readonly static MethodInfo ICue_get_Volume_MethodInfo = AccessTools.Method(typeof(StardewAudioMethods), nameof(ICue_get_Volume));
@@ -130,23 +128,18 @@ public static class StardewAudioMethods
         {
             case CueWrapper cue:
             case DummyCue dummy:
-                //getter from holder_Volume
-                break;
+                if (holder_Volume.TryGetValue(icue, out float volume) is false)
+                {
+                    //create new default value
+                    holder_Volume[icue] = volume = 1f;
+                }
 
-            //other class
+                return volume;
+
             default:
-
-                break;
+                //get Volume on current type
+                return (float)AccessTools.Property(icue.GetType(), "Volume").GetValue(icue);
         }
-
-        if (holder_Volume.TryGetValue(icue, out float volume) is false)
-        {
-            volume = 1f;
-            icue.ICue_set_Volume(volume);
-            //Console.WriteLine("done first apply ICue_set_Volume");
-        }
-        //Console.WriteLine("ICue_get_Volume volume: " + volume);
-        return volume;
     }
 
     internal const string set_Volume_FullName = "System.Void StardewValley.ICue::set_Volume(System.Single)";
@@ -162,7 +155,7 @@ public static class StardewAudioMethods
 
             default:
                 //other class
-                AccessTools.PropertySetter(icue.GetType(), "Volume").SetValue(icue, newValue);
+                AccessTools.Property(icue.GetType(), "Volume").SetValue(icue, newValue);
                 break;
         }
     }
@@ -192,7 +185,7 @@ public static class StardewAudioMethods
 
             default:
                 //get value from current type
-                var pitchProperty = AccessTools.PropertyGetter(icue.GetType(), "Pitch");
+                var pitchProperty = AccessTools.Property(icue.GetType(), "Pitch");
                 float result = (float)pitchProperty.GetValue(icue);
                 Console.WriteLine("result gatter from current type: " + result);
 
@@ -213,7 +206,7 @@ public static class StardewAudioMethods
 
             default:
                 //set value Pitch on current type
-                AccessTools.PropertySetter(icue.GetType(), "Pitch").SetValue(icue, newValue);
+                AccessTools.Property(icue.GetType(), "Pitch").SetValue(icue, newValue);
                 break;
         }
         Console.WriteLine($"On Set_Pitch_Proxy {icue} value: {newValue}");
