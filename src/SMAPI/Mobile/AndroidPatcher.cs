@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Mobile;
 [HarmonyPatch]
 internal static class AndroidPatcher
 {
-    public static Harmony harmony { get; private set; }
+    public static Harmony? harmony { get; private set; }
     internal static void Setup()
     {
         AndroidLogger.Log("===========================");
@@ -28,11 +28,17 @@ internal static class AndroidPatcher
 
         try
         {
+            //setup
             VersionInfoMenu.Init();
-            var modFix = AndroidModFixManager.Init();
+            Log.enabled = true;
+            harmony = new Harmony(nameof(AndroidPatcher));
 
+            //Register mod fix here
+            var modFix = AndroidModFixManager.Init();
+            //list mods
             FarmTypeManagerFix.Init(modFix);
             SpaceCoreFix.Init(modFix);
+            SveFix.Init(modFix);
         }
         catch (Exception ex)
         {
@@ -40,10 +46,8 @@ internal static class AndroidPatcher
             AndroidLogger.Log(ex);
         }
     }
-    public static void ApplyHarmonyPatch()
+    public static void ApplyHarmonyPatchAll()
     {
-        Log.enabled = true;
-        harmony = new Harmony(nameof(AndroidPatcher));
         harmony.PatchAll();
     }
 }
