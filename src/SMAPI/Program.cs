@@ -252,9 +252,11 @@ internal class Program
         developerMode = true;
         writeToConsole = false;
         modsPath = Path.Combine(EarlyConstants.ExternalFilesDir, "Mods");
-#endif
         SCore core = new(modsPath, writeToConsole, developerMode);
+        //before run game you should apply Harmony Patch
+        AndroidPatcher.ApplyHarmonyPatch();
         core.RunInteractively();
+#endif
     }
 
     /// <summary>Write an error directly to the console and exit.</summary>
@@ -291,6 +293,7 @@ internal class Program
     {
 #if SMAPI_FOR_ANDROID
         AndroidLogger.Log("PressAnyKeyToExit: Game has ended. Press any key to exit.");
+        SMAPIActivityTool.ExitGame();
         return;
 #endif
 

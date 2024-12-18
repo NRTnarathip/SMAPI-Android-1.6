@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Mobile.Audio;
 using StardewValley;
+using StardewValley.Audio;
 
 namespace StardewModdingAPI.Mobile;
 
@@ -25,41 +28,70 @@ internal static class AndroidContentLoaderManager
         get => (bool)AccessTools.Field(typeof(Game1), "FinishedFirstInitSounds").GetValue(null);
         set => AccessTools.Field(typeof(Game1), "FinishedFirstInitSounds").SetValue(null, value);
     }
+    public static bool FinishedCustomLoadContent = false;
     static int CallingTick = 0;
     public static void UpdateMoveNextLoadContent()
     {
         CallingTick++;
 
-        if (IsLoaded)
-            return;
-
         if (CallingTick == 1)
-        {
-            LoadState = LoadStateEnum.Loading;
-        }
+            OnSetupFirstTick();
 
-        var loadEnumerator = SGame.LoadContentEnumerator;
-        bool isLoadContentFinish = loadEnumerator.MoveNext() is false;
-        //Console.WriteLine("move next & current state: " + loadEnumerator.Current);
-
+        var currentLoaderEnumerator = SGame.LoadContentEnumerator;
+        bool isLoadContentFinish = currentLoaderEnumerator.MoveNext() is false;
         if (isLoadContentFinish)
         {
             FinishedFirstLoadContent = true;
+            //update additional content
+            UpdateMyLoadContent();
         }
 
-        if (FinishedFirstLoadContent && FinishedFirstInitSounds && FinishedFirstInitSerializers)
+
+        if (FinishedFirstLoadContent && FinishedFirstInitSounds
+            && FinishedFirstInitSerializers && FinishedCustomLoadContent)
         {
             AccessTools.Field(typeof(Game1), "FinishedIncrementalLoad").SetValue(null, true);
             LoadState = LoadStateEnum.Loaded;
             SGame.LoadContentEnumerator = null;
+            OnPrefix_AfterLoadContent();
             AccessTools.Method(typeof(Game1), "AfterLoadContent").Invoke(Game1.game1, null);
-            //Console.WriteLine("End called AfterLoadContent");
-            (SGame.game1 as SGame).OnAndroidContentLoaded();
+            OnPostfix_AfterLoadContent();
         }
 
         //Console.WriteLine("after move next current step: " + loadEnumerator.Current);
         //Console.WriteLine("is loaded: " + IsLoaded);
     }
+    static void OnSetupFirstTick()
+    {
+        LoadState = LoadStateEnum.Loading;
+
+        //change AudioCueModificationManager
+        Game1.CueModification = new CustomAudioCueModificationManager();
+    }
+
+    static IMonitor Monitor => SCore.Instance.GetMonitorForGame();
+    static void Log(string msg) => Monitor.Log(msg);
+
+    static void UpdateMyLoadContent()
+    {
+        CustomAudioCueModificationManager.Instance.UpdateLoadContent(out bool isCustomCueLoaded);
+
+        if (isCustomCueLoaded)
+        {
+            FinishedCustomLoadContent = true;
+        }
+    }
+
+    static void OnPrefix_AfterLoadContent()
+    {
+
+    }
+
+    static void OnPostfix_AfterLoadContent()
+    {
+        (SGame.game1 as SGame).OnAndroidContentLoaded();
+    }
+
 
     public enum LoadStateEnum
     {

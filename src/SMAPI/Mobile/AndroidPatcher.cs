@@ -28,20 +28,22 @@ internal static class AndroidPatcher
 
         try
         {
-            Log.enabled = true;
-
-            harmony = new Harmony(nameof(AndroidPatcher));
-            harmony.PatchAll();
             VersionInfoMenu.Init();
             var modFix = AndroidModFixManager.Init();
 
             FarmTypeManagerFix.Init(modFix);
             SpaceCoreFix.Init(modFix);
-            StardewAudioMethods.Init(modFix);
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Error on AndroidPatcher.Setup()");
             AndroidLogger.Log(ex);
         }
+    }
+    public static void ApplyHarmonyPatch()
+    {
+        Log.enabled = true;
+        harmony = new Harmony(nameof(AndroidPatcher));
+        harmony.PatchAll();
     }
 }

@@ -15,7 +15,6 @@ using System.Diagnostics;
 
 namespace StardewModdingAPI.Mobile;
 
-[HarmonyPatch]
 internal static class VersionInfoMenu
 {
     internal static void Init()

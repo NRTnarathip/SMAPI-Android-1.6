@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Android.App;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.Commands;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
@@ -150,6 +152,7 @@ internal class LogManager : IDisposable
     public void PressAnyKeyToExit(bool showMessage)
     {
 #if SMAPI_FOR_ANDROID
+        SMAPIActivityTool.ExitGame();
         return;
 #endif
 
