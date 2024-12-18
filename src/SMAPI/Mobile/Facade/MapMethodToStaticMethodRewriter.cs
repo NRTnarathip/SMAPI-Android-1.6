@@ -1,8 +1,10 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Utils;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
+using StardewModdingAPI.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,36 +135,46 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
 
 #if false
         //debug only
-        if (thisMethodFullName.Contains("ICue"))
+        if (thisMethodFullName.Contains("Pitch"))
         {
             Console.WriteLine(thisMethodFullName);
         }
 #endif
-
-        if (this.MapMethodWithCallbacks.TryGetValue(thisMethod.DeclaringType.FullName, out var mapMethodStartWith))
+        try
         {
-            bool isMark = mapMethodStartWith.callback(mapMethodStartWith, thisMethod, module, cil, instruction);
-            if (isMark)
+            if (this.MapMethodWithCallbacks.TryGetValue(thisMethod.DeclaringType.FullName, out var mapMethodStartWith))
             {
+                //Console.WriteLine("try replace method case 1: " + thisMethodFullName);
+                bool isMark = mapMethodStartWith.callback(mapMethodStartWith, thisMethod, module, cil, instruction);
+                if (isMark)
+                {
+                    this.Phrases.Add($"Replace Method: {thisMethodFullName}");
+                    return this.MarkRewritten();
+                }
+            }
+
+            if (this.MapMethods.ContainsKey(thisMethodFullName))
+            {
+                //Console.WriteLine("try replace method case 2: " + thisMethodFullName);
+                instruction.Operand = module.ImportReference(this.MapMethods[thisMethodFullName].newMethod);
                 this.Phrases.Add($"Replace Method: {thisMethodFullName}");
+
+                return this.MarkRewritten();
+            }
+
+            if (this.MapMethodWithFullName.ContainsKey(thisMethodFullName))
+            {
+                //Console.WriteLine("try replace method case 3: " + thisMethodFullName);
+                instruction.Operand = module.ImportReference(this.MapMethodWithFullName[thisMethodFullName]);
+                this.Phrases.Add($"Replace Method: {thisMethodFullName}");
+
                 return this.MarkRewritten();
             }
         }
-
-        if (this.MapMethods.ContainsKey(thisMethodFullName))
+        catch (Exception ex)
         {
-            instruction.Operand = module.ImportReference(this.MapMethods[thisMethodFullName].newMethod);
-            this.Phrases.Add($"Replace Method: {thisMethodFullName}");
-
-            return this.MarkRewritten();
-        }
-
-        if (this.MapMethodWithFullName.ContainsKey(thisMethodFullName))
-        {
-            instruction.Operand = module.ImportReference(this.MapMethodWithFullName[thisMethodFullName]);
-            this.Phrases.Add($"Replace Method: {thisMethodFullName}");
-
-            return this.MarkRewritten();
+            var monitor = SCore.Instance.GetMonitorForGame();
+            monitor.Log(ex.GetLogSummary(), LogLevel.Error);
         }
         return false;
     }

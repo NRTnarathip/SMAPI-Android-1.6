@@ -335,20 +335,35 @@ internal class InstructionMetadata
                         (map) => { map.AddPramToSrc(typeof(IClickableMenu)); })
                 .AddWithMethodFullName(
                     "System.Int32 StardewValley.Audio.IAudioEngine::GetCategoryIndex(System.String)",
-                   StardewAudioMethods.IAudioEngine_GetCategoryIndex_MI
+                   StardewAudioMethods.IAudioEngine_GetCategoryIndex_MethodInfo
                 )
                 .AddWithMethodFullName(
                     "System.Void StardewValley.ISoundBank::AddCue(Microsoft.Xna.Framework.Audio.CueDefinition)",
-                   StardewAudioMethods.ISoundBank_AddCue_MI
+                   StardewAudioMethods.ISoundBank_AddCue_MethodInfo
                 )
+                //ICue Volume Property
                 .AddWithMethodFullName(
                     StardewAudioMethods.get_Volume_FullName,
-                    StardewAudioMethods.ICue_get_Volume_MI
+                    StardewAudioMethods.ICue_get_Volume_MethodInfo
                 )
                 .AddWithMethodFullName(
                     StardewAudioMethods.set_Volume_FullName,
-                    StardewAudioMethods.ICue_set_Volume_MI
+                    StardewAudioMethods.ICue_set_Volume_MethodInfo
                 )
+                //ICue Pitch Property
+                .AddWithMethodFullName(
+                    StardewAudioMethods.get_Pitch_FullName,
+                    StardewAudioMethods.Get_Pitch_ProxyMethodInfo
+                )
+                .AddWithMethodFullName(
+                    StardewAudioMethods.set_Pitch_FullName,
+                    StardewAudioMethods.Set_Pitch_ProxyMethodInfo
+                )
+                .AddWithMethodFullName(
+                    StardewAudioMethods.get_IsPitchBeingControlledByRPC_FullName,
+                    StardewAudioMethods.Get_IsPitchBeingControlledByRPC_MethodInfo
+                )
+
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
                    Texture2DRewriter.RewriterCallback

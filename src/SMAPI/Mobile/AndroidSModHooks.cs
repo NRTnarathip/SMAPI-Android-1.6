@@ -64,18 +64,18 @@ internal static class AndroidSModHooks
             runTaskOnMainThreadCount++;
             runTaskOnMainThreadTotalTime += stopwatch.Elapsed.TotalMilliseconds;
             Monitor.Log($"Done taskOnMainThread: '{task.name}' in {stopwatch.Elapsed.TotalMilliseconds}ms");
-            Monitor.Log($"current total time in this frame: {runTaskOnMainThreadTotalTime}ms");
+            Monitor.Log($"current total time in this frame: {runTaskOnMainThreadTotalTime:F3}ms");
 
             //debug
-            if (runTaskOnMainThreadTotalTime > 4000)
+            if (runTaskOnMainThreadTotalTime > 2000)
             {
                 Monitor.Log($"Warn!!, current task '{task.name}' " +
-                    $"it's very long time in {stopwatch.Elapsed.TotalMicroseconds}ms", LogLevel.Warn);
+                    $"it's very long time in {runTaskOnMainThreadTotalTime:F3}ms", LogLevel.Warn);
             }
+
             //limit total time, prevent ANR
-            else if (runTaskOnMainThreadTotalTime > 1500)
+            if (runTaskOnMainThreadTotalTime > 500)
             {
-                Monitor.Log($"Break run task in this frame");
                 break;
             }
         }

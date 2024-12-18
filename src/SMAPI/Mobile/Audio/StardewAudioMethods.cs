@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using rail;
+using Sickhead.Engine.Util;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.Audio;
@@ -20,9 +22,9 @@ namespace StardewModdingAPI.Mobile.Facade;
 public static class StardewAudioMethods
 {
 
-    public static FieldInfo _categories_Field = AccessTools.Field(typeof(AudioEngine), "_categories");
+    internal static readonly FieldInfo _categories_Field = AccessTools.Field(typeof(AudioEngine), "_categories");
 
-    internal static MethodInfo IAudioEngine_GetCategoryIndex_MI
+    internal static readonly MethodInfo IAudioEngine_GetCategoryIndex_MethodInfo
         = AccessTools.Method(typeof(StardewAudioMethods), nameof(IAudioEngine_GetCategoryIndex));
 
     internal static int AudioEngine_GetCategoryIndex(this AudioEngine audioEngine, string name)
@@ -80,20 +82,18 @@ public static class StardewAudioMethods
 
 
     #region SoundBank
-    static FieldInfo soundBank_FI = AccessTools.Field(typeof(SoundBankWrapper), "soundBank");
+    static readonly FieldInfo soundBank_FieldInfo = AccessTools.Field(typeof(SoundBankWrapper), "soundBank");
     internal static void SoundBankWrapper_AddCue(this SoundBankWrapper soundBankWrapper, CueDefinition cue)
     {
         soundBankWrapper.GetSoundBank().AddCue(cue);
     }
     internal static SoundBank GetSoundBank(this SoundBankWrapper soundBankWrapper)
-        => soundBank_FI.GetValue(soundBankWrapper) as SoundBank;
+        => soundBank_FieldInfo.GetValue(soundBankWrapper) as SoundBank;
 
-    internal static MethodInfo ISoundBank_AddCue_MI
+    internal readonly static MethodInfo ISoundBank_AddCue_MethodInfo
         = AccessTools.Method(typeof(StardewAudioMethods), nameof(ISoundBank_AddCue));
-    public static void ISoundBank_AddCue(this ISoundBank obj, CueDefinition cue)
+    internal static void ISoundBank_AddCue(this ISoundBank obj, CueDefinition cue)
     {
-        //Console.WriteLine("On ISoundBank_AddCue()");
-        //Console.WriteLine("obj: " + obj);
         switch (obj)
         {
             case SoundBank soundBank:
@@ -119,28 +119,26 @@ public static class StardewAudioMethods
 
     //TODO
     //SoundHelper PlayLocal it don't use cue.Volume
-    static PropertyInfo ICue_Volume_PI = AccessTools.Property(typeof(ICue), "Volume");
+    static readonly PropertyInfo ICue_Volume_PI = AccessTools.Property(typeof(ICue), "Volume");
 
-    static Dictionary<ICue, float> holder_Volume = new();
+    static readonly Dictionary<ICue, float> holder_Volume = new();
     internal const string get_Volume_FullName = "System.Single StardewValley.ICue::get_Volume()";
-    internal static MethodInfo ICue_get_Volume_MI = AccessTools.Method(typeof(StardewAudioMethods), nameof(ICue_get_Volume_MI));
+    internal readonly static MethodInfo ICue_get_Volume_MethodInfo = AccessTools.Method(typeof(StardewAudioMethods), nameof(ICue_get_Volume));
     internal static float ICue_get_Volume(this ICue icue)
     {
-        //Console.WriteLine("On ICue_get_Volume");
-        //Console.WriteLine("cue: " + icue);
         switch (icue)
         {
             case CueWrapper cue:
-                //Console.WriteLine("cue wrapper: " + cue.Name);
-                break;
-
             case DummyCue dummy:
-                //Console.WriteLine("dummy cue: " + dummy.Name);
+                //getter from holder_Volume
                 break;
 
+            //other class
             default:
+
                 break;
         }
+
         if (holder_Volume.TryGetValue(icue, out float volume) is false)
         {
             volume = 1f;
@@ -152,15 +150,87 @@ public static class StardewAudioMethods
     }
 
     internal const string set_Volume_FullName = "System.Void StardewValley.ICue::set_Volume(System.Single)";
-    internal static MethodInfo ICue_set_Volume_MI = AccessTools.Method(typeof(StardewAudioMethods), nameof(ICue_set_Volume));
+    internal readonly static MethodInfo ICue_set_Volume_MethodInfo = AccessTools.Method(typeof(StardewAudioMethods), nameof(ICue_set_Volume));
     internal static void ICue_set_Volume(this ICue icue, float newValue)
     {
-        //Console.WriteLine("On ICue_set_Volume");
-        //Console.WriteLine("cue: " + icue);
-        //Console.WriteLine("  name: " + icue.Name);
-        //Console.WriteLine("  volume value: " + newValue);
-        holder_Volume[icue] = newValue;
+        switch (icue)
+        {
+            case DummyCue dummy:
+            case CueWrapper cueWrapper:
+                holder_Volume[icue] = newValue;
+                return;
+
+            default:
+                //other class
+                AccessTools.PropertySetter(icue.GetType(), "Volume").SetValue(icue, newValue);
+                break;
+        }
     }
+
+
+    internal const string get_Pitch_FullName = "System.Single StardewValley.ICue::get_Pitch()";
+    internal readonly static MethodInfo Get_Pitch_ProxyMethodInfo = AccessTools.Method(typeof(StardewAudioMethods), nameof(Get_Pitch_Proxy));
+    readonly static Dictionary<ICue, float> holder_Pitch = new();
+    internal static float Get_Pitch_Proxy(this ICue icue)
+    {
+        Console.WriteLine($"On Pitch Getter: {icue}");
+        switch (icue)
+        {
+            case DummyCue dummy:
+                //src code in PC it return 0f fake value
+                return 0f;
+
+            case CueWrapper cueWrapper:
+
+                if (holder_Pitch.TryGetValue(icue, out float resultFromCueWrapper) is false)
+                {
+                    //create holder object with value
+                    resultFromCueWrapper = holder_Pitch[icue] = 0f;
+                }
+
+                return resultFromCueWrapper;
+
+            default:
+                //get value from current type
+                var pitchProperty = AccessTools.PropertyGetter(icue.GetType(), "Pitch");
+                float result = (float)pitchProperty.GetValue(icue);
+                Console.WriteLine("result gatter from current type: " + result);
+
+                return result;
+        }
+    }
+
+    internal const string set_Pitch_FullName = "System.Void StardewValley.ICue::set_Pitch(System.Single)";
+    internal readonly static MethodInfo Set_Pitch_ProxyMethodInfo = AccessTools.Method(typeof(StardewAudioMethods), nameof(Set_Pitch_Proxy));
+    internal static void Set_Pitch_Proxy(this ICue icue, float newValue)
+    {
+        switch (icue)
+        {
+            case DummyCue dummy:
+            case CueWrapper cueWrapper:
+                holder_Pitch[icue] = newValue;
+                return;
+
+            default:
+                //set value Pitch on current type
+                AccessTools.PropertySetter(icue.GetType(), "Pitch").SetValue(icue, newValue);
+                break;
+        }
+        Console.WriteLine($"On Set_Pitch_Proxy {icue} value: {newValue}");
+    }
+
+
+    internal const string get_IsPitchBeingControlledByRPC_FullName
+        = "System.Boolean StardewValley.ICue::get_IsPitchBeingControlledByRPC()";
+    internal readonly static MethodInfo Get_IsPitchBeingControlledByRPC_MethodInfo
+        = AccessTools.Method(typeof(StardewAudioMethods), nameof(Get_IsPitchBeingControlledByRPC_Proxy));
+    static bool Get_IsPitchBeingControlledByRPC_Proxy(this ICue icue)
+    {
+        //TODO
+        Console.WriteLine("On Get_IsPitchBeingControlledByRPC_Proxy");
+        return false;
+    }
+
 
     #endregion
 }
