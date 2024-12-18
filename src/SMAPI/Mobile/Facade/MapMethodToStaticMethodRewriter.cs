@@ -131,7 +131,7 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
             return false;
         string thisMethodFullName = thisMethod.FullName;
 
-#if true
+#if false
         //debug only
         if (thisMethodFullName.Contains("ICue"))
         {

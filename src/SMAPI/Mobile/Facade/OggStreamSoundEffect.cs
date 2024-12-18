@@ -45,9 +45,6 @@ public class OggStreamSoundEffect : SoundEffect
 
     public static OggStreamSoundEffect CreateOggStreamFromFileName(string oggFileName)
     {
-
-        Console.WriteLine("Start create ogg sound fileName: " + oggFileName);
-
         var ogg = AccessTools.CreateInstance<OggStreamSoundEffect>();
         using (VorbisReader reader = new VorbisReader(oggFileName))
         {
@@ -55,7 +52,6 @@ public class OggStreamSoundEffect : SoundEffect
             ogg.TotalSamplesPerChannel = reader.TotalSamples;
             ogg.SampleRate = reader.SampleRate;
             ogg.Channels = ((reader.Channels != 2) ? AudioChannels.Mono : AudioChannels.Stereo);
-            Console.WriteLine("done create OggSoundEffect file Name: " + oggFileName);
         }
 
         return ogg;

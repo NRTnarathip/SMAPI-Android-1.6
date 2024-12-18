@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using rail;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.Audio;
@@ -159,11 +162,13 @@ public static class StardewAudioMethods
         holder_Volume[icue] = newValue;
     }
 
+    #endregion
+
+
     internal static void Init(AndroidModFixManager modFix)
     {
         //AndroidGameLoopManager.RegisterOnGameUpdating(OnGameUpdating);
     }
-
     private static bool OnGameUpdating(GameTime gameTime)
     {
         var soundBankWrapper = Game1.soundBank as SoundBankWrapper;
@@ -190,13 +195,39 @@ public static class StardewAudioMethods
     }
 
 
+    #region AudioCueModificationManager
+
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(AudioCueModificationManager), nameof(AudioCueModificationManager.ApplyCueModification))]
-    static bool Prefix_ApplyCueModification(AudioCueModificationManager __instance, string key)
+    [HarmonyPatch(typeof(AudioCueModificationManager), nameof(AudioCueModificationManager.ApplyAllCueModifications))]
+    static bool ApplyAllCueModifications(AudioCueModificationManager __instance)
     {
         try
         {
+
             var cueModificationData = __instance.cueModificationData;
+            Console.WriteLine("Start ApplyAllCueModifications count: " + cueModificationData.Count);
+
+            //Parallel.ForEach(cueModificationData.Keys, (key) =>
+            //{
+            //    ApplyCueModification(__instance, key);
+            //});
+
+            var tasks = cueModificationData.Keys.Select(key => Task.Run(() => ApplyCueModification(__instance, key))).ToArray();
+            Task.WaitAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+        return false;
+    }
+
+    static bool ApplyCueModification(AudioCueModificationManager audioCueModificationManager, string key)
+    {
+        try
+        {
+            var cueModificationData = audioCueModificationManager.cueModificationData;
 
             if (!cueModificationData.TryGetValue(key, out var modification_data))
             {
@@ -227,7 +258,7 @@ public static class StardewAudioMethods
                 SoundEffect[] effects = new SoundEffect[modification_data.FilePaths.Count];
                 for (int i = 0; i < modification_data.FilePaths.Count; i++)
                 {
-                    string file_path = __instance.GetFilePath(modification_data.FilePaths[i]);
+                    string file_path = audioCueModificationManager.GetFilePath(modification_data.FilePaths[i]);
                     bool vorbis = Path.GetExtension(file_path).EqualsIgnoreCase(".ogg");
                     int invalid_sounds = 0;
                     try
@@ -239,8 +270,9 @@ public static class StardewAudioMethods
                         }
                         else
                         {
-                            using FileStream stream = new FileStream(file_path, FileMode.Open);
-                            sound_effect = SoundEffect.FromStream(stream, vorbis);
+                            //use SoundEffectVorbis Instead
+                            //because SoundEffect.FromStream it don't have support voris on adnroid
+                            sound_effect = SoundEffectVorbis.CreateFromFileStream(file_path, vorbis);
                         }
                         effects[i - invalid_sounds] = sound_effect;
                     }
