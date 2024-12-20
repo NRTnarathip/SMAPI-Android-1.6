@@ -61,8 +61,12 @@ internal class Program
 
         catch (Exception ex)
         {
-            Console.WriteLine($"SMAPI failed to initialize: {ex}");
-            Program.PressAnyKeyToExit(true);
+            string logMessage = $"SMAPI failed to initialize: {ex}";
+            Console.WriteLine(logMessage);
+            IMonitor? monitor = SCore.Instance?.GetMonitorForGame();
+            monitor?.Log(logMessage, LogLevel.Error);
+
+            PressAnyKeyToExit(true);
         }
     }
 

@@ -8,6 +8,8 @@ using Force.DeepCloner;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using StardewModdingAPI.Framework;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Mobile.Facade;
 using StardewModdingAPI.Mobile.Mods;
 using StardewValley;
@@ -48,6 +50,19 @@ internal static class AndroidPatcher
     }
     public static void ApplyHarmonyPatchAll()
     {
-        harmony.PatchAll();
+        var monitor = SCore.Instance.GetMonitorForGame();
+        monitor.Log("On ApplyHarmonyPatchAll()..");
+        try
+        {
+            monitor.Log("Try harmony.PatchAll()");
+            harmony.PatchAll();
+            monitor.Log("Done harmony.PatchAll()");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            monitor.Log(ex.GetLogSummary(), LogLevel.Error);
+            throw;
+        }
     }
 }
