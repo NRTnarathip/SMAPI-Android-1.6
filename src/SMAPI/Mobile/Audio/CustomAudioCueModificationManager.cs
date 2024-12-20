@@ -68,11 +68,13 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
             foreach (string key in this.cueModificationData.Keys)
             {
                 var item = this.cueModificationData[key];
+                //TODO
                 AndroidSModHooks.AddTaskRunOnMainThread(() =>
                 {
                     this.ApplyCueModification(key);
-                }, $"Apply cue modify key: {key}, filePath: {item.FilePaths.Single()}");
+                }, $"Apply CueModify key: {key}, filePath[0]: {item.FilePaths.FirstOrDefault()}");
             }
+
         }
         catch (Exception ex)
         {

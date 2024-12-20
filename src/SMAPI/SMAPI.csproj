@@ -18,7 +18,15 @@
     <Platforms>AnyCPU;ARM64</Platforms>
     <Configurations>Debug;Release;Android Debug;Android Release</Configurations>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
   </PropertyGroup>
+
+  <!--SMAPI Android Build-->
+  <ItemGroup>
+    <Constant Include="SMAPIAndroidBuild.BuildCode" Value="$([System.DateTimeOffset]::Now.ToUnixTimeSeconds())" />
+  </ItemGroup>
+
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);SMAPI_FOR_ANDROID</DefineConstants>
   </PropertyGroup>
@@ -52,6 +60,10 @@
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="StbImageWriteSharp" />
     <PackageReference Include="System.Reflection.Emit" />
+    <PackageReference Include="ThisAssembly.Constants">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
