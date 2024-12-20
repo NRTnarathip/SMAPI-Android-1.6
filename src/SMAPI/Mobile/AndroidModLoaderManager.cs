@@ -115,7 +115,13 @@ internal static class AndroidModLoaderManager
 
     static int queueNumberShowLogger = 0;
     static bool IsShowLogger => queueNumberShowLogger > 0;
-
+    static void ClearLogs()
+    {
+        lock (_lock_logLines)
+        {
+            logLines.Clear();
+        }
+    }
     internal static void StartLoggerToScreen()
     {
 
@@ -130,6 +136,7 @@ internal static class AndroidModLoaderManager
         // ready
         StardewModdingAPI.Framework.Monitor.RegisterOnLogImpl(OnLogImpl);
         queueNumberShowLogger++;
+        ClearLogs();
         Console.WriteLine("On start mod logger");
     }
 
@@ -138,6 +145,7 @@ internal static class AndroidModLoaderManager
         Console.WriteLine("On stop mod loader logger");
         StardewModdingAPI.Framework.Monitor.UnregisterOnLogImpl(OnLogImpl);
         queueNumberShowLogger--;
+        ClearLogs();
     }
 
     static void OnLogImpl(ConsoleLogLevel logLevel, string msg)

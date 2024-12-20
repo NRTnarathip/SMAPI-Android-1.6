@@ -138,16 +138,22 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
                     try
                     {
                         SoundEffect sound_effect;
+                        //.ogg file & streaming
                         if (vorbis && modification_data.StreamedVorbis)
                         {
                             sound_effect = OggStreamSoundEffect.CreateOggStreamFromFileName(file_path);
                         }
+                        //.ogg file
+                        else if (vorbis)
+                        {
+                            sound_effect = SoundEffectVorbis.CreateFromFilePath(file_path);
+                        }
+                        //general file such as .wav
                         else
                         {
-                            //use SoundEffectVorbis Instead
-                            //because SoundEffect.FromStream it don't have support voris on adnroid
-                            sound_effect = SoundEffectVorbis.CreateFromFileStream(file_path, vorbis);
+                            sound_effect = SoundEffect.FromFile(file_path);
                         }
+
                         effects[i - invalid_sounds] = sound_effect;
                     }
                     catch (Exception e)
