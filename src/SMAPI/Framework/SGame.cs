@@ -6,7 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+#if !SMAPI_FOR_ANDROID
 using HarmonyLib;
+#endif
 using Java.Time;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -29,7 +31,9 @@ using StardewValley.Menus;
 using StardewValley.Minigames;
 using xTile.Display;
 
-#if SMAIP_FOR_ANDROID
+
+#if SMAPI_FOR_ANDROID
+using HarmonyLib;
 using StardewValley.Network;
 using static Android.Provider.CalendarContract;
 #endif
@@ -242,8 +246,8 @@ internal class SGame : Game1
         return SGame.CreateContentManagerImpl(serviceProvider, rootDirectory);
     }
 
-    /// <inheritdoc />
-    [SuppressMessage("ReSharper", "ParameterHidesMember")]
+    ///// <inheritdoc />
+    //[SuppressMessage("ReSharper", "ParameterHidesMember")]
     protected internal override IDisplayDevice CreateDisplayDevice(ContentManager content, GraphicsDevice graphicsDevice)
     {
         return new SDisplayDevice(content, graphicsDevice);

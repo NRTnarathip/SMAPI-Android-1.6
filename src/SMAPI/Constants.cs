@@ -60,10 +60,10 @@ internal static class EarlyConstants
     internal static int? LogScreenId { get; set; }
 
     /// <summary>SMAPI's current raw semantic version.</summary>
-    internal const string RawApiVersion = "4.1.7";
+    internal const string RawApiVersion = "4.1.10";
 
     /// <summary>Current version for android</summary>
-    internal const string AndroidFixBugVersionCode = "7";
+    internal const string AndroidFixBugVersionCode = "1";
     internal const string RawApiVersionForAndroid = RawApiVersion + "." + AndroidFixBugVersionCode;
 }
 
