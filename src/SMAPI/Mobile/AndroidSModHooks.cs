@@ -54,6 +54,7 @@ internal static class AndroidSModHooks
         // millisecond 1000.0 == 1 sec
         double runTaskOnMainThreadTotalTime = 0;
         int runTaskOnMainThreadCount = 0;
+        bool isInGame = false;
         while (queueTaskNeedToStartOnMainThread.TryDequeue(out var task))
         {
             markSkipGameUpdating = true;
@@ -73,21 +74,26 @@ internal static class AndroidSModHooks
                     $"it's very long time in {runTaskOnMainThreadTotalTime:F3}ms", LogLevel.Warn);
             }
 
-            //limit total time, prevent ANR
-            if (runTaskOnMainThreadTotalTime > 500)
+            //limit run task
+            //maybe 1-2 frame, or 16ms or 32ms
+            if (runTaskOnMainThreadTotalTime > 32)
             {
+                markSkipGameUpdating = true;
                 break;
             }
         }
 
         //process task background thread
-        if (listTaskOnThreadBackground.Count > 0)
+        lock (listTaskOnThreadBackground)
         {
-            int removeCount = listTaskOnThreadBackground.RemoveAll(task => task.IsCompleted);
-        }
-        if (listTaskOnThreadBackground.Count > 0)
-        {
-            markSkipGameUpdating = true;
+            if (listTaskOnThreadBackground.Count > 0)
+            {
+                int removeCount = listTaskOnThreadBackground.RemoveAll(task => task.IsCompleted);
+            }
+            if (listTaskOnThreadBackground.Count > 0)
+            {
+                markSkipGameUpdating = true;
+            }
         }
 
         return markSkipGameUpdating;
@@ -141,7 +147,10 @@ internal static class AndroidSModHooks
         });
 
         //Console.WriteLine("try add new task, current task count: " + listTaskOnThreadBackground.Count);
-        listTaskOnThreadBackground.Add(currentModHookTask);
+        lock (listTaskOnThreadBackground)
+        {
+            listTaskOnThreadBackground.Add(currentModHookTask);
+        }
 
 #if false
         //debug only
