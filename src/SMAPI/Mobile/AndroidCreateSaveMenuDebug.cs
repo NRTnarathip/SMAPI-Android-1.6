@@ -11,6 +11,9 @@ using StardewValley.Objects;
 
 namespace StardewModdingAPI.Mobile;
 
+//crash on Wizard Appearance
+//debug only
+#if false
 [HarmonyPatch]
 internal static class AndroidCreateSaveMenuDebug
 {
@@ -25,6 +28,7 @@ internal static class AndroidCreateSaveMenuDebug
         typeof(Clothing),
     ])]
 
+    //crash on Wizard Appearance
     static void Postfix_MobileCustomizer(MobileCustomizer __instance,
         int x, int y, int width, int height,
         CharacterCustomization.Source source,
@@ -51,3 +55,5 @@ internal static class AndroidCreateSaveMenuDebug
         return new string(result);
     }
 }
+
+#endif

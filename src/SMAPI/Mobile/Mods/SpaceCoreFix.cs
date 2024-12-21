@@ -81,8 +81,14 @@ internal static class SpaceCoreFix
         monitor.Log("Start SpaceCoreFix");
         try
         {
-            monitor.Log("Start SpaceCoreFix.ApplyFix()");
-            ApplyFixOnModLoaded();
+            var harmony = new Harmony(nameof(SpaceCoreFix));
+            DisableQuickSave.TryInit(harmony);
+            var SpaceCoreModEntry = modAssembly.GetType("SpaceCore.SpaceCore");
+            harmony.Patch(
+                original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),
+                prefix: AccessTools.Method(typeof(SpaceCoreFix), nameof(Prefix_GatherLocals))
+            );
+            monitor.Log("Disable GatherLocals()");
         }
         catch (Exception ex)
         {
@@ -90,17 +96,6 @@ internal static class SpaceCoreFix
         }
 
         monitor.Log("Done SpaceCoreFix");
-    }
-    static void ApplyFixOnModLoaded()
-    {
-        var harmony = new Harmony(nameof(SpaceCoreFix));
-        DisableQuickSave.TryInit(harmony);
-        //fix private void GatherLocals()
-        var SpaceCoreModEntry = modAssembly.GetType("SpaceCore.SpaceCore");
-        harmony.Patch(
-            original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),
-            prefix: AccessTools.Method(typeof(SpaceCoreFix), nameof(Prefix_GatherLocals))
-        );
     }
 
     static bool Prefix_GatherLocals()
@@ -139,8 +134,18 @@ internal static class SpaceCoreFix
                     postfix: new(typeof(DisableQuickSave), nameof(Postfix_OptionsPage_Ctor)));
 
                 var saveWholeBackup = typeof(Game1).GetMethod(nameof(Game1.saveWholeBackup));
-                harmony.Patch(saveWholeBackup,
-                    prefix: new(typeof(DisableQuickSave), nameof(Prefix_saveWholeBackup)));
+                harmony.Patch(
+                    original: saveWholeBackup,
+                    prefix: new(typeof(DisableQuickSave), nameof(Prefix_saveWholeBackup))
+                );
+                monitor.Log("Disable Game1.saveWholeBackup");
+
+                //Disable this, caller from SMAPIActivity.OnPause();
+                harmony.Patch(
+                    original: AccessTools.Method(typeof(Game1), nameof(Game1.emergencyBackup)),
+                    prefix: new(typeof(DisableQuickSave), nameof(Prefix_emergencyBackup))
+                );
+                monitor.Log("Disable Game1.emergencyBackup()");
             }
             catch (Exception ex)
             {
@@ -176,6 +181,13 @@ internal static class SpaceCoreFix
         {
             var monitor = SCore.Instance.GetMonitorForGame();
             monitor.Log("bypass saveWholeBackup()");
+            return false;
+        }
+
+        static bool Prefix_emergencyBackup()
+        {
+            var monitor = SCore.Instance.GetMonitorForGame();
+            monitor.Log("bypass Game1.emergencyBackup()");
             return false;
         }
     }
