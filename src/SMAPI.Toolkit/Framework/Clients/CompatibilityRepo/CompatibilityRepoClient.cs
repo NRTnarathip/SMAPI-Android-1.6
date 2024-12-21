@@ -27,11 +27,14 @@ public class CompatibilityRepoClient : IDisposable
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="fetchUrl">The full URL of the JSON file to fetch.</param>
+    /// <param name="fetchBaseUrl">The base URL from which to fetch the compatibility list JSON files.</param>
     /// <param name="userAgent">The user agent for the API client.</param>
-    public CompatibilityRepoClient(string userAgent, string fetchUrl = "https://raw.githubusercontent.com/Pathoschild/SmapiCompatibilityList/refs/heads/develop/data/data.jsonc")
+    public CompatibilityRepoClient(string userAgent, string fetchBaseUrl = "https://raw.githubusercontent.com/Pathoschild/SmapiCompatibilityList/refs/heads/release/data")
     {
-        this.Client = new FluentClient(fetchUrl).SetUserAgent(userAgent);
+        this.Client = new FluentClient(fetchBaseUrl)
+            .SetUserAgent(userAgent);
+        this.Client.Filters.Add(new ForceJsonResponseTypeFilter());
+
         this.MarkdownPipeline = new MarkdownPipelineBuilder()
             .Use(new ExpandCompatibilityListAnchorLinksExtension())
             .Build();
@@ -40,14 +43,12 @@ public class CompatibilityRepoClient : IDisposable
     /// <summary>Fetch mods from the compatibility list.</summary>
     public async Task<ModCompatibilityEntry[]> FetchModsAsync()
     {
-        RawCompatibilityList response = await this.Client
-            .GetAsync(null)
-            .WithFilter(new ForceJsonResponseTypeFilter())
-            .As<RawCompatibilityList>();
+        RawCompatibilityList mods = await this.Client.GetAsync("mods.jsonc").As<RawCompatibilityList>();
+        RawCompatibilityList brokenContentPacks = await this.Client.GetAsync("broken-content-packs.jsonc").As<RawCompatibilityList>();
 
         return
-            (response.Mods ?? Array.Empty<RawModEntry>())
-            .Concat(response.BrokenContentPacks ?? Array.Empty<RawModEntry>())
+            (mods.Mods ?? Array.Empty<RawModEntry>())
+            .Concat(brokenContentPacks.BrokenContentPacks ?? Array.Empty<RawModEntry>())
             .Select(this.ParseRawModEntry)
             .ToArray();
     }

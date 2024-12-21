@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialization.Converters;
 
 namespace StardewModdingAPI.Framework.Networking;
 
@@ -15,9 +17,11 @@ internal class RemoteContextModel
     public GamePlatform Platform { get; }
 
     /// <summary>The installed version of Stardew Valley.</summary>
+    [JsonConverter(typeof(NonStandardSemanticVersionConverter))] // versions from Android players may have a fourth number for the platform-specific build
     public ISemanticVersion? GameVersion { get; }
 
     /// <summary>The installed version of SMAPI.</summary>
+    [JsonConverter(typeof(NonStandardSemanticVersionConverter))]
     public ISemanticVersion? ApiVersion { get; }
 
     /// <summary>The installed mods.</summary>

@@ -313,7 +313,7 @@ internal class PathUtilitiesTests
     [TestCase("ex-ample", ExpectedResult = "ex-ample")]
     [TestCase("ex_ample", ExpectedResult = "ex_ample")]
     [TestCase("ex.ample", ExpectedResult = "ex.ample")]
-    [TestCase("ex-ample---text", ExpectedResult = "ex-ample---text")]
+    [TestCase("ex-ample---text", ExpectedResult = "ex-ample-text")]
     [TestCase("eXAMple", ExpectedResult = "eXAMple")]
     [TestCase("example-例子-text", ExpectedResult = "example-例子-text")]
 

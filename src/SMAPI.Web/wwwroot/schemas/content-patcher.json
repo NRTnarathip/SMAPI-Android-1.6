@@ -147,7 +147,7 @@
                     "Value": {
                         "title": "Token value",
                         "description": "The value(s) to set. This can be a comma-delimited value to give it multiple values. If any block for a token name has multiple values, it will only be usable in conditions. This field supports tokens, including dynamic tokens defined before this entry.",
-                        "type": "string"
+                        "type": [ "boolean", "integer", "number", "string" ]
                     },
                     "When": {
                         "title": "When",

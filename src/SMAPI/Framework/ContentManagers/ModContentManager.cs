@@ -501,7 +501,7 @@ internal sealed class ModContentManager : BaseContentManager
 
         // not found
         assetName = null;
-        error = "The tilesheet couldn't be found relative to either map file or the game's content folder.";
+        error = "The tilesheet couldn't be found relative to either the map file or the game's content folder.";
         return false;
     }
 

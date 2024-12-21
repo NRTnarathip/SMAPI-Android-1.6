@@ -13,10 +13,34 @@
 
 
 ##########
-## Fetch values
+## Find the game folder
+##########
+$possibleGamePaths=(
+    # GOG
+    "C:\Program Files\GalaxyClient\Games\Stardew Valley",
+    "C:\Program Files\GOG Galaxy\Games\Stardew Valley",
+    "C:\Program Files\GOG Games\Stardew Valley",
+    "C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley",
+    "C:\Program Files (x86)\GOG Galaxy\Games\Stardew Valley",
+    "C:\Program Files (x86)\GOG Games\Stardew Valley",
+
+    # Steam
+    "C:\Program Files\Steam\steamapps\common\Stardew Valley",
+    "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
+)
+$gamePath = ""
+foreach ($possibleGamePath in $possibleGamePaths) {
+    if (Test-Path $possibleGamePath -PathType Container) {
+        $gamePath = $possibleGamePath
+        break
+    }
+}
+
+
+##########
+## Preset values
 ##########
 # paths
-$gamePath = "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
 $bundleModNames = "ConsoleCommands", "SaveBackup"
 
 # build configuration

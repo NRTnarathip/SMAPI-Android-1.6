@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using Java.Time;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI.Enums;
@@ -16,6 +17,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
@@ -25,9 +27,12 @@ using StardewValley;
 using StardewValley.Logging;
 using StardewValley.Menus;
 using StardewValley.Minigames;
-using StardewValley.Network;
 using xTile.Display;
+
+#if SMAIP_FOR_ANDROID
+using StardewValley.Network;
 using static Android.Provider.CalendarContract;
+#endif
 
 namespace StardewModdingAPI.Framework;
 
@@ -228,15 +233,20 @@ internal class SGame : Game1
     /*********
     ** Protected methods
     *********/
-    /// <summary>Construct a content manager to read game content files.</summary>
-    /// <param name="serviceProvider">The service provider to use to locate services.</param>
-    /// <param name="rootDirectory">The root directory to search for content.</param>
+    /// <inheritdoc />
     protected internal override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
     {
         if (SGame.CreateContentManagerImpl == null)
             throw new InvalidOperationException($"The {nameof(SGame)}.{nameof(SGame.CreateContentManagerImpl)} must be set.");
 
         return SGame.CreateContentManagerImpl(serviceProvider, rootDirectory);
+    }
+
+    /// <inheritdoc />
+    [SuppressMessage("ReSharper", "ParameterHidesMember")]
+    protected internal override IDisplayDevice CreateDisplayDevice(ContentManager content, GraphicsDevice graphicsDevice)
+    {
+        return new SDisplayDevice(content, graphicsDevice);
     }
 
     /// <summary>Initialize the instance when the game starts.</summary>

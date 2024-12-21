@@ -10,10 +10,10 @@ internal class ColorSchemeConfig
     ** Accessors
     *********/
     /// <summary>The default color scheme ID to use, or <see cref="MonitorColorScheme.AutoDetect"/> to select one automatically.</summary>
-    public MonitorColorScheme UseScheme { get; }
+    public MonitorColorScheme UseScheme { get; set; }
 
     /// <summary>The available console color schemes.</summary>
-    public IDictionary<MonitorColorScheme, IDictionary<ConsoleLogLevel, ConsoleColor>> Schemes { get; }
+    public IDictionary<MonitorColorScheme, IDictionary<ConsoleLogLevel, ConsoleColor>> Schemes { get; set; }
 
 
     /*********

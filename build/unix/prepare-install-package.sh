@@ -9,10 +9,35 @@
 
 
 ##########
-## Fetch values
+## Find the game folder
+##########
+possibleGamePaths=(
+    # override
+    "$HOME/StardewValley"
+
+    # Linux
+    "$HOME/GOG Games/Stardew Valley/game"
+    "$HOME/.steam/steam/steamapps/common/Stardew Valley"
+    "$HOME/.local/share/Steam/steamapps/common/Stardew Valley"
+    "$HOME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/Stardew Valley"
+
+    # macOS
+    "/Applications/Stardew Valley.app/Contents/MacOS"
+    "$HOME/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS"
+)
+gamePath=""
+for possibleGamePath in "${possibleGamePaths[@]}"; do
+    if [[ -d "$possibleGamePath" ]]; then
+        gamePath="$possibleGamePath"
+        break
+    fi
+done
+
+
+##########
+## Preset values
 ##########
 # paths
-gamePath="/home/pathoschild/Stardew Valley"
 bundleModNames=("ConsoleCommands" "SaveBackup")
 
 # build configuration

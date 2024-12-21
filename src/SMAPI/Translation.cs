@@ -171,7 +171,7 @@ public class Translation
             else if (this.ShouldUsePlaceholder)
                 rawText = string.Format(Translation.PlaceholderText, this.Key);
             else
-                rawText = null;
+                rawText = this.Text;
 
             this.CachedResult = this.FormatText(rawText);
             this.Cached = true;

@@ -41,11 +41,17 @@ public class LogParser
     /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
     private readonly Regex ContentPackListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]*)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    /// <summary>A regex pattern matching the start of SMAPI's skipped mods list.</summary>
+    private readonly Regex SkippedModListStartPattern = new("^   Skipped mods$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>A regex pattern matching an entry in SMAPI's skipped mods list.</summary>
+    private readonly Regex SkippedModListEntryPattern = new(@"^   (?:--------------------------------------------------|   These mods could not be added to your game\.|   - (?<name>.+?) (?<version>[^\s]+)(?: because .+)?)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     /// <summary>A regex pattern matching the start of SMAPI's mod update list.</summary>
     private readonly Regex ModUpdateListStartPattern = new(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-    private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>[^\s]+)(?: \(you have [^\)]+\))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<newVersion>[^\s]+): (?<link>[^\s]+)(?: \(you have (?<oldVersion>[^\)]+)\))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     /// <summary>A regex pattern matching SMAPI's update line.</summary>
     private readonly Regex SmapiUpdatePattern = new(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -85,6 +91,7 @@ public class LogParser
             IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
             bool inModList = false;
             bool inContentPackList = false;
+            bool inSkippedModsList = false;
             bool inModUpdateList = false;
             foreach (LogMessage message in log.Messages)
             {
@@ -121,6 +128,7 @@ public class LogParser
                     // update flags
                     inModList = inModList && message.Level == LogLevel.Info && this.ModListEntryPattern.IsMatch(message.Text);
                     inContentPackList = inContentPackList && message.Level == LogLevel.Info && this.ContentPackListEntryPattern.IsMatch(message.Text);
+                    inSkippedModsList = inSkippedModsList && message.Level == LogLevel.Error && this.SkippedModListEntryPattern.IsMatch(message.Text);
                     inModUpdateList = inModUpdateList && message.Level == LogLevel.Alert && this.ModUpdateListEntryPattern.IsMatch(message.Text);
 
                     // mod list
@@ -168,6 +176,24 @@ public class LogParser
                         message.Section = LogSection.ContentPackList;
                     }
 
+                    // skipped mods list
+                    if (!inSkippedModsList && message.Level == LogLevel.Error && this.SkippedModListStartPattern.IsMatch(message.Text))
+                        inSkippedModsList = true;
+                    else if (inSkippedModsList)
+                    {
+                        Match match = this.SkippedModListEntryPattern.Match(message.Text);
+
+                        if (match.Groups["name"].Success)
+                        {
+                            string name = match.Groups["name"].Value;
+                            string version = match.Groups["version"].Value;
+
+                            if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
+                                mods[name] = entries = new List<LogModInfo>();
+                            entries.Add(new LogModInfo(ModType.Unknown, name: name, author: "", version: version, description: "", contentPackFor: null, loaded: false));
+                        }
+                    }
+
                     // mod update list
                     else if (!inModUpdateList && message.Level == LogLevel.Alert && this.ModUpdateListStartPattern.IsMatch(message.Text))
                     {
@@ -179,14 +205,15 @@ public class LogParser
                     {
                         Match match = this.ModUpdateListEntryPattern.Match(message.Text);
                         string name = match.Groups["name"].Value;
-                        string version = match.Groups["version"].Value;
+                        string oldVersion = match.Groups["oldVersion"].Value;
+                        string newVersion = match.Groups["newVersion"].Value;
                         string link = match.Groups["link"].Value;
 
-                        if (mods.TryGetValue(name, out var entries))
-                        {
-                            foreach (LogModInfo entry in entries)
-                                entry.SetUpdate(version, link);
-                        }
+                        if (!mods.TryGetValue(name, out var entries))
+                            mods[name] = entries = [new LogModInfo(ModType.Unknown, name: name, author: "", version: oldVersion, description: "", loaded: false)];
+
+                        foreach (LogModInfo entry in entries)
+                            entry.SetUpdate(newVersion, link);
 
                         message.Section = LogSection.ModUpdateList;
                     }

@@ -565,7 +565,8 @@ internal class SCore : IDisposable
     private void OnInstanceContentLoaded()
     {
         // override map display device
-        Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+        if (Constants.GameVersion.IsOlderThan("1.6.15"))
+            Game1.mapDisplayDevice = this.GetMapDisplayDevice_OBSOLETE();
 
         // log GPU info
 #if SMAPI_FOR_WINDOWS
@@ -769,8 +770,8 @@ internal class SCore : IDisposable
             *********/
             if (this.JustReturnedToTitle)
             {
-                if (Game1.mapDisplayDevice is not SDisplayDevice)
-                    Game1.mapDisplayDevice = this.GetMapDisplayDevice();
+                if (Game1.mapDisplayDevice is not SDisplayDevice && Constants.GameVersion.IsOlderThan("1.6.15"))
+                    Game1.mapDisplayDevice = this.GetMapDisplayDevice_OBSOLETE();
 
                 this.JustReturnedToTitle = false;
             }
@@ -2554,8 +2555,8 @@ internal class SCore : IDisposable
     }
 
     /// <summary>Get the map display device which applies SMAPI features like tile rotation to loaded maps.</summary>
-    /// <remarks>This is separate to let mods like PyTK wrap it with their own functionality.</remarks>
-    private IDisplayDevice GetMapDisplayDevice()
+    /// <remarks>This only exists for backwards compatibility with Stardew Valley 1.6.14, and will be removed in the next SMAPI update. See <see cref="SGame.CreateDisplayDevice"/> instead.</remarks>
+    private IDisplayDevice GetMapDisplayDevice_OBSOLETE()
     {
         return new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
     }

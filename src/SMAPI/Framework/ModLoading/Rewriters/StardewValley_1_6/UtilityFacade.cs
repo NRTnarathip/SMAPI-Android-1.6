@@ -17,6 +17,12 @@ public class UtilityFacade : Utility, IRewriteFacade
     /*********
     ** Public methods
     *********/
+    /// <remarks>Replaced in Stardew Valley 1.6.15.</remarks>
+    public static void checkForBooksReadAchievement()
+    {
+        Game1.stats.checkForBooksReadAchievement();
+    }
+
     public static bool doesItemWithThisIndexExistAnywhere(int index, bool bigCraftable = false)
     {
         bool found = false;
