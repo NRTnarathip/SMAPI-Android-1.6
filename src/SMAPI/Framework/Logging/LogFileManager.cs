@@ -12,6 +12,11 @@ internal class LogFileManager : IDisposable
     /// <summary>The underlying stream writer.</summary>
     private readonly StreamWriter Stream;
 
+    /// <summary>
+    /// WriteLine() safe thread
+    /// </summary>
+    private readonly object _lock_WriteLine = new();
+
 
     /*********
     ** Accessors
@@ -45,7 +50,14 @@ internal class LogFileManager : IDisposable
     {
         // always use Windows-style line endings for convenience
         // (Linux/macOS editors are fine with them, Windows editors often require them)
+#if SMAPI_FOR_ANDROID
+        lock (this._lock_WriteLine)
+        {
+            this.Stream.Write(message + "\r\n");
+        }
+#else
         this.Stream.Write(message + "\r\n");
+#endif
     }
 
     /// <summary>Release all resources.</summary>

@@ -78,7 +78,6 @@ internal static class AndroidSModHooks
             //maybe 1-2 frame, or 16ms or 32ms
             if (runTaskOnMainThreadTotalTime > 32)
             {
-                markSkipGameUpdating = true;
                 break;
             }
         }
