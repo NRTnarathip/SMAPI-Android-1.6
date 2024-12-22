@@ -34,13 +34,6 @@ internal static class AndroidPatcher
             VersionInfoMenu.Init();
             Log.enabled = true;
             harmony = new Harmony(nameof(AndroidPatcher));
-
-            //Register mod fix here
-            var modFix = AndroidModFixManager.Init();
-            //list mods
-            FarmTypeManagerFix.Init(modFix);
-            SpaceCoreFix.Init(modFix);
-            SveFix.Init(modFix);
         }
         catch (Exception ex)
         {
@@ -64,5 +57,15 @@ internal static class AndroidPatcher
             monitor.Log(ex.GetLogSummary(), LogLevel.Error);
             throw;
         }
+    }
+    public static void SetupModFix()
+    {
+        //Register mod fix here
+        var modFix = AndroidModFixManager.Init();
+        //list mods
+        FarmTypeManagerFix.Init(modFix);
+        SpaceCoreFix.Init(modFix);
+        SveFix.Init(modFix);
+        GenericConfigMenuModFix.Init(modFix);
     }
 }

@@ -113,6 +113,9 @@ internal class SCore : IDisposable
     /// <summary>Tracks the installed mods.</summary>
     /// <remarks>This is initialized after the game starts.</remarks>
     private readonly ModRegistry ModRegistry = new();
+#if SMAPI_FOR_ANDROID
+    public ModRegistry GetModRegistry() => this.ModRegistry;
+#endif
 
     /// <summary>Manages SMAPI events for mods.</summary>
     private readonly EventManager EventManager;

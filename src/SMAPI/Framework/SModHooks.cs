@@ -111,8 +111,12 @@ internal class SModHooks : DelegatingModHooks
     }
 
     /// <inheritdoc />
+#if SMAPI_FOR_ANDROID
+    internal static RenderSteps CurrentRenderedStep = RenderSteps.FullScene;
+#endif
     public override void OnRendered(RenderSteps step, SpriteBatch sb, GameTime time, RenderTarget2D? target_screen)
     {
+        CurrentRenderedStep = step;
         this.OnRenderedStep(step, sb, target_screen);
     }
 

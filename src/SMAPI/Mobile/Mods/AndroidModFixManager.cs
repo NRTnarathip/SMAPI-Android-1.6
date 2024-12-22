@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Mobile;
-
 internal class AndroidModFixManager
 {
     Dictionary<string, Action<Assembly>> OnModLoadedRegistry = new();
