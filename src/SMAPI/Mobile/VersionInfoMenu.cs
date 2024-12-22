@@ -40,6 +40,9 @@ internal static class VersionInfoMenu
         var titleMenu = Game1.activeClickableMenu as TitleMenu;
         if (titleMenu == null || TitleMenu.subMenu != null)
             return;
+        if (titleMenu?.isTransitioningButtons is true)
+            return;
+
 
         if (titleMenu.logoFadeTimer > 0)
             return;
@@ -55,10 +58,11 @@ internal static class VersionInfoMenu
             texts = new();
             textLineHeight = font.MeasureString("AAA").Y;
 
-            texts.Add($"SMAPI Version: {Constants.ApiVersionForAndroid}");
-            texts.Add($"Game Version: {Constants.GameVersion}");
-            texts.Add("Port By NRTnarathip :: Youtube, Github");
-            texts.Add("Discord: Stardew SMAPI Thai");
+            texts.Add($"SMAPI v{Constants.ApiVersionForAndroid}");
+            texts.Add($"Build {SMAPIAndroidBuild.BuildCode}");
+            texts.Add($"Game v{Constants.GameVersion}");
+            texts.Add("Discord Stardew SMAPI Thai");
+            texts.Add("Github NRTnarathip");
         }
 
 
