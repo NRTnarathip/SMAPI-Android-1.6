@@ -67,5 +67,6 @@ internal static class AndroidPatcher
         SpaceCoreFix.Init(modFix);
         SveFix.Init(modFix);
         GenericConfigMenuModFix.Init(modFix);
+        UnlockableBundlesModFix.Init(modFix);
     }
 }

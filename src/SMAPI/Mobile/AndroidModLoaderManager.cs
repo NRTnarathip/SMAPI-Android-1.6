@@ -79,9 +79,12 @@ internal static class AndroidModLoaderManager
     static object _lock_queueTaskStartModEntry = new();
     internal static void TryStartModEntry(IMod mod)
     {
+        //main thread safe
         Task taskModEntry = new Task(() =>
         {
+            //AndroidModFixManager.Instance.OnPrefixModEntry(mod);
             mod.Entry(mod.Helper);
+            AndroidModFixManager.Instance.OnPostfixModEntry(mod);
         });
 
         lock (_lock_queueTaskStartModEntry)
