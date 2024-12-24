@@ -63,7 +63,7 @@ internal static class EarlyConstants
     internal const string RawApiVersion = "4.1.10";
 
     /// <summary>Current version for android</summary>
-    internal const string AndroidFixBugVersionCode = "1";
+    internal const string AndroidFixBugVersionCode = "2";
     internal const string RawApiVersionForAndroid = RawApiVersion + "." + AndroidFixBugVersionCode;
 }
 
