@@ -126,6 +126,15 @@ internal static class AndroidSModHooks
     internal static Task StartTaskBackground(Task gameTask, string nameID)
     {
         Monitor.Log($"Try StartTask name: '{nameID}' on Android SModHook");
+#if false
+        //debug only
+        Console.WriteLine("Debug try start task background in main thread");
+        var st = Stopwatch.StartNew();
+        gameTask.RunSynchronously();
+        st.Stop();
+        Console.WriteLine($"done task: {nameID} in {st.Elapsed.TotalMilliseconds}ms");
+        return gameTask;
+#endif
 
         //setup
         var currentModHookTask = new Task(() =>
@@ -151,13 +160,8 @@ internal static class AndroidSModHooks
             listTaskOnThreadBackground.Add(currentModHookTask);
         }
 
-#if false
-        //debug only
-        currentModHookTask.Start();
-#else
         //ready
         currentModHookTask.Start();
-#endif
 
         //Console.WriteLine($"End & return StartTask name: '{nameID}', taskIDNumber: {currentModHookTask.Id}");
         return currentModHookTask;
