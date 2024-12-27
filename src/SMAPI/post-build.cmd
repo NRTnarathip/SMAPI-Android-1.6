@@ -9,6 +9,6 @@ if errorlevel 1 (
 )
 
 
-adb push "bin/ARM64/Android Release/StardewModdingAPI.dll" "/storage/emulated/0/Android/data/%AppName%/files/Stardew Assemblies/StardewModdingAPI.dll"
+adb push "bin/Android Release/StardewModdingAPI.dll" "/storage/emulated/0/Android/data/%AppName%/files/Stardew Assemblies/StardewModdingAPI.dll"
 
 adb shell am start -n %AppName%"/crc64e91f1276c636690c.LauncherActivity" --ez "IsClickStartGame" true
