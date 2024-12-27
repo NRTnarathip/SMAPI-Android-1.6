@@ -43,23 +43,21 @@ internal static class StackTraceCrashFix
             IntPtr targetAddress = methodAddress + 0x23c;
             Console.WriteLine("try patch target: " + targetAddress);
 
-            IntPtr LAB_00302798 = methodAddress + 0x1f0;
-            //find offset current adr -> target adr
-            var jumpOffset = (byte)(LAB_00302798 - targetAddress);
-            Console.WriteLine("jump offset: " + jumpOffset.ToString("X"));
+            //patch code 'g_assert_not_reached ();'
 
-            //patch nop
-            //003027f0 c8 53 ff 97     bl FUN_002d7710
+            // to
+
+            //if (lVar1 != 0)
+            //{
+            //    klassPtr = lVar1;
+            //}
+            //return klassPtr;
+
             byte[] patchBytes = {
                 0x1f ,0x01, 0x00, 0xf1,
                 0x20, 0x01, 0x88, 0x9a,
                 0xfd, 0x7b, 0xc1, 0xa8,
                 0xc0, 0x03, 0x5f, 0xd6,
-
-                //0x1F, 0x20, 0x03, 0xD5,
-                //0x1F, 0x20, 0x03, 0xD5,
-                //0x1F, 0x20, 0x03, 0xD5,
-                //0x1F, 0x20, 0x03, 0xD5,
             };
             PatchBytes(targetAddress, patchBytes);
             Console.WriteLine("patched");

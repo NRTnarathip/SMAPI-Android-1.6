@@ -34,7 +34,6 @@ internal static class MethodCrashFix
         //);
 
         //Console.WriteLine("patched Method Crash Fix");
-        StackTraceCrashFix.Init(hp);
     }
     static string Fix_MethodToString(MethodBase method)
     {

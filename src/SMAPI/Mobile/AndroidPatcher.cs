@@ -34,6 +34,7 @@ internal static class AndroidPatcher
             Log.enabled = true;
             harmony = new Harmony(nameof(AndroidPatcher));
             MethodCrashFix.Init(harmony);
+            StackTraceCrashFix.Init(harmony);
 
             VersionInfoMenu.Init();
         }
