@@ -26,14 +26,14 @@ internal static class MethodCrashFix
     {
 
         //fix method.ToString() crash
-        var RuntimeMethodInfo = AccessTools.TypeByName("System.Reflection.RuntimeMethodInfo");
-        Console.WriteLine(RuntimeMethodInfo);
-        hp.Patch(
-            original: AccessTools.Method(RuntimeMethodInfo, "ToString"),
-            prefix: new(typeof(MethodCrashFix), nameof(Prefix_MethodToString))
-        );
+        //var RuntimeMethodInfo = AccessTools.TypeByName("System.Reflection.RuntimeMethodInfo");
+        //Console.WriteLine(RuntimeMethodInfo);
+        //hp.Patch(
+        //    original: AccessTools.Method(RuntimeMethodInfo, "ToString"),
+        //    prefix: new(typeof(MethodCrashFix), nameof(Prefix_MethodToString))
+        //);
 
-        Console.WriteLine("patched Method Crash Fix");
+        //Console.WriteLine("patched Method Crash Fix");
         StackTraceCrashFix.Init(hp);
     }
     static string Fix_MethodToString(MethodBase method)
@@ -100,8 +100,6 @@ internal static class MethodCrashFix
             Console.WriteLine($"  member type: {method.MemberType}");
             Console.WriteLine($"  DeclaringType type: {method.DeclaringType}");
             Console.WriteLine($"  method.ToString(): " + method.ToString());
-            if (i >= 4)
-                break;
         }
         Console.WriteLine("try call stack.ToString()");
         var stackString = stack.ToString();

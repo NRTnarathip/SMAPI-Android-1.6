@@ -5,24 +5,97 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using Java.Util.Concurrent;
 
 namespace StardewModdingAPI.Mobile;
 
 internal static class StackTraceCrashFix
 {
+    [DllImport("libdl.so")]
+    static extern IntPtr dlopen(string filename, int flags);
+
+    [DllImport("libdl.so")]
+    public static extern nint dlsym(nint handle, string symbol);
+
+    [DllImport("libdl.so")]
+    public static extern nint dlerror();
+
+
+
     public static void Init(Harmony hp)
     {
-        hp.Patch(
-           original: AccessTools.FirstMethod(typeof(StackTrace), m => m.Name == "ToString" && m.GetParameters().Length == 2),
-           prefix: new(typeof(StackTraceCrashFix), nameof(StackTrace_ToString3)),
-           postfix: new(typeof(StackTraceCrashFix), nameof(Postfix_StackTrace_ToString3))
-       );
+        // hp.Patch(
+        //    original: AccessTools.FirstMethod(typeof(StackTrace), m => m.Name == "ToString" && m.GetParameters().Length == 2),
+        //    prefix: new(typeof(StackTraceCrashFix), nameof(StackTrace_ToString3))
+        //);
 
         Console.WriteLine("Init StackTraceCrashFix");
+
+        var libHandle = dlopen("libmonosgen-2.0.so", 0x1);
+        unsafe
+        {
+            Console.WriteLine("try patch disable assert crash mono_class_from_mono_type_internal");
+            IntPtr methodAddress = dlsym(libHandle, "mono_class_from_mono_type_internal");
+            IntPtr targetAddress = methodAddress + 0x23c;
+            Console.WriteLine("try patch target: " + targetAddress);
+
+            IntPtr LAB_00302798 = methodAddress + 0x1f0;
+            //find offset current adr -> target adr
+            var jumpOffset = (byte)(LAB_00302798 - targetAddress);
+            Console.WriteLine("jump offset: " + jumpOffset.ToString("X"));
+
+            //patch nop
+            //003027f0 c8 53 ff 97     bl FUN_002d7710
+            byte[] patchBytes = {
+                0x1f ,0x01, 0x00, 0xf1,
+                0x20, 0x01, 0x88, 0x9a,
+                0xfd, 0x7b, 0xc1, 0xa8,
+                0xc0, 0x03, 0x5f, 0xd6,
+
+                //0x1F, 0x20, 0x03, 0xD5,
+                //0x1F, 0x20, 0x03, 0xD5,
+                //0x1F, 0x20, 0x03, 0xD5,
+                //0x1F, 0x20, 0x03, 0xD5,
+            };
+            PatchBytes(targetAddress, patchBytes);
+            Console.WriteLine("patched");
+        }
     }
+    static void Log(object msg) => Console.WriteLine(msg);
+
+    const int PROT_READ = 0x1;
+    const int PROT_WRITE = 0x2;
+    const int PROT_EXEC = 0x4;
+    [DllImport("libc.so", SetLastError = true)]
+    private static extern int mprotect(IntPtr addr, UIntPtr len, int prot);
+    static void PatchBytes(IntPtr targetAddress, byte[] patchBytes)
+    {
+        var pageAddress = AlignToPageSize(targetAddress);
+        var pageSize = Environment.SystemPageSize;
+        int protectResultError = mprotect(pageAddress, (uint)pageSize, PROT_EXEC | PROT_READ | PROT_WRITE);
+        if (protectResultError != 0)
+        {
+            Log("error can't set protect memory at address: " + pageAddress.ToString("X"));
+            return;
+        }
+
+        Log("try copy bytes hex to address");
+        Marshal.Copy(patchBytes, 0, targetAddress, patchBytes.Length);
+
+        Log("done patch bytes at address: " + targetAddress.ToString("X"));
+    }
+
+    static IntPtr AlignToPageSize(IntPtr address)
+    {
+        long pageSize = Environment.SystemPageSize;
+        return new IntPtr(address.ToInt64() & ~(pageSize - 1));
+    }
+
+
     private static bool ShowInStackTrace(MethodBase method)
     {
         Console.WriteLine("On ShowInStackTrace: method: " + method);
@@ -60,21 +133,13 @@ internal static class StackTraceCrashFix
         Console.WriteLine("trace format: " + traceFormat);
 
         int _numOfFrames = stack.FrameCount;
-        if (1 == 0)
-        {
-        }
         string value = "at";
-        if (1 == 0)
-        {
-        }
         string text = "in {0}:line {1}";
-        if (1 == 0)
-        {
-        }
         string text2 = "in {0}:token 0x{1:x}+0x{2:x}";
         bool flag = true;
         for (int i = 0; i < _numOfFrames; i++)
         {
+            Console.WriteLine("");
             Console.WriteLine($"On Frame: {i}");
             StackFrame frame = stack.GetFrame(i);
             MethodBase methodBase = frame?.GetMethod();
@@ -82,18 +147,18 @@ internal static class StackTraceCrashFix
 
             if (!(methodBase != null) || (!ShowInStackTrace(methodBase) && i != _numOfFrames - 1))
             {
-                Console.WriteLine("continue this frame");
+                //Console.WriteLine("continue this frame");
                 continue;
             }
             if (flag)
             {
                 flag = false;
-                Console.WriteLine("set flag to false");
+                //Console.WriteLine("set flag to false");
             }
             else
             {
                 sb.AppendLine();
-                Console.WriteLine("new line empty");
+                //Console.WriteLine("new line empty");
             }
 
             sb.Append("   ").Append(value).Append(' ');
@@ -114,16 +179,16 @@ internal static class StackTraceCrashFix
             if (declaringType != null)
             {
                 string fullName = declaringType.FullName;
-                Console.WriteLine("try append on declaringType & full name");
+                //Console.WriteLine("try append on declaringType & full name");
                 foreach (char c in fullName)
                 {
                     sb.Append((c == '+') ? '.' : c);
                 }
                 sb.Append('.');
-                Console.WriteLine("done append it");
+                //Console.WriteLine("done append it");
             }
             sb.Append(methodBase.Name);
-            Console.WriteLine("append method.Name");
+            //Console.WriteLine("append method.Name");
             if (methodBase is MethodInfo { IsGenericMethod: not false } methodInfo)
             {
                 Type[] genericArguments = methodInfo.GetGenericArguments();
@@ -144,30 +209,32 @@ internal static class StackTraceCrashFix
                 }
                 sb.Append(']');
             }
-            ParameterInfo[] array = null;
-            Console.WriteLine("try get params to array");
+            ParameterInfo[] paramArray = null;
+            //Console.WriteLine("try get params to array");
             try
             {
-                Console.WriteLine("try  methodBase.GetParameters()");
+                //Console.WriteLine("try  methodBase.GetParameters()");
                 //error here
                 //fixme
-                array = methodBase.GetParameters();
-                Console.WriteLine("done get array");
+                //array = methodBase.GetParameters();
+                paramArray = GetParameters(methodBase);
+                //Console.WriteLine("done get array");
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("error on try methodBase.GetParameters()");
             }
             finally
             {
                 Console.WriteLine("finally methodBase.GetParameters()");
             }
 
-            Console.WriteLine("params: " + array);
-            if (array != null)
+            //Console.WriteLine("params: " + paramArray);
+            if (paramArray != null)
             {
                 sb.Append('(');
                 bool flag5 = true;
-                for (int l = 0; l < array.Length; l++)
+                for (int l = 0; l < paramArray.Length; l++)
                 {
                     if (!flag5)
                     {
@@ -178,12 +245,12 @@ internal static class StackTraceCrashFix
                         flag5 = false;
                     }
                     string value2 = "<UnknownType>";
-                    if (array[l].ParameterType != null)
+                    if (paramArray[l].ParameterType != null)
                     {
-                        value2 = array[l].ParameterType.Name;
+                        value2 = paramArray[l].ParameterType.Name;
                     }
                     sb.Append(value2);
-                    string name2 = array[l].Name;
+                    string name2 = paramArray[l].Name;
                     if (name2 != null)
                     {
                         sb.Append(' ');
@@ -192,7 +259,7 @@ internal static class StackTraceCrashFix
                 }
                 sb.Append(')');
             }
-            Console.WriteLine("flag 3: " + flag3);
+            //Console.WriteLine("flag 3: " + flag3);
             if (flag3)
             {
                 sb.Append('+');
@@ -200,7 +267,7 @@ internal static class StackTraceCrashFix
                 sb.Append('(').Append(')');
             }
             int ilOffset = frame.GetILOffset();
-            Console.WriteLine("il offset: " + ilOffset);
+            //Console.WriteLine("il offset: " + ilOffset);
             if (ilOffset != -1)
             {
                 string fileName = frame.GetFileName();
@@ -229,7 +296,7 @@ internal static class StackTraceCrashFix
                 "_isLastFrameFromForeignExceptionStackTrace");
 
             bool isLastFrame = (bool)isLastFrame_FieldInfo.GetValue(frame);
-            Console.WriteLine("_isLastFrame: " + isLastFrame);
+            //Console.WriteLine("_isLastFrame: " + isLastFrame);
             if (isLastFrame && !flag2)
             {
                 sb.AppendLine();
@@ -238,8 +305,10 @@ internal static class StackTraceCrashFix
                 }
                 sb.Append("--- End of stack trace from previous location ---");
             }
+
+            //Console.WriteLine($"end line for frame: {i}");
         }
-        Console.WriteLine("trace format: " + traceFormat.ToString());
+        //Console.WriteLine("trace format: " + traceFormat.ToString());
         if (traceFormat.ToString() == "TrailingNewLine")
         {
             sb.AppendLine();
@@ -247,27 +316,102 @@ internal static class StackTraceCrashFix
 
         Console.WriteLine("Done Fix My StackTrace.ToString(format, sb)");
     }
+    //TODO, should beware loop infinity when crash or exception in this method
     static bool StackTrace_ToString3(StackTrace __instance, object traceFormat, ref StringBuilder sb)
     {
-        Console.WriteLine("Prefix StackTrace_ToString3(format, stringBuilder)");
+        //Console.WriteLine("Prefix StackTrace_ToString3(format, stringBuilder)");
         var format = traceFormat;
-        Console.WriteLine("format: " + format);
-        Console.WriteLine("try call my StackTrace.ToString()");
+        //Console.WriteLine("format: " + format);
+        //Console.WriteLine("try call my StackTrace.ToString()");
         My_StackTrace_ToString(__instance, traceFormat, sb);
         if (sb.Length > 0)
         {
-            Console.WriteLine("Fixed crash on StackTrace_ToString3");
+            //Console.WriteLine("Fixed crash on StackTrace_ToString3");
             return false;
         }
 
         return true;
     }
-
-    static void Postfix_StackTrace_ToString3(object traceFormat, StringBuilder sb)
+    static void Dump(this object obj)
     {
-        Console.WriteLine("Postfix_StackTrace_ToString3(format, stringBuilder)");
-        var format = traceFormat;
-        Console.WriteLine("format: " + format);
-    }
+        if (obj == null)
+        {
+            Console.WriteLine("Object is null.");
+            return;
+        }
 
+        Type type = obj.GetType();
+        Console.WriteLine("===== Dumpper Object =====");
+        Console.WriteLine($"Type: {type.FullName}");
+
+        Console.WriteLine("Fields:");
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+        {
+            try
+            {
+                object value = field.GetValue(obj);
+                Console.WriteLine($"    {field.FieldType.Name} : {field.Name} = {value};");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"    {field.Name} (Error: {ex.Message}), ex: {ex}");
+            }
+        }
+
+        Console.WriteLine("Properties:");
+        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+        {
+            try
+            {
+                if (property.CanRead)
+                {
+                    object value = property.GetValue(obj);
+                    Console.WriteLine($"    {property.PropertyType.Name} {property.Name} = {value};");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"  {property.Name} (Error: {ex.Message}), innerExcep: {ex.InnerException?.Message}");
+            }
+        }
+        Console.WriteLine("===== End Dump =====");
+    }
+    static ParameterInfo[] GetParameters(MethodBase method)
+    {
+        Console.WriteLine("On Fix GetParameters(methodBase)");
+        var handle = method.MethodHandle.Value;
+        var MonoMethodInfo_Type = AccessTools.TypeByName("System.Reflection.MonoMethodInfo");
+        var GetParametersInfo_MethodInfo = AccessTools.Method(MonoMethodInfo_Type, "GetParametersInfo");
+
+        //fixme
+        //try seek code at 'ves_icall_System_Reflection_MonoMethodInfo_get_parameter_info'
+        var reflectType = method.ReflectedType;
+        Console.WriteLine("reflect type: " + reflectType);
+        ParameterInfo[] parametersInfo = [];
+        try
+        {
+            Console.WriteLine("try call GetParametersInfo_MethodInfo");
+            parametersInfo = (ParameterInfo[])GetParametersInfo_MethodInfo.Invoke(null, [handle, method]);
+            Console.WriteLine("resultParam: " + parametersInfo?.Length);
+            Console.WriteLine("done GetParametersInfo_MethodInfo");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("error on try to get params info");
+        }
+        finally
+        {
+            Console.WriteLine("finally");
+        }
+        Console.WriteLine("len: " + parametersInfo.Length);
+        if (parametersInfo.Length == 0)
+        {
+            Console.WriteLine("return params info len = 0");
+            return parametersInfo;
+        }
+
+        // return with original 
+        Console.WriteLine("try return with original params");
+        return method.GetParameters();
+    }
 }
