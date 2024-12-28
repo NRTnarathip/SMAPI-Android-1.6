@@ -34,7 +34,7 @@ internal static class AndroidPatcher
             Log.enabled = true;
             harmony = new Harmony(nameof(AndroidPatcher));
             MethodCrashFix.Init(harmony);
-            StackTraceCrashFix.Init(harmony);
+            mono_class_from_mono_type_internal_CrashFix.Init(harmony);
 
             VersionInfoMenu.Init();
         }
@@ -42,9 +42,10 @@ internal static class AndroidPatcher
         {
             Console.WriteLine("Error on AndroidPatcher.Setup()");
             AndroidLogger.Log(ex);
+            throw;
         }
     }
-    public static void ApplyHarmonyPatchAll()
+    static void ApplyHarmonyPatchAll()
     {
         var monitor = SCore.Instance.GetMonitorForGame();
         monitor.Log("On ApplyHarmonyPatchAll()..");
@@ -61,7 +62,7 @@ internal static class AndroidPatcher
             throw;
         }
     }
-    public static void SetupModFix()
+    static void SetupModFix()
     {
         //Register mod fix here
         var modFix = AndroidModFixManager.Init();
@@ -71,5 +72,12 @@ internal static class AndroidPatcher
         SveFix.Init(modFix);
         GenericConfigMenuModFix.Init(modFix);
         UnlockableBundlesModFix.Init(modFix);
+    }
+
+    internal static void OnBeforeSCoreRun()
+    {
+        SetupModFix();
+        ApplyHarmonyPatchAll();
+        mono_class_from_mono_type_internal_CrashFix.InitDebug(harmony);
     }
 }

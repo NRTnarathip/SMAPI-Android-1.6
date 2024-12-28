@@ -36,7 +36,7 @@ internal class Program
 
         //Create Folder SMAPI-x.x.x.x
         string SMAPIBinDir = GetParentDirectory(Directory.GetCurrentDirectory(), 4);
-        SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/ARM64/Android Release");
+        SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/Android Release");
 
         string SMAPIVersionName = GetSMAPIVersion(Path.Combine(SMAPIBinDir, StardewModdingAPIFileName)).ToString();
         string PackFolderName = $"SMAPI-{SMAPIVersionName}";

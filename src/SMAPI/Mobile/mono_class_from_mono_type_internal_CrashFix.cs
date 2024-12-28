@@ -10,10 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Java.Util.Concurrent;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Mobile;
 
-internal static class StackTraceCrashFix
+internal static class mono_class_from_mono_type_internal_CrashFix
 {
     [DllImport("libdl.so")]
     static extern IntPtr dlopen(string filename, int flags);
@@ -24,16 +25,9 @@ internal static class StackTraceCrashFix
     [DllImport("libdl.so")]
     public static extern nint dlerror();
 
-
-
     public static void Init(Harmony hp)
     {
-        // hp.Patch(
-        //    original: AccessTools.FirstMethod(typeof(StackTrace), m => m.Name == "ToString" && m.GetParameters().Length == 2),
-        //    prefix: new(typeof(StackTraceCrashFix), nameof(StackTrace_ToString3))
-        //);
-
-        Console.WriteLine("Init StackTraceCrashFix");
+        Console.WriteLine("Init mono_class_from_mono_type_internal Crash Fix");
 
         var libHandle = dlopen("libmonosgen-2.0.so", 0x1);
         unsafe
@@ -47,12 +41,14 @@ internal static class StackTraceCrashFix
 
             // to
 
-            //if (lVar1 != 0)
-            //{
-            //    klassPtr = lVar1;
-            //}
-            //return klassPtr;
+            //if (currentMonoType != 0)
+            //    returnValueKlassType = currentMonoType;
 
+            //return returnValueKlassType;
+
+            // TODO
+            //always 'return null';
+            //because we not set any variable
             byte[] patchBytes = {
                 0x1f ,0x01, 0x00, 0xf1,
                 0x20, 0x01, 0x88, 0x9a,
@@ -61,6 +57,44 @@ internal static class StackTraceCrashFix
             };
             PatchBytes(targetAddress, patchBytes);
             Console.WriteLine("patched");
+        }
+    }
+
+    static IMonitor _logger;
+    static IMonitor logger
+    {
+        get
+        {
+            if (_logger == null)
+                _logger = SCore.Instance.GetMonitorForGame();
+            return _logger;
+        }
+    }
+    public static void InitDebug(Harmony hp)
+    {
+        //Is it disable debug??
+#if true
+        return;
+#endif
+        Console.WriteLine("try fix MonoMethodInfo.GetParametersInfo");
+        var MonoMethodInfo = AccessTools.TypeByName("System.Reflection.MonoMethodInfo");
+        var GetParametersInfo = AccessTools.Method(MonoMethodInfo, "GetParametersInfo");
+        Console.WriteLine("GetParametersInfo: " + GetParametersInfo);
+        hp.Patch(
+            original: GetParametersInfo,
+            postfix: new(typeof(mono_class_from_mono_type_internal_CrashFix),
+                nameof(Postfix_GetParametersInfo))
+        );
+    }
+    static void Postfix_GetParametersInfo(ParameterInfo[] __result, IntPtr handle, MemberInfo member)
+    {
+        if (__result == null || member.ReflectedType.Name.Contains("DMD"))
+        {
+            var msg = $"On Postfix_GetParametersInfo(), " +
+                $"result: {__result}, nint: {handle}, " +
+                $"memInfo.Name: {member.Name}, Type: {member.MemberType}";
+            //logger.Log(msg, LogLevel.Error);
+            Console.WriteLine(msg);
         }
     }
     static void Log(object msg) => Console.WriteLine(msg);
@@ -92,7 +126,6 @@ internal static class StackTraceCrashFix
         long pageSize = Environment.SystemPageSize;
         return new IntPtr(address.ToInt64() & ~(pageSize - 1));
     }
-
 
     private static bool ShowInStackTrace(MethodBase method)
     {
@@ -215,7 +248,7 @@ internal static class StackTraceCrashFix
                 //error here
                 //fixme
                 //array = methodBase.GetParameters();
-                paramArray = GetParameters(methodBase);
+                paramArray = MyFix_GetParameters(methodBase);
                 //Console.WriteLine("done get array");
             }
             catch (Exception ex)
@@ -374,7 +407,7 @@ internal static class StackTraceCrashFix
         }
         Console.WriteLine("===== End Dump =====");
     }
-    static ParameterInfo[] GetParameters(MethodBase method)
+    static ParameterInfo[] MyFix_GetParameters(MethodBase method)
     {
         Console.WriteLine("On Fix GetParameters(methodBase)");
         var handle = method.MethodHandle.Value;

@@ -258,8 +258,7 @@ internal class Program
         modsPath = Path.Combine(EarlyConstants.ExternalFilesDir, "Mods");
         SCore core = new(modsPath, writeToConsole, developerMode);
         //before run game you should apply Harmony Patch
-        AndroidPatcher.SetupModFix();
-        AndroidPatcher.ApplyHarmonyPatchAll();
+        AndroidPatcher.OnBeforeSCoreRun();
         core.RunInteractively();
 #endif
     }

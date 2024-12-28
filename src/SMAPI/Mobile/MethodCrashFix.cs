@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Mobile;
 
 //crash on Wizard Appearance
 //debug only
-#if true
+#if false
 [HarmonyPatch]
 internal static class MethodCrashFix
 {
@@ -127,4 +127,12 @@ internal static class MethodCrashFix
     }
 }
 
+#else
+internal static class MethodCrashFix
+{
+    public static void Init(Harmony hp)
+    {
+
+    }
+}
 #endif
