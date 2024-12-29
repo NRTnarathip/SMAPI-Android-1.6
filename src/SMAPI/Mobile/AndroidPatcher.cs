@@ -33,8 +33,6 @@ internal static class AndroidPatcher
             //setup
             Log.enabled = true;
             harmony = new Harmony(nameof(AndroidPatcher));
-            MethodCrashFix.Init(harmony);
-            mono_class_from_mono_type_internal_CrashFix.Init(harmony);
 
             VersionInfoMenu.Init();
         }
@@ -78,6 +76,5 @@ internal static class AndroidPatcher
     {
         SetupModFix();
         ApplyHarmonyPatchAll();
-        mono_class_from_mono_type_internal_CrashFix.InitDebug(harmony);
     }
 }

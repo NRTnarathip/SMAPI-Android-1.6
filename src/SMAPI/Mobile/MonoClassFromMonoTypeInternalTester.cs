@@ -20,46 +20,10 @@ namespace StardewModdingAPI.Mobile;
 //debug only
 #if false
 [HarmonyPatch]
-internal static class MethodCrashFix
+internal static class MonoClassFromMonoTypeInternalTester
 {
     public static void Init(Harmony hp)
     {
-
-        //fix method.ToString() crash
-        //var RuntimeMethodInfo = AccessTools.TypeByName("System.Reflection.RuntimeMethodInfo");
-        //Console.WriteLine(RuntimeMethodInfo);
-        //hp.Patch(
-        //    original: AccessTools.Method(RuntimeMethodInfo, "ToString"),
-        //    prefix: new(typeof(MethodCrashFix), nameof(Prefix_MethodToString))
-        //);
-
-        //Console.WriteLine("patched Method Crash Fix");
-    }
-    static string Fix_MethodToString(MethodBase method)
-    {
-        if (method.DeclaringType.Name.Contains("DMD"))
-        {
-            Console.WriteLine("try fix method.ToString() crash for harmony");
-            return $"{method.DeclaringType}::{method.Name}, fix bug crash mono_class_from_mono_type_internal";
-        }
-        return null;
-    }
-    internal static bool Prefix_MethodToString(object __instance, ref string __result)
-    {
-        //Console.WriteLine("On Prefix_ToString");
-        var method = __instance as MethodBase;
-        //Console.WriteLine("method name: " + method.Name);
-        //Console.WriteLine("method class: " + method.DeclaringType);
-        //Console.WriteLine("method mem type: " + method.MemberType);
-
-        string fixMethodToStringResult = Fix_MethodToString(method);
-        if (fixMethodToStringResult != null)
-        {
-            __result = fixMethodToStringResult;
-            return false;
-        }
-
-        return true;
     }
 
     [HarmonyPostfix]
@@ -128,7 +92,7 @@ internal static class MethodCrashFix
 }
 
 #else
-internal static class MethodCrashFix
+internal static class MonoClassFromMonoTypeInternalTester
 {
     public static void Init(Harmony hp)
     {
