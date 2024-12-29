@@ -12,6 +12,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Mobile.Facade;
 using StardewModdingAPI.Mobile.Mods;
+using StardewModdingAPI.Mobile.Vectors;
 using StardewValley;
 using StardewValley.Pathfinding;
 using StardewValley.SpecialOrders.Objectives;
@@ -76,5 +77,6 @@ internal static class AndroidPatcher
     {
         SetupModFix();
         ApplyHarmonyPatchAll();
+        JsonPatcher.ApplyPatch(harmony);
     }
 }

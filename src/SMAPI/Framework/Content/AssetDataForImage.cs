@@ -45,7 +45,7 @@ internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
             AndroidMainThread.InvokeOnMainThread(() =>
             {
                 this.PatchImage(source, sourceArea, targetArea, patchMode);
-            }, "PatchImage");
+            }, null);//don't log 
 
             return;
         }
@@ -174,7 +174,7 @@ internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
             AndroidMainThread.InvokeOnMainThread(() =>
             {
                 this.PatchImageImpl(sourceData, sourceWidth, sourceHeight, sourceArea, targetArea, patchMode, startRow);
-            }, "PatchImageImpl");
+            }, null);
 
             return;
         }

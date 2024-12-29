@@ -19,7 +19,7 @@ internal static class AndroidMainThread
     {
         MainThread = Thread.CurrentThread;
     }
-    public static void InvokeOnMainThread(Action callback, string taskName = "Undefine Task Name")
+    public static void InvokeOnMainThread(Action callback, string? taskName = null)
     {
         var task = new Task(() => { callback(); });
         AndroidSModHooks.AddTaskRunOnMainThread(task, taskName);

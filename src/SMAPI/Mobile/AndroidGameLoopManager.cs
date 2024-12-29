@@ -2,7 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using Android.App;
+using Android.OS;
 using HarmonyLib;
 using Java.Util;
 using Microsoft.Xna.Framework;
@@ -84,5 +88,38 @@ internal static class AndroidGameLoopManager
             _accumulatedElapsedTime_Field.SetValue(game, accumulatedElapsedTime);
             //release freeze loop Game.DoUpdate()
         }
+
+
+        //debug
+        //debug
+#if true
+        PrintMemory();
+#endif
     }
+
+    static Stopwatch TimerLogMemory = Stopwatch.StartNew();
+    private static void PrintMemory()
+    {
+        const int refreshTime = 300;
+        if (TimerLogMemory.Elapsed.TotalMilliseconds < refreshTime)
+            return;
+
+        TimerLogMemory.Restart();
+
+        var mainActivity = SMAPIActivityTool.MainActivity;
+        ActivityManager activityManager = mainActivity.GetSystemService(Service.ActivityService) as ActivityManager;
+        var memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.GetMemoryInfo(memoryInfo);
+
+
+        StringBuilder log = new();
+        log.AppendLine("====== Log Mem Info ======");
+        log.AppendLine($"Total Mem: {memoryInfo.TotalMem.KbToMB():F3} MB");
+        log.AppendLine($"Available  Mem: {memoryInfo.AvailMem.KbToMB():F3} MB");
+        log.AppendLine($"Is Low Mem: {memoryInfo.LowMemory}");
+        var monitor = SCore.Instance?.GetMonitorForGame();
+        if (monitor != null)
+            monitor.Log(log.ToString(), LogLevel.Info);
+    }
+    static float KbToMB(this long val) => (float)val / (1024f * 1024f);
 }

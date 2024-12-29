@@ -57,20 +57,25 @@ internal static class AndroidSModHooks
         bool isInGame = false;
         while (queueTaskNeedToStartOnMainThread.TryDequeue(out var task))
         {
+            bool shouldShowLogTask = task.name is not null;
             markSkipGameUpdating = true;
             var stopwatch = Stopwatch.StartNew();
-            Monitor.Log($"Start taskOnMainThread: '{task.name}'");
+            //if (shouldShowLogTask)
+            //    Monitor.Log($"Start taskOnMainThread: '{task.name}'");
+
             task.task.RunSynchronously();
             stopwatch.Stop();
             runTaskOnMainThreadCount++;
             runTaskOnMainThreadTotalTime += stopwatch.Elapsed.TotalMilliseconds;
-            Monitor.Log($"Done taskOnMainThread: '{task.name}' in {stopwatch.Elapsed.TotalMilliseconds}ms");
-            Monitor.Log($"current total time in this frame: {runTaskOnMainThreadTotalTime:F3}ms");
+            if (shouldShowLogTask)
+            {
+                Monitor.Log($"Done taskOnMainThread: '{task.name}' in {stopwatch.Elapsed.TotalMilliseconds}ms");
+            }
 
             //debug
             if (runTaskOnMainThreadTotalTime > 2000)
             {
-                Monitor.Log($"Warn!!, current task '{task.name}' " +
+                Monitor.Log($"Warn!!, current task MainThread '{task.name}' " +
                     $"it's very long time in {runTaskOnMainThreadTotalTime:F3}ms", LogLevel.Warn);
             }
 
@@ -99,9 +104,9 @@ internal static class AndroidSModHooks
     }
     internal class TaskOnMainThread
     {
-        public readonly string name;
+        public readonly string? name;
         public readonly Task task;
-        public TaskOnMainThread(Task task, string name)
+        public TaskOnMainThread(Task task, string? name)
         {
             this.task = task;
             this.name = name;
@@ -113,9 +118,9 @@ internal static class AndroidSModHooks
     internal static Task AddTaskRunOnMainThread(Action callback, string name)
         => AddTaskRunOnMainThread(new Task(callback), name);
 
-    internal static Task AddTaskRunOnMainThread(Task yourTask, string name)
+    internal static Task AddTaskRunOnMainThread(Task yourTask, string? taskName)
     {
-        var taskOnMainThread = new TaskOnMainThread(yourTask, name);
+        var taskOnMainThread = new TaskOnMainThread(yourTask, taskName);
         queueTaskNeedToStartOnMainThread.Enqueue(taskOnMainThread);
         return yourTask;
     }
