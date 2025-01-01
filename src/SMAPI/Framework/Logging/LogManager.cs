@@ -241,8 +241,15 @@ internal class LogManager : IDisposable
     {
         // log platform
 #if SMAPI_FOR_ANDROID
-        this.Monitor.Log($"SMAPI {Constants.ApiVersionForAndroid} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-        this.Monitor.Log($"SMAPI Build: {SMAPIAndroidBuild.BuildCode}", LogLevel.Info);
+        {
+            var smapiBuild = SMAPIAndroidBuild.BuildCode;
+            this.Monitor.Log($"SMAPI v{Constants.ApiVersionForAndroid} - {smapiBuild}" +
+                $" with Stardew Valley {Game1.GetVersionString()}" +
+                $" on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            var launcherBuild = LauncherAppInfo.CurrentBuild;
+            var launcherVersion = LauncherAppInfo.CurrentVersion;
+            this.Monitor.Log($"Launcher v{launcherVersion} - {launcherBuild}", LogLevel.Info);
+        }
 #else
         this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.GetVersionString()} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
 #endif

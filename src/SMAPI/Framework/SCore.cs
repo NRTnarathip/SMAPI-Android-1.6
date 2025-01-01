@@ -200,9 +200,6 @@ internal class SCore : IDisposable
         // init log file
         this.PurgeNormalLogs();
         string logPath = this.GetLogPath();
-#if SMAPI_FOR_ANDROID
-        AndroidLogger.Log("logPath: " + logPath);
-#endif
 
         // init settings
         {
