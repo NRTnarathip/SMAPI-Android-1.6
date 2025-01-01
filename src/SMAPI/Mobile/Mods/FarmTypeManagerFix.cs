@@ -21,7 +21,7 @@ internal static class FarmTypeManagerFix
     }
     static void OnAsmLoaded(Assembly asm)
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        IMonitor monitor = SCore.Instance.SMAPIMonitor;
         monitor.Log("start FarmTypeManagerFix");
         try
         {
@@ -36,11 +36,11 @@ internal static class FarmTypeManagerFix
 
     static void ApplyFix(Assembly ftm)
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        IMonitor monitor = SCore.Instance.SMAPIMonitor;
         monitor.Log("Start patching fix");
-        var harmony = new Harmony(nameof(FarmTypeManagerFix));
-        var HarmonyPatch_OptimizeMonsterCode = ftm.GetType("FarmTypeManager.ModEntry+HarmonyPatch_OptimizeMonsterCode");
-        var ApplyPatch_Original = AccessTools.Method(HarmonyPatch_OptimizeMonsterCode, "ApplyPatch");
+        Harmony harmony = new Harmony(nameof(FarmTypeManagerFix));
+        Type? HarmonyPatch_OptimizeMonsterCode = ftm.GetType("FarmTypeManager.ModEntry+HarmonyPatch_OptimizeMonsterCode");
+        MethodInfo ApplyPatch_Original = AccessTools.Method(HarmonyPatch_OptimizeMonsterCode, "ApplyPatch");
         harmony.Patch(
             original: ApplyPatch_Original,
             prefix: AccessTools.Method(typeof(FarmTypeManagerFix), nameof(ApplyPatch_EmptyImpl))
@@ -65,7 +65,7 @@ internal static class FarmTypeManagerFix
 
     public static void OptimizeMonsterCode_ApplyPatch(Harmony harmony)
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        IMonitor monitor = SCore.Instance.SMAPIMonitor;
         try
         {
             //apply Harmony patches
@@ -92,7 +92,7 @@ internal static class FarmTypeManagerFix
 
     private static bool Monster_findPlayer_Prefix(ref Farmer __result)
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        IMonitor monitor = SCore.Instance.SMAPIMonitor;
 
         try
         {
@@ -113,7 +113,7 @@ internal static class FarmTypeManagerFix
 
     private static void Monster_findPlayer_Postfix(ref Farmer __result)
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        IMonitor monitor = SCore.Instance.SMAPIMonitor;
         try
         {
             if (__result == null) //if this method failed to return a farmer (possible due to other mods' patches, multiplayer/threading issues, etc)

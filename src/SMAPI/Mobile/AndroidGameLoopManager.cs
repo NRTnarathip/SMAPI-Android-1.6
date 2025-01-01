@@ -92,7 +92,7 @@ internal static class AndroidGameLoopManager
 
         //debug
         //debug
-#if true
+#if false
         PrintMemory();
 #endif
     }
@@ -100,7 +100,7 @@ internal static class AndroidGameLoopManager
     static Stopwatch TimerLogMemory = Stopwatch.StartNew();
     private static void PrintMemory()
     {
-        const int refreshTime = 300;
+        const int refreshTime = 1000;
         if (TimerLogMemory.Elapsed.TotalMilliseconds < refreshTime)
             return;
 
@@ -117,9 +117,9 @@ internal static class AndroidGameLoopManager
         log.AppendLine($"Total Mem: {memoryInfo.TotalMem.KbToMB():F3} MB");
         log.AppendLine($"Available  Mem: {memoryInfo.AvailMem.KbToMB():F3} MB");
         log.AppendLine($"Is Low Mem: {memoryInfo.LowMemory}");
-        var monitor = SCore.Instance?.GetMonitorForGame();
+        var monitor = SCore.Instance?.SMAPIMonitor;
         if (monitor != null)
-            monitor.Log(log.ToString(), LogLevel.Info);
+            monitor.Log(log.ToString(), LogLevel.Trace);
     }
     static float KbToMB(this long val) => (float)val / (1024f * 1024f);
 }

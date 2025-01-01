@@ -173,7 +173,7 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
         }
         catch (Exception ex)
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             monitor.Log(ex.GetLogSummary(), LogLevel.Error);
         }
         return false;

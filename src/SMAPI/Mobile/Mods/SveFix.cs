@@ -32,7 +32,7 @@ internal static class SveFix
             original: AccessTools.Method(TMXLLoadMapFacingDirection, "ApplyPatch"),
             prefix: new(typeof(SveFix), nameof(TMXLLoadMapFacingDirection_ApplyPatch))
         );
-        Monitor = SCore.Instance.GetMonitorForGame();
+        Monitor = SCore.Instance.SMAPIMonitor;
     }
     static bool TMXLLoadMapFacingDirection_ApplyPatch(Harmony harmony, IMonitor monitor)
     {

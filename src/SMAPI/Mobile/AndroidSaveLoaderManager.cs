@@ -17,7 +17,7 @@ internal static class AndroidSaveLoaderManager
     static Monitor monitor;
     internal static void StartLoader()
     {
-        monitor = SCore.Instance.GetMonitorForGame() as Monitor;
+        monitor = SCore.Instance.SMAPIMonitor as Monitor;
         monitor.Log("Game loader with AndroidSaveLoader currentLoader.MoveNext()", Monitor.ContextLogLevel);
         AndroidGameLoopManager.RegisterOnGameUpdating(OnGameUpdating_AndroidSaveLoader);
     }

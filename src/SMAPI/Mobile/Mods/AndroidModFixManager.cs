@@ -17,7 +17,7 @@ internal class AndroidModFixManager
     AndroidModFixManager()
     {
         Instance = this;
-        this.monitor = SCore.Instance.GetMonitorForGame();
+        this.monitor = SCore.Instance.SMAPIMonitor;
     }
 
     public static AndroidModFixManager Init()
@@ -44,7 +44,7 @@ internal class AndroidModFixManager
             }
             catch (Exception ex)
             {
-                var monitor = SCore.Instance.GetMonitorForGame();
+                var monitor = SCore.Instance.SMAPIMonitor;
                 monitor.Log(ex.ToString(), LogLevel.Error);
             }
             this.OnModLoadedRegistry.Remove(name);
@@ -72,7 +72,7 @@ internal class AndroidModFixManager
 
         if (this.OnRewriteModDictionary.TryGetValue(assemblyName, out var callback))
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             this.OnRewriteModDictionary.Remove(assemblyName);
 
             monitor.Log("Try ModFixManager rewrite mod: " + assembly.Definition.Name);
@@ -109,7 +109,7 @@ internal class AndroidModFixManager
         }
         catch (Exception ex)
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             monitor.Log(ex.GetLogSummary(), LogLevel.Error);
         }
     }

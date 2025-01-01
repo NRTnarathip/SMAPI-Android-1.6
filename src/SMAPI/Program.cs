@@ -63,7 +63,7 @@ internal class Program
         {
             string logMessage = $"SMAPI failed to initialize: {ex}";
             Console.WriteLine(logMessage);
-            IMonitor? monitor = SCore.Instance?.GetMonitorForGame();
+            IMonitor? monitor = SCore.Instance?.SMAPIMonitor;
             monitor?.Log(logMessage, LogLevel.Error);
 
             PressAnyKeyToExit(true);

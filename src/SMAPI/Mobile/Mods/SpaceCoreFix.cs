@@ -77,7 +77,7 @@ internal static class SpaceCoreFix
     static void OnModLoaded(Assembly asm)
     {
         modAssembly = asm;
-        var monitor = SCore.Instance.GetMonitorForGame();
+        var monitor = SCore.Instance.SMAPIMonitor;
         monitor.Log("Start SpaceCoreFix");
         try
         {
@@ -100,7 +100,7 @@ internal static class SpaceCoreFix
 
     static bool Prefix_GatherLocals()
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        var monitor = SCore.Instance.SMAPIMonitor;
         monitor.Log("call GatherLocals() for android");
         try
         {
@@ -118,7 +118,7 @@ internal static class SpaceCoreFix
     {
         public static void TryInit(Harmony harmony)
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             try
             {
                 var OptionPageCtor = AccessTools.Constructor(OptionsPageType, [
@@ -179,14 +179,14 @@ internal static class SpaceCoreFix
         }
         static bool Prefix_saveWholeBackup()
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             monitor.Log("bypass saveWholeBackup()");
             return false;
         }
 
         static bool Prefix_emergencyBackup()
         {
-            var monitor = SCore.Instance.GetMonitorForGame();
+            var monitor = SCore.Instance.SMAPIMonitor;
             monitor.Log("bypass Game1.emergencyBackup()");
             return false;
         }

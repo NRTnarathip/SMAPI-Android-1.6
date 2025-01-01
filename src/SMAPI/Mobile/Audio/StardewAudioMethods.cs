@@ -106,7 +106,7 @@ public static class StardewAudioMethods
 
             default:
                 //called method on base type of object
-                var monitor = SCore.Instance.GetMonitorForGame();
+                var monitor = SCore.Instance.SMAPIMonitor;
                 AccessTools.Method(obj.GetType(), "AddCue").Invoke(obj, [cue]);
                 break;
         }

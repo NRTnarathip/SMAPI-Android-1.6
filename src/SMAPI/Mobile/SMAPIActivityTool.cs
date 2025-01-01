@@ -29,7 +29,7 @@ internal static class SMAPIActivityTool
 
     public static void ExitGame()
     {
-        IMonitor? monitor = SCore.Instance?.GetMonitorForGame();
+        IMonitor? monitor = SCore.Instance?.SMAPIMonitor;
         monitor?.Log("Try Exit Game At SMAPIActivityTool");
         try
         {

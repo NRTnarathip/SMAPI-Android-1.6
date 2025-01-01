@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Mobile;
 [HarmonyPatch]
 internal static class AndroidSModHooks
 {
-    static IMonitor Monitor => SCore.Instance.GetMonitorForGame();
+    static IMonitor Monitor => SCore.Instance.SMAPIMonitor;
 
     internal static void Init()
     {

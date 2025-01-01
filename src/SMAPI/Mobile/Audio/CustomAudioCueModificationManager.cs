@@ -31,7 +31,7 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
     public CustomAudioCueModificationManager()
     {
         Instance = this;
-        this.monitor = SCore.Instance.GetMonitorForGame();
+        this.monitor = SCore.Instance.SMAPIMonitor;
     }
 
     [HarmonyPrefix]

@@ -7,6 +7,7 @@ using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Mobile;
 
+// using on mod Virtual keyboard
 public static class MobileCommandTool
 {
     public static void SendCommand(string command)

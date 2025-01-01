@@ -15,7 +15,7 @@ internal static class GenericConfigMenuModFix
     static IMonitor monitor;
     internal static void Init(AndroidModFixManager modFix)
     {
-        monitor = SCore.Instance.GetMonitorForGame();
+        monitor = SCore.Instance.SMAPIMonitor;
         modFix.RegisterOnModLoaded("GenericModConfigMenu.dll", OnModLoaded);
     }
     static MethodInfo ModEntry_OnRendered_MethodInfo;

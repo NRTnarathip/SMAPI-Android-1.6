@@ -29,7 +29,6 @@ public static class MobileConsoleTool
     public static void WriteLine(string line)
     {
         CurrentLine = line;
-        Console.WriteLine("Done MobileConsoleTool.WriteLine: " + CurrentLine);
     }
     public static string ReadLine()
     {
@@ -38,7 +37,6 @@ public static class MobileConsoleTool
 
         string tempLine = CurrentLine;
         CurrentLine = ""; //clear after read it
-        Console.WriteLine("Done MobileConsoleTool.ReadLine: " + tempLine);
         return tempLine;
     }
 }

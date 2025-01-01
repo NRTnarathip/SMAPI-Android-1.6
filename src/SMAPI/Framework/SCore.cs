@@ -377,6 +377,10 @@ internal class SCore : IDisposable
         return this.LogManager.MonitorForGame;
     }
 
+#if SMAPI_FOR_ANDROID
+    public IMonitor SMAPIMonitor => this.LogManager.Monitor;
+#endif
+
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "May be disposed before SMAPI is fully initialized.")]
     public void Dispose()

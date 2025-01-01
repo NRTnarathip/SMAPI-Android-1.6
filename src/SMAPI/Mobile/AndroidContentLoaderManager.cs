@@ -68,7 +68,7 @@ internal static class AndroidContentLoaderManager
         Game1.CueModification = new CustomAudioCueModificationManager();
     }
 
-    static IMonitor Monitor => SCore.Instance.GetMonitorForGame();
+    static IMonitor Monitor => SCore.Instance.SMAPIMonitor;
     static void Log(string msg) => Monitor.Log(msg);
 
     static void OnPrefix_AfterLoadContent()

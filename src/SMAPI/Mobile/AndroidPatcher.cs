@@ -46,7 +46,7 @@ internal static class AndroidPatcher
     }
     static void ApplyHarmonyPatchAll()
     {
-        var monitor = SCore.Instance.GetMonitorForGame();
+        var monitor = SCore.Instance.SMAPIMonitor;
         monitor.Log("On ApplyHarmonyPatchAll()..");
         try
         {
@@ -77,6 +77,6 @@ internal static class AndroidPatcher
     {
         SetupModFix();
         ApplyHarmonyPatchAll();
-        JsonPatcher.ApplyPatch(harmony);
+        VectorTypeConverterFix.ApplyPatch(harmony);
     }
 }

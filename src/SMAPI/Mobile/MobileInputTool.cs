@@ -9,6 +9,7 @@ using StardewValley;
 
 namespace StardewModdingAPI.Mobile;
 
+//using on Virtual Keyboard
 public static class MobileInputTool
 {
     public static void OverrideButton(SButton sButton, bool setDown)
