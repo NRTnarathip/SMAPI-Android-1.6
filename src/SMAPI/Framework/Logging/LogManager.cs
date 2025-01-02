@@ -257,8 +257,12 @@ internal class LogManager : IDisposable
 
         // log basic info
         this.Monitor.Log($"Mods go here: {PathUtilities.AnonymizePathForDisplay(modsPath)}", LogLevel.Info);
+#if SMAPI_FOR_ANDROID
+        //
+#else
         if (modsPath != Constants.DefaultModsPath)
             this.Monitor.Log($"(Using custom --mods-path argument. Game folder: {PathUtilities.AnonymizePathForDisplay(Constants.GamePath)}.)");
+#endif
         this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC");
 
         // log custom settings

@@ -50,7 +50,6 @@ internal static class AndroidPatcher
         monitor.Log("On ApplyHarmonyPatchAll()..");
         try
         {
-            monitor.Log("Try harmony.PatchAll()");
             harmony.PatchAll();
             monitor.Log("Done harmony.PatchAll()");
         }
