@@ -1,20 +1,9 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
-
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
 using NVorbis;
-using System.Reflection;
 using HarmonyLib;
-using System.Runtime.Serialization;
-using System.IO;
 
 namespace StardewModdingAPI.Mobile.Facade;
 
@@ -113,8 +102,7 @@ public class OggStreamSoundEffect : SoundEffect
             byte[] finalSmallBuffer = new byte[remainingBufferSize]; // บัฟเฟอร์สำหรับข้อมูลสุดท้ายที่ไม่เต็มขนาด
 
             // สร้าง VorbisReader สำหรับอ่านข้อมูล Ogg
-            var oggFileStrem = File.OpenRead(this.OggFileName);
-            VorbisReader vorbisReader = new(oggFileStrem);
+            VorbisReader vorbisReader = new(this.OggFileName);
 
             //fixme
             //this works, fix bug:
@@ -177,6 +165,7 @@ public class OggStreamSoundEffect : SoundEffect
             }
         });
 
+        streamThread.Priority = ThreadPriority.Highest;
         streamThread.Start();
 
         return sound;

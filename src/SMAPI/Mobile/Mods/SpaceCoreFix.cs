@@ -20,11 +20,10 @@ namespace StardewModdingAPI.Mobile.Mods;
 internal static partial class SpaceCoreFix
 {
     static Assembly modAssembly;
-    const string SpaceCoreAssemblyName = "SpaceCore";
+    public const string SpaceCoreDllFileName = "SpaceCore.dll";
     public static void Init(AndroidModFixManager androidModFix)
     {
-        androidModFix.RegisterOnModLoaded(SpaceCoreAssemblyName, OnModLoaded);
-        //androidModFix.RegisterRewriteModAssemblyDef(SpaceCoreAssemblyName, OnRewriterAssembly);
+        androidModFix.RegisterOnModLoaded(SpaceCoreDllFileName, OnModLoaded);
     }
     static void OnRewriterAssembly(Mono.Cecil.AssemblyDefinition assemblyDef)
     {
@@ -50,25 +49,6 @@ internal static partial class SpaceCoreFix
                 argTypeList.ToArray()
             );
         }
-
-        //ForgeMenuPatcher
-        {
-            //var SerializationPatcherType = mainModule.GetType("SpaceCore.Patches.ForgeMenuPatcher");
-            //var applyMehtod = SerializationPatcherType.GetMethods().Single(m => m.Name == "Apply");
-            //var ilProcessor = applyMehtod.Body.GetILProcessor();
-            ////return, skip apply
-            //ilProcessor.Body.Instructions.Insert(0, ilProcessor.Create(OpCodes.Ret));
-        }
-
-        //SkillBuffPatcher
-        {
-            //var SkillBuffPatcher = mainModule.GetType("SpaceCore.Patches.SkillBuffPatcher");
-            //var applyMehtod = SkillBuffPatcher.GetMethods().Single(m => m.Name == "Apply");
-            //var ilProcessor = applyMehtod.Body.GetILProcessor();
-            //var instructions = ilProcessor.Body.Instructions;
-            ////remove patch Transpile_IClickableMenu_DrawHoverText
-            //applyMehtod.Body.Instructions.RemoveWhere(il => il.Offset > 0x54 && il.Offset < 0x01ef);
-        }
     }
 
     static void OnModLoaded(Assembly asm)
@@ -78,8 +58,7 @@ internal static partial class SpaceCoreFix
         monitor.Log("Start SpaceCoreFix");
         try
         {
-            var harmony = new Harmony(nameof(SpaceCoreFix));
-            DisableQuickSave.TryInit(harmony);
+            var harmony = AndroidPatcher.harmony;
             var SpaceCoreModEntry = modAssembly.GetType("SpaceCore.SpaceCore");
             harmony.Patch(
                 original: AccessTools.Method(SpaceCoreModEntry, "GatherLocals"),

@@ -11,7 +11,23 @@ using StardewModdingAPI.Internal;
 namespace StardewModdingAPI.Mobile;
 internal class AndroidModFixManager
 {
-    Dictionary<string, Action<Assembly>> OnModLoadedRegistry = new();
+    class OnModLoadedCallbackList
+    {
+        List<Action<Assembly>> callbackList = new();
+        public void InvokeAll(Assembly asm)
+        {
+            foreach (var callback in this.callbackList)
+            {
+                callback.Invoke(asm);
+            }
+        }
+
+        internal void AddCallback(Action<Assembly> callback)
+        {
+            this.callbackList.Add(callback);
+        }
+    }
+    Dictionary<string, OnModLoadedCallbackList> OnModLoadedRegistry = new();
     public static AndroidModFixManager Instance { get; private set; }
     public IMonitor monitor;
     AndroidModFixManager()
@@ -32,29 +48,38 @@ internal class AndroidModFixManager
     {
         Instance.OnAsmLoad(args.LoadedAssembly);
     }
-
+    public static Action<Assembly> OnModLoaded;
     private void OnAsmLoad(Assembly asm)
     {
+        OnModLoaded?.Invoke(asm);
+
         string name = asm.GetName().Name;
-        if (this.OnModLoadedRegistry.TryGetValue(name, out Action<Assembly> cb))
+        string dllFileName = name + ".dll";
+        if (this.OnModLoadedRegistry.TryGetValue(dllFileName, out var cbList))
         {
             try
             {
-                cb.Invoke(asm);
+                cbList.InvokeAll(asm);
             }
             catch (Exception ex)
             {
                 var monitor = SCore.Instance.SMAPIMonitor;
                 monitor.Log(ex.ToString(), LogLevel.Error);
             }
-            this.OnModLoadedRegistry.Remove(name);
         }
     }
 
-    public void RegisterOnModLoaded(string asmNameOrFileName, Action<Assembly> callback)
+    public void RegisterOnModLoaded(string asmDllFileName, Action<Assembly> callback)
     {
-        string nameWithoutExtension = asmNameOrFileName.Replace(".dll", "");
-        this.OnModLoadedRegistry.TryAdd(nameWithoutExtension, callback);
+        //create new item
+        if (this.OnModLoadedRegistry.TryGetValue(asmDllFileName, out var cbList) is false)
+        {
+            cbList = new();
+            this.OnModLoadedRegistry.Add(asmDllFileName, cbList);
+        }
+        //added
+        cbList.AddCallback(callback);
+
     }
 
     //key: AssemblyName, value: callback

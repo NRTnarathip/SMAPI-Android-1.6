@@ -15,9 +15,10 @@ namespace StardewModdingAPI.Mobile.Mods;
 
 internal static class FarmTypeManagerFix
 {
-    internal static void Init(AndroidModFixManager androidModFixManager)
+    public const string DllFileName = "FarmTypeManager.dll";
+    internal static void Init(AndroidModFixManager modFix)
     {
-        androidModFixManager.RegisterOnModLoaded("FarmTypeManager", OnAsmLoaded);
+        modFix.RegisterOnModLoaded(DllFileName, OnAsmLoaded);
     }
     static void OnAsmLoaded(Assembly asm)
     {

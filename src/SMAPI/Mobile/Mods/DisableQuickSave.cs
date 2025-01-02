@@ -7,16 +7,37 @@ using StardewValley.Menus;
 using StardewValley;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Internal;
+using System.Runtime.CompilerServices;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
 static class DisableQuickSave
 {
-    public static void TryInit(Harmony harmony)
+    static bool isApplyPatched = false;
+    public static void Init(AndroidModFixManager modFix)
     {
+        modFix.RegisterOnModLoaded(SpaceCoreFix.SpaceCoreDllFileName, OnModLoaded);
+        modFix.RegisterOnModLoaded(FarmTypeManagerFix.DllFileName, OnModLoaded);
+    }
+
+    static void OnModLoaded(Assembly assembly)
+    {
+        ApplyPatch();
+    }
+
+    static void ApplyPatch()
+    {
+        if (isApplyPatched)
+            return;
+
+        isApplyPatched = true;
         var monitor = SCore.Instance.SMAPIMonitor;
         try
         {
+            monitor.Log("Start DisableQuickSave Fix..");
+
+            var harmony = AndroidPatcher.harmony;
+
             var OptionPageCtor = AccessTools.Constructor(OptionsPageType, [
                 typeof(int),
                     typeof(int),
