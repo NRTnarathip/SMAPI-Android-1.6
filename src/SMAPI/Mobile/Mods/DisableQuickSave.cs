@@ -17,6 +17,7 @@ static class DisableQuickSave
     public static void Init(AndroidModFixManager modFix)
     {
         modFix.RegisterOnModLoaded(SpaceCoreFix.SpaceCoreDllFileName, OnModLoaded);
+        // not sure for disable this
         modFix.RegisterOnModLoaded(FarmTypeManagerFix.DllFileName, OnModLoaded);
     }
 
