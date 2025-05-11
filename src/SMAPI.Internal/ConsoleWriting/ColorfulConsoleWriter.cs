@@ -128,18 +128,18 @@ internal class ColorfulConsoleWriter : IConsoleWriter
     private IDictionary<ConsoleLogLevel, ConsoleColor> GetConsoleColorScheme(Platform platform, ColorSchemeConfig colorConfig)
     {
         // get color scheme ID
-        MonitorColorScheme schemeID = colorConfig.UseScheme;
-        if (schemeID == MonitorColorScheme.AutoDetect)
+        MonitorColorScheme schemeId = colorConfig.UseScheme;
+        if (schemeId == MonitorColorScheme.AutoDetect)
         {
-            schemeID = platform == Platform.Mac
+            schemeId = platform == Platform.Mac
                 ? MonitorColorScheme.LightBackground // macOS doesn't provide console background color info, but it's usually white.
                 : ColorfulConsoleWriter.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
         }
 
         // get colors for scheme
-        return colorConfig.Schemes.TryGetValue(schemeID, out IDictionary<ConsoleLogLevel, ConsoleColor>? scheme)
+        return colorConfig.Schemes.TryGetValue(schemeId, out IDictionary<ConsoleLogLevel, ConsoleColor>? scheme)
             ? scheme
-            : throw new NotSupportedException($"Unknown color scheme '{schemeID}'.");
+            : throw new NotSupportedException($"Unknown color scheme '{schemeId}'.");
     }
 
     /// <summary>Get whether a console color should be considered dark, which is subjectively defined as 'white looks better than black on this text'.</summary>

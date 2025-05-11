@@ -28,7 +28,7 @@ public class ProviderMod
     {
         this.Api.NumberProperty = number;
         this.Api.ObjectProperty = obj;
-        this.Api.ListProperty = new List<string> { listValue };
+        this.Api.ListProperty = [listValue];
         this.Api.ListPropertyWithInterface = new List<string> { listWithInterfaceValue };
         this.Api.GenericsProperty = new Dictionary<string, IList<string>> { [dictionaryKey] = new List<string> { dictionaryListValue } };
         this.Api.EnumProperty = enumValue;

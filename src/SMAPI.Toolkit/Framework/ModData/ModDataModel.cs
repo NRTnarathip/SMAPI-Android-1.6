@@ -14,7 +14,7 @@ internal class ModDataModel
     ** Accessors
     *********/
     /// <summary>The mod's current unique ID.</summary>
-    public string ID { get; }
+    public string Id { get; }
 
     /// <summary>The former mod IDs (if any).</summary>
     /// <remarks>
@@ -23,7 +23,7 @@ internal class ModDataModel
     /// ID, if any. If the mod's ID changed over time, multiple variants can be separated by the
     /// <c>|</c> character.
     /// </remarks>
-    public string? FormerIDs { get; }
+    public string? FormerIds { get; }
 
     /// <summary>The mod warnings to suppress, even if they'd normally be shown.</summary>
     public ModWarning SuppressWarnings { get; }
@@ -60,8 +60,8 @@ internal class ModDataModel
     /// <param name="ignoreDependencies">Whether to ignore dependencies on this mod ID when it's not loaded.</param>
     public ModDataModel(string id, string? formerIds, ModWarning suppressWarnings, bool ignoreDependencies)
     {
-        this.ID = id;
-        this.FormerIDs = formerIds;
+        this.Id = id;
+        this.FormerIds = formerIds;
         this.SuppressWarnings = suppressWarnings;
         this.IgnoreDependencies = ignoreDependencies;
     }
@@ -93,7 +93,7 @@ internal class ModDataModel
                 // version range
                 if (part.Contains("~"))
                 {
-                    string[] versionParts = part.Split(new[] { '~' }, 2);
+                    string[] versionParts = part.Split(['~'], 2);
                     lowerVersion = versionParts[0] != "" ? new SemanticVersion(versionParts[0]) : null;
                     upperVersion = versionParts[1] != "" ? new SemanticVersion(versionParts[1]) : null;
                     continue;
@@ -109,11 +109,11 @@ internal class ModDataModel
     }
 
     /// <summary>Get the former mod IDs.</summary>
-    public IEnumerable<string> GetFormerIDs()
+    public IEnumerable<string> GetFormerIds()
     {
-        if (this.FormerIDs != null)
+        if (this.FormerIds != null)
         {
-            foreach (string id in this.FormerIDs.Split('|'))
+            foreach (string id in this.FormerIds.Split('|'))
                 yield return id.Trim();
         }
     }

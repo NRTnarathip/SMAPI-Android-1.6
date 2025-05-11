@@ -288,8 +288,8 @@ public class SemanticVersion : ISemanticVersion
                 return curOlder;
 
             // compare two prerelease tag values
-            string[] curParts = this.PrereleaseTag?.Split('.', '-') ?? Array.Empty<string>();
-            string[] otherParts = otherTag?.Split('.', '-') ?? Array.Empty<string>();
+            string[] curParts = this.PrereleaseTag?.Split('.', '-') ?? [];
+            string[] otherParts = otherTag?.Split('.', '-') ?? [];
             int length = Math.Max(curParts.Length, otherParts.Length);
             for (int i = 0; i < length; i++)
             {

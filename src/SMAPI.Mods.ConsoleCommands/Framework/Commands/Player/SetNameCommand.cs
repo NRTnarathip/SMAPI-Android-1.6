@@ -21,7 +21,7 @@ internal class SetNameCommand : ConsoleCommand
     public override void Handle(IMonitor monitor, string command, ArgumentParser args)
     {
         // parse arguments
-        if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "player", "farm" }))
+        if (!args.TryGet(0, "target", out string? target, oneOf: ["player", "farm"]))
             return;
         args.TryGet(1, "name", out string? name, required: false);
 

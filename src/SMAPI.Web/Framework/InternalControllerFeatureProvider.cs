@@ -17,10 +17,8 @@ internal class InternalControllerFeatureProvider : ControllerFeatureProvider
     protected override bool IsController(TypeInfo type)
     {
         return
-            type.IsClass
-            && !type.IsAbstract
-            && (/*type.IsPublic &&*/ !type.ContainsGenericParameters)
-            && (!type.IsDefined(typeof(NonControllerAttribute))
-            && (type.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) || type.IsDefined(typeof(ControllerAttribute))));
+            type is { IsClass: true, IsAbstract: false, /*IsPublic: true,*/ ContainsGenericParameters: false }
+            && !type.IsDefined(typeof(NonControllerAttribute))
+            && (type.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) || type.IsDefined(typeof(ControllerAttribute)));
     }
 }

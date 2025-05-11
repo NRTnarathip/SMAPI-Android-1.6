@@ -264,8 +264,8 @@ internal class InstructionMetadata
                 .MapFacade<SObject, ObjectFacade>()
                 .MapFacade<SoundEffect, SoundEffectFacade>()
                 .MapFacade<SpriteText, SpriteTextFacade>()
-                .MapFacade<Stats, StatsFacade_160>()
-                .MapFacade<Stats, StatsFacade_1615>()
+                .MapFacade<Stats, Stats_160_Facade>()
+                .MapFacade<Stats, Stats_1615_Facade>()
                 .MapFacade<StorageFurniture, StorageFurnitureFacade>()
                 .MapFacade<TemporaryAnimatedSprite, TemporaryAnimatedSpriteFacade>()
                 .MapFacade<TerrainFeature, TerrainFeatureFacade>()
@@ -398,8 +398,7 @@ internal class InstructionMetadata
         {
             // filesystem access
             yield return new TypeFinder(
-                new[]
-                {
+                [
                     typeof(System.IO.File).FullName!,
                     typeof(System.IO.FileStream).FullName!,
                     typeof(System.IO.FileInfo).FullName!,
@@ -407,7 +406,7 @@ internal class InstructionMetadata
                     typeof(System.IO.DirectoryInfo).FullName!,
                     typeof(System.IO.DriveInfo).FullName!,
                     typeof(System.IO.FileSystemWatcher).FullName!
-                },
+                ],
                 InstructionHandleResult.DetectedFilesystemAccess
             );
 

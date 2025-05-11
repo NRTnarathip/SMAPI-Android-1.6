@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Enums;
-using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.StateTracking.Snapshots;
@@ -14,7 +13,7 @@ internal class PlayerSnapshot
     ** Fields
     *********/
     /// <summary>An empty item list diff.</summary>
-    private readonly SnapshotItemListDiff EmptyItemListDiff = new(Array.Empty<Item>(), Array.Empty<Item>(), Array.Empty<ItemStackSizeChange>());
+    private readonly SnapshotItemListDiff EmptyItemListDiff = new([], [], []);
 
 
     /*********

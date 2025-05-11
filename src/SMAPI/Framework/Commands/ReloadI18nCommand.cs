@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Framework.Commands;
 
 /// <summary>The 'reload_i18n' SMAPI console command.</summary>
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "The 'n' shouldn't be capitalized since i18n is one word.")]
 internal class ReloadI18nCommand : IInternalCommand
 {
     /*********
@@ -26,7 +28,7 @@ internal class ReloadI18nCommand : IInternalCommand
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="reloadTranslations">Reload translations for all mods..</param>
+    /// <param name="reloadTranslations">Reload translations for all mods.</param>
     public ReloadI18nCommand(Action reloadTranslations)
     {
         this.ReloadTranslations = reloadTranslations;

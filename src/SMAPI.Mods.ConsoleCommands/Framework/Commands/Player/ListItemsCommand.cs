@@ -40,13 +40,13 @@ internal class ListItemsCommand : ConsoleCommand
         SearchableItem[] matches =
             (
                 from item in this.GetItems(args.ToArray())
-                orderby item.Type.ToString(), item.Name
+                orderby item.Type, item.Name
                 select item
             )
             .ToArray();
         string summary = "Searching...\n";
         if (matches.Any())
-            monitor.Log(summary + this.GetTableString(matches, new[] { "name", "id" }, val => new[] { val.Name, val.QualifiedItemId }), LogLevel.Info);
+            monitor.Log(summary + this.GetTableString(matches, ["name", "id"], val => [val.Name, val.QualifiedItemId]), LogLevel.Info);
         else
             monitor.Log(summary + "No items found", LogLevel.Info);
     }

@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Web.Framework.Clients.Nexus.ResponseModels;
@@ -56,6 +55,6 @@ internal class NexusMod
     {
         this.Status = status;
         this.Error = error;
-        this.Downloads = Array.Empty<IModDownload>();
+        this.Downloads = [];
     }
 }

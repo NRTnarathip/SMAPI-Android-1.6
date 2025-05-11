@@ -43,7 +43,7 @@ internal abstract class BaseContentManager : LocalizedContentManager, IContentMa
     private readonly Action<BaseContentManager> OnDisposing;
 
     /// <summary>A list of disposable assets.</summary>
-    private readonly List<WeakReference<IDisposable>> Disposables = new();
+    private readonly List<WeakReference<IDisposable>> Disposables = [];
 
     /// <summary>The disposable assets tracked by the base content manager.</summary>
     /// <remarks>This should be kept empty to avoid keeping disposable assets referenced forever, which prevents garbage collection when they're unused. Disposable assets are tracked by <see cref="Disposables"/> instead, which avoids a hard reference.</remarks>

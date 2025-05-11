@@ -19,10 +19,10 @@ internal class ManagedEvent<TEventArgs> : IManagedEvent
     protected readonly ModRegistry ModRegistry;
 
     /// <summary>The underlying event handlers.</summary>
-    private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new();
+    private readonly List<ManagedEventHandler<TEventArgs>> Handlers = [];
 
     /// <summary>A cached snapshot of the <see cref="Handlers"/> sorted by event priority, or <c>null</c> to rebuild it next raise.</summary>
-    private ManagedEventHandler<TEventArgs>[]? CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
+    private ManagedEventHandler<TEventArgs>[]? CachedHandlers = [];
 
     /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
     private int RegistrationIndex;

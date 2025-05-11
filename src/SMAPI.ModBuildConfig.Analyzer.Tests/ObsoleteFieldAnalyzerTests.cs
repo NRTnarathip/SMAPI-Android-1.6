@@ -69,7 +69,7 @@ public class ObsoleteFieldAnalyzerTests : DiagnosticVerifier
             Id = "AvoidObsoleteField",
             Message = $"The '{oldName}' field is obsolete and should be replaced with '{newName}'. See https://smapi.io/package/avoid-obsolete-field for details.",
             Severity = DiagnosticSeverity.Warning,
-            Locations = new[] { new DiagnosticResultLocation("Test0.cs", ObsoleteFieldAnalyzerTests.SampleCodeLine, ObsoleteFieldAnalyzerTests.SampleCodeColumn + column) }
+            Locations = [new DiagnosticResultLocation("Test0.cs", ObsoleteFieldAnalyzerTests.SampleCodeLine, ObsoleteFieldAnalyzerTests.SampleCodeColumn + column)]
         };
 
         // assert

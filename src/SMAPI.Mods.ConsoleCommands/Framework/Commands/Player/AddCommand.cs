@@ -41,7 +41,7 @@ internal class AddCommand : ConsoleCommand
 
         // find matching item
         SearchableItem? match = id != null
-            ? this.FindItemByID(monitor, id)
+            ? this.FindItemById(monitor, id)
             : this.FindItemByName(monitor, name);
         if (match == null)
             return;
@@ -119,7 +119,7 @@ internal class AddCommand : ConsoleCommand
     /// <summary>Get a matching item by its ID.</summary>
     /// <param name="monitor">Writes messages to the console and log file.</param>
     /// <param name="id">The qualified item ID.</param>
-    private SearchableItem? FindItemByID(IMonitor monitor, string id)
+    private SearchableItem? FindItemById(IMonitor monitor, string id)
     {
         SearchableItem? item = this.Items
             .GetAll()
@@ -156,8 +156,8 @@ internal class AddCommand : ConsoleCommand
         // handle ambiguous results
         string options = this.GetTableString(
             data: matches,
-            header: new[] { "type", "name", "command" },
-            getRow: item => new[] { item.Type.ToString(), item.DisplayName, $"player_add {item.QualifiedItemId}" }
+            header: ["type", "name", "command"],
+            getRow: item => [item.Type.ToString(), item.DisplayName, $"player_add {item.QualifiedItemId}"]
         );
         monitor.Log($"Multiple items have a name containing '{name}'. Do you mean one of these?\n\n{options}", LogLevel.Info);
         return null;

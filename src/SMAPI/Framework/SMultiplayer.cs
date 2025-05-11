@@ -173,8 +173,8 @@ internal class SMultiplayer : Multiplayer
 
                     // store peer
                     MultiplayerPeer newPeer = new(
-                        playerID: message.FarmerID,
-                        screenID: this.GetScreenId(message.FarmerID),
+                        playerId: message.FarmerID,
+                        screenId: this.GetScreenId(message.FarmerID),
                         model: model,
                         sendMessage: sendMessage,
                         isHost: false
@@ -222,8 +222,8 @@ internal class SMultiplayer : Multiplayer
                 {
                     this.Monitor.Log($"Received connection for vanilla player {message.FarmerID}.");
                     MultiplayerPeer peer = new(
-                        playerID: message.FarmerID,
-                        screenID: this.GetScreenId(message.FarmerID),
+                        playerId: message.FarmerID,
+                        screenId: this.GetScreenId(message.FarmerID),
                         model: null,
                         sendMessage: sendMessage,
                         isHost: false
@@ -271,8 +271,8 @@ internal class SMultiplayer : Multiplayer
 
                     // store peer
                     MultiplayerPeer peer = new(
-                        playerID: message.FarmerID,
-                        screenID: this.GetScreenId(message.FarmerID),
+                        playerId: message.FarmerID,
+                        screenId: this.GetScreenId(message.FarmerID),
                         model: model,
                         sendMessage: sendMessage,
                         isHost: model?.IsHost ?? this.HostPeer == null
@@ -294,8 +294,8 @@ internal class SMultiplayer : Multiplayer
                     {
                         this.Monitor.Log($"Received connection for vanilla host {message.FarmerID}.");
                         var peer = new MultiplayerPeer(
-                            playerID: message.FarmerID,
-                            screenID: this.GetScreenId(message.FarmerID),
+                            playerId: message.FarmerID,
+                            screenId: this.GetScreenId(message.FarmerID),
                             model: null,
                             sendMessage: sendMessage,
                             isHost: true
@@ -313,8 +313,8 @@ internal class SMultiplayer : Multiplayer
                     if (!this.Peers.TryGetValue(message.FarmerID, out MultiplayerPeer? peer))
                     {
                         peer = new MultiplayerPeer(
-                            playerID: message.FarmerID,
-                            screenID: this.GetScreenId(message.FarmerID),
+                            playerId: message.FarmerID,
+                            screenId: this.GetScreenId(message.FarmerID),
                             model: null,
                             sendMessage: sendMessage,
                             isHost: this.HostPeer == null
@@ -341,12 +341,12 @@ internal class SMultiplayer : Multiplayer
     /// <summary>Remove players who are disconnecting.</summary>
     protected override void removeDisconnectedFarmers()
     {
-        foreach (long playerID in this.disconnectingFarmers)
+        foreach (long playerId in this.disconnectingFarmers)
         {
-            if (this.Peers.TryGetValue(playerID, out MultiplayerPeer? peer))
+            if (this.Peers.TryGetValue(playerId, out MultiplayerPeer? peer))
             {
-                this.Monitor.Log($"Player quit: {playerID}");
-                this.Peers.Remove(playerID);
+                this.Monitor.Log($"Player quit: {playerId}");
+                this.Peers.Remove(playerId);
 
                 if (this.EventManager.PeerDisconnected.HasListeners)
                     this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
@@ -359,52 +359,52 @@ internal class SMultiplayer : Multiplayer
     /// <summary>Broadcast a mod message to matching players.</summary>
     /// <param name="message">The data to send over the network.</param>
     /// <param name="messageType">A message type which receiving mods can use to decide whether it's the one they want to handle, like <c>SetPlayerLocation</c>. This doesn't need to be globally unique, since mods should check the originating mod ID.</param>
-    /// <param name="fromModID">The unique ID of the mod sending the message.</param>
-    /// <param name="toModIDs">The mod IDs which should receive the message on the destination computers, or <c>null</c> for all mods. Specifying mod IDs is recommended to improve performance, unless it's a general-purpose broadcast.</param>
-    /// <param name="toPlayerIDs">The <see cref="Farmer.UniqueMultiplayerID" /> values for the players who should receive the message, or <c>null</c> for all players. If you don't need to broadcast to all players, specifying player IDs is recommended to reduce latency.</param>
-    public void BroadcastModMessage<TMessage>(TMessage message, string messageType, string fromModID, string[]? toModIDs, long[]? toPlayerIDs)
+    /// <param name="fromModId">The unique ID of the mod sending the message.</param>
+    /// <param name="toModIds">The mod IDs which should receive the message on the destination computers, or <c>null</c> for all mods. Specifying mod IDs is recommended to improve performance, unless it's a general-purpose broadcast.</param>
+    /// <param name="toPlayerIds">The <see cref="Farmer.UniqueMultiplayerID" /> values for the players who should receive the message, or <c>null</c> for all players. If you don't need to broadcast to all players, specifying player IDs is recommended to reduce latency.</param>
+    public void BroadcastModMessage<TMessage>(TMessage message, string messageType, string fromModId, string[]? toModIds, long[]? toPlayerIds)
     {
         // validate input
         if (message == null)
             throw new ArgumentNullException(nameof(message));
         if (string.IsNullOrWhiteSpace(messageType))
             throw new ArgumentNullException(nameof(messageType));
-        if (string.IsNullOrWhiteSpace(fromModID))
-            throw new ArgumentNullException(nameof(fromModID));
+        if (string.IsNullOrWhiteSpace(fromModId))
+            throw new ArgumentNullException(nameof(fromModId));
 
         // get valid peers
         var sendToPeers = this.Peers.Values.Where(p => p.HasSmapi).ToList();
         bool sendToSelf = true;
 
         // filter by player ID
-        if (toPlayerIDs != null)
+        if (toPlayerIds != null)
         {
-            var ids = new HashSet<long>(toPlayerIDs);
+            var ids = new HashSet<long>(toPlayerIds);
             sendToPeers.RemoveAll(peer => !ids.Contains(peer.PlayerID));
             sendToSelf = ids.Contains(Game1.player.UniqueMultiplayerID);
         }
 
         // filter by mod ID
-        if (toModIDs != null)
+        if (toModIds != null)
         {
-            var ids = new HashSet<string>(toModIDs, StringComparer.OrdinalIgnoreCase);
+            var ids = new HashSet<string>(toModIds, StringComparer.OrdinalIgnoreCase);
             sendToPeers.RemoveAll(peer => peer.Mods.All(mod => !ids.Contains(mod.ID)));
-            sendToSelf = sendToSelf && toModIDs.Any(id => this.ModRegistry.Get(id) != null);
+            sendToSelf = sendToSelf && toModIds.Any(id => this.ModRegistry.Get(id) != null);
         }
 
         // validate recipients
         if (!sendToSelf && !sendToPeers.Any())
         {
-            this.Monitor.VerboseLog($"Ignored '{messageType}' broadcast from mod {fromModID}: none of the specified player IDs can receive this message.");
+            this.Monitor.VerboseLog($"Ignored '{messageType}' broadcast from mod {fromModId}: none of the specified player IDs can receive this message.");
             return;
         }
 
         // get data to send
         ModMessageModel model = new(
-            fromPlayerID: Game1.player.UniqueMultiplayerID,
-            fromModID: fromModID,
-            toModIDs: toModIDs,
-            toPlayerIDs: sendToPeers.Select(p => p.PlayerID).ToArray(),
+            fromPlayerId: Game1.player.UniqueMultiplayerID,
+            fromModId: fromModId,
+            toModIds: toModIds,
+            toPlayerIds: sendToPeers.Select(p => p.PlayerID).ToArray(),
             type: messageType,
             data: JToken.FromObject(message)
         );
@@ -502,22 +502,22 @@ internal class SMultiplayer : Multiplayer
         }
 
         // get player IDs
-        HashSet<long> playerIDs = new HashSet<long>(model.ToPlayerIDs ?? this.GetKnownPlayerIDs());
+        HashSet<long> playerIds = new(model.ToPlayerIds ?? this.GetKnownPlayerIds());
 
         // notify local mods
-        if (playerIDs.Contains(Game1.player.UniqueMultiplayerID))
+        if (playerIds.Contains(Game1.player.UniqueMultiplayerID))
             this.OnModMessageReceived(model);
 
         // forward to other players
-        if (Context.IsMainPlayer && playerIDs.Any(p => p != Game1.player.UniqueMultiplayerID))
+        if (Context.IsMainPlayer && playerIds.Any(p => p != Game1.player.UniqueMultiplayerID))
         {
-            foreach (long playerID in playerIDs)
+            foreach (long playerId in playerIds)
             {
-                if (playerID != Game1.player.UniqueMultiplayerID && playerID != model.FromPlayerID && this.Peers.TryGetValue(playerID, out MultiplayerPeer? peer))
+                if (playerId != Game1.player.UniqueMultiplayerID && playerId != model.FromPlayerId && this.Peers.TryGetValue(playerId, out MultiplayerPeer? peer))
                 {
                     ModMessageModel newModel = new(model)
                     {
-                        ToPlayerIDs = new[] { peer.PlayerID }
+                        ToPlayerIds = [peer.PlayerID]
                     };
 
                     this.Monitor.VerboseLog($"  Forwarding message to player {peer.PlayerID}.");
@@ -535,11 +535,11 @@ internal class SMultiplayer : Multiplayer
     }
 
     /// <summary>Get all connected player IDs, including the current player.</summary>
-    private IEnumerable<long> GetKnownPlayerIDs()
+    private IEnumerable<long> GetKnownPlayerIds()
     {
         yield return Game1.player.UniqueMultiplayerID;
-        foreach (long peerID in this.Peers.Keys)
-            yield return peerID;
+        foreach (long peerId in this.Peers.Keys)
+            yield return peerId;
     }
 
     /// <summary>Get the fields to include in a context sync message sent to other players.</summary>
@@ -560,7 +560,7 @@ internal class SMultiplayer : Multiplayer
                 .ToArray()
         );
 
-        return new object[] { this.JsonHelper.Serialize(model, Formatting.None) };
+        return [this.JsonHelper.Serialize(model, Formatting.None)];
     }
 
     /// <summary>Get the fields to include in a context sync message sent to other players.</summary>
@@ -568,7 +568,7 @@ internal class SMultiplayer : Multiplayer
     private object[] GetContextSyncMessageFields(IMultiplayerPeer peer)
     {
         if (!peer.HasSmapi)
-            return new object[] { "{}" };
+            return ["{}"];
 
         RemoteContextModel model = new(
             isHost: peer.IsHost,
@@ -584,6 +584,6 @@ internal class SMultiplayer : Multiplayer
                 .ToArray()
         );
 
-        return new object[] { this.JsonHelper.Serialize(model, Formatting.None) };
+        return [this.JsonHelper.Serialize(model, Formatting.None)];
     }
 }

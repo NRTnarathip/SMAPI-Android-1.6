@@ -54,7 +54,7 @@ public static class ManifestValidator
 
         // validate required fields
         {
-            List<string> missingFields = new List<string>(3);
+            List<string> missingFields = new(3);
 
             if (string.IsNullOrWhiteSpace(manifest.Name))
                 missingFields.Add(nameof(IManifest.Name));

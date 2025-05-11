@@ -49,7 +49,7 @@ public class ObsoleteFieldAnalyzer : DiagnosticAnalyzer
     /// <summary>Construct an instance.</summary>
     public ObsoleteFieldAnalyzer()
     {
-        this.SupportedDiagnostics = ImmutableArray.CreateRange(this.Rules.Values);
+        this.SupportedDiagnostics = [.. this.Rules.Values];
     }
 
     /// <summary>Called once at session start to register actions in the analysis context.</summary>

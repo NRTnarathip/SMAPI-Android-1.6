@@ -53,6 +53,9 @@ internal class LogParserController : Controller
         if (string.IsNullOrWhiteSpace(id))
             return this.View("Index", this.GetModel(id));
 
+        // don't index uploaded logs in search engines
+        this.Response.Headers["X-Robots-Tag"] = "noindex";
+
         // fetch log
         StoredFileInfo file = await this.Storage.GetAsync(id, renew);
 
@@ -92,7 +95,7 @@ internal class LogParserController : Controller
         // note: avoid this.Request.Form, which fails if any mod logged a null character.
         string? input;
         {
-            using StreamReader reader = new StreamReader(this.Request.Body);
+            using StreamReader reader = new(this.Request.Body);
             NameValueCollection parsed = HttpUtility.ParseQueryString(await reader.ReadToEndAsync());
             input = parsed["input"];
             if (string.IsNullOrWhiteSpace(input))
@@ -113,16 +116,16 @@ internal class LogParserController : Controller
     ** Private methods
     *********/
     /// <summary>Build a log parser model.</summary>
-    /// <param name="pasteID">The stored file ID.</param>
+    /// <param name="pasteId">The stored file ID.</param>
     /// <param name="oldExpiry">When the uploaded file would no longer have been available, before any renewal applied in this request</param>
     /// <param name="newExpiry">When the file will no longer be available, after any renewal applied in this request.</param>
     /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
     /// <param name="uploadError">An error which occurred while uploading the log.</param>
-    private LogParserModel GetModel(string? pasteID, DateTimeOffset? oldExpiry = null, DateTimeOffset? newExpiry = null, string? uploadWarning = null, string? uploadError = null)
+    private LogParserModel GetModel(string? pasteId, DateTimeOffset? oldExpiry = null, DateTimeOffset? newExpiry = null, string? uploadWarning = null, string? uploadError = null)
     {
         Platform? platform = this.DetectClientPlatform();
 
-        return new LogParserModel(pasteID, platform)
+        return new LogParserModel(pasteId, platform)
         {
             UploadWarning = uploadWarning,
             UploadError = uploadError,

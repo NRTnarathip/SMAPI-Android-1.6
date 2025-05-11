@@ -130,8 +130,16 @@ internal class ModRegistryHelper : BaseHelper, IModRegistry
         }
 
         // get API of type
-        return api is TInterface castApi
-            ? castApi
-            : this.ProxyFactory.CreateProxy<TInterface>(api, sourceModID: this.ModID, targetModID: uniqueID);
+        try
+        {
+            return
+                api as TInterface
+                ?? this.ProxyFactory.CreateProxy<TInterface>(api, sourceModId: this.ModID, targetModId: uniqueID);
+        }
+        catch (Exception ex)
+        {
+            this.Monitor.Log($"Tried to map a mod-provided API to interface '{typeof(TInterface).FullName}', which isn't compatible with the actual mod API.\n\nTechnical details: {ex.GetLogSummary()}", LogLevel.Error);
+            return null;
+        }
     }
 }

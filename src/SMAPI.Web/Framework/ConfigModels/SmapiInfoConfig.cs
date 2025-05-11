@@ -1,5 +1,3 @@
-using System;
-
 namespace StardewModdingAPI.Web.Framework.ConfigModels;
 
 /// <summary>The update-check config for SMAPI's own update checks.</summary>
@@ -12,5 +10,5 @@ internal class SmapiInfoConfig
     public string DefaultUpdateKey { get; set; } = null!;
 
     /// <summary>The update keys to add for SMAPI update checks when the player has a beta version installed.</summary>
-    public string[] AddBetaUpdateKeys { get; set; } = Array.Empty<string>();
+    public string[] AddBetaUpdateKeys { get; set; } = [];
 }

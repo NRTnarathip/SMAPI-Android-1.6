@@ -12,7 +12,7 @@ internal class InventoryToNetObjectList : NetObjectList<Item>
     ** Fields
     *********/
     /// <summary>A cached lookup of inventory wrappers.</summary>
-    private static readonly Dictionary<Inventory, InventoryToNetObjectList> CachedWrappers = new Dictionary<Inventory, InventoryToNetObjectList>(ReferenceEqualityComparer.Instance);
+    private static readonly Dictionary<Inventory, InventoryToNetObjectList> CachedWrappers = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>The underlying inventory to track.</summary>
     private readonly Inventory Inventory;

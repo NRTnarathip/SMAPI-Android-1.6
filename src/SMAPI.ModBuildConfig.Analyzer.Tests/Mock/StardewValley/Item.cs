@@ -23,11 +23,11 @@ public class Item
     public NetRef<object> netRefProperty { get; } = new();
 
     /// <summary>A sample net list.</summary>
-    public readonly NetList<int> netList = new();
+    public readonly NetList<int> netList = [];
 
     /// <summary>A sample net object list.</summary>
-    public readonly NetObjectList<int> netObjectList = new();
+    public readonly NetObjectList<int> netObjectList = [];
 
     /// <summary>A sample net collection.</summary>
-    public readonly NetCollection<int> netCollection = new();
+    public readonly NetCollection<int> netCollection = [];
 }

@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -55,6 +54,6 @@ internal class GitRelease
         this.Body = body ?? string.Empty;
         this.IsDraft = isDraft;
         this.IsPrerelease = isPrerelease;
-        this.Assets = assets ?? Array.Empty<GitAsset>();
+        this.Assets = assets ?? [];
     }
 }

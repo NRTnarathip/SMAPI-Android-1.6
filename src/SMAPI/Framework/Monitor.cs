@@ -30,7 +30,7 @@ internal class Monitor : IMonitor
     private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(level => level, level => level.ToString().ToUpperInvariant().PadRight(Monitor.MaxLevelLength));
 
     /// <summary>A cache of messages that should only be logged once.</summary>
-    private readonly HashSet<LogOnceCacheKey> LogOnceCache = new();
+    private readonly HashSet<LogOnceCacheKey> LogOnceCache = [];
 
     /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
     private readonly Func<int?> GetScreenIdForLog;

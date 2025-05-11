@@ -74,7 +74,7 @@ public class ChangeDescriptor
                 where value.Length > 0
                 select value
             )
-            : new List<string>();
+            : [];
 
         // apply changes
         this.Apply(values);
@@ -108,7 +108,7 @@ public class ChangeDescriptor
         // add values
         if (this.Add.Any())
         {
-            HashSet<string> curValues = new HashSet<string>(values.Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
+            HashSet<string> curValues = new(values.Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
             foreach (string add in this.Add)
             {
                 if (!curValues.Contains(add))
@@ -126,7 +126,7 @@ public class ChangeDescriptor
         if (!this.HasChanges)
             return string.Empty;
 
-        List<string> descriptors = new List<string>(this.Add.Count + this.Remove.Count + this.Replace.Count);
+        List<string> descriptors = new(this.Add.Count + this.Remove.Count + this.Replace.Count);
         foreach (string add in this.Add)
             descriptors.Add($"+{add}");
         foreach (string remove in this.Remove)
@@ -148,7 +148,7 @@ public class ChangeDescriptor
         // parse each change in the descriptor
         if (!string.IsNullOrWhiteSpace(descriptor))
         {
-            List<string> rawErrors = new List<string>();
+            List<string> rawErrors = [];
             foreach (string rawEntry in descriptor.Split(','))
             {
                 // normalize entry
@@ -159,7 +159,7 @@ public class ChangeDescriptor
                 // parse as replace (old value → new value)
                 if (entry.Contains('→'))
                 {
-                    string[] parts = entry.Split(new[] { '→' }, 2);
+                    string[] parts = entry.Split(['→'], 2);
                     string oldValue = parts[0].Trim();
                     string newValue = parts[1].Trim();
 

@@ -38,8 +38,8 @@ public class ModDataRecord
     internal ModDataRecord(string displayName, ModDataModel model)
     {
         this.DisplayName = displayName;
-        this.ID = model.ID;
-        this.FormerIDs = model.GetFormerIDs().ToArray();
+        this.ID = model.Id;
+        this.FormerIDs = model.GetFormerIds().ToArray();
         this.SuppressWarnings = model.SuppressWarnings;
         this.IgnoreDependencies = model.IgnoreDependencies;
         this.Fields = model.GetFields().ToArray();
@@ -47,16 +47,16 @@ public class ModDataRecord
 
     /// <summary>Get whether the mod has (or previously had) the given ID.</summary>
     /// <param name="id">The mod ID.</param>
-    public bool HasID(string id)
+    public bool HasId(string id)
     {
         // try main ID
         if (this.ID.Equals(id, StringComparison.OrdinalIgnoreCase))
             return true;
 
         // try former IDs
-        foreach (string formerID in this.FormerIDs)
+        foreach (string formerId in this.FormerIDs)
         {
-            if (formerID.Equals(id, StringComparison.OrdinalIgnoreCase))
+            if (formerId.Equals(id, StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
@@ -64,10 +64,10 @@ public class ModDataRecord
     }
 
     /// <summary>Get the possible mod IDs.</summary>
-    public IEnumerable<string> GetIDs()
+    public IEnumerable<string> GetIds()
     {
         return this.FormerIDs
-            .Concat(new[] { this.ID })
+            .Concat([this.ID])
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .Select(p => p.Trim())
             .Distinct();
@@ -76,7 +76,7 @@ public class ModDataRecord
     /// <summary>Get the default update key for this mod, if any.</summary>
     public string? GetDefaultUpdateKey()
     {
-        string? updateKey = this.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
+        string? updateKey = this.Fields.FirstOrDefault(p => p is { Key: ModDataFieldKey.UpdateKey, IsDefault: true })?.Value;
         return !string.IsNullOrWhiteSpace(updateKey)
             ? updateKey
             : null;

@@ -38,6 +38,18 @@ internal class TranslationHelper : BaseHelper, ITranslationHelper
     }
 
     /// <inheritdoc />
+    public bool ContainsKey(string key)
+    {
+        return this.Translator.ContainsKey(key);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> GetKeys()
+    {
+        return this.Translator.GetKeys();
+    }
+
+    /// <inheritdoc />
     public IEnumerable<Translation> GetTranslations()
     {
         return this.Translator.GetTranslations();

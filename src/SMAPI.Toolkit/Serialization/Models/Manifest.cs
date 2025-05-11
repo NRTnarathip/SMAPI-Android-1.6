@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -57,15 +56,15 @@ public class Manifest : IManifest
     ** Public methods
     *********/
     /// <summary>Construct an instance for a transitional content pack.</summary>
-    /// <param name="uniqueID">The unique mod ID.</param>
+    /// <param name="uniqueId">The unique mod ID.</param>
     /// <param name="name">The mod name.</param>
     /// <param name="author">The mod author's name.</param>
     /// <param name="description">A brief description of the mod.</param>
     /// <param name="version">The mod version.</param>
-    /// <param name="contentPackFor">The modID which will read this as a content pack.</param>
-    public Manifest(string uniqueID, string name, string author, string description, ISemanticVersion version, string? contentPackFor = null)
+    /// <param name="contentPackFor">The mod ID which will read this as a content pack.</param>
+    public Manifest(string uniqueId, string name, string author, string description, ISemanticVersion version, string? contentPackFor = null)
         : this(
-            uniqueId: uniqueID,
+            uniqueId: uniqueId,
             name: name,
             author: author,
             description: description,
@@ -90,7 +89,7 @@ public class Manifest : IManifest
     /// <param name="minimumApiVersion">The minimum SMAPI version required by this mod, if any.</param>
     /// <param name="minimumGameVersion">The minimum Stardew Valley version required by this mod, if any.</param>
     /// <param name="entryDll">The name of the DLL in the directory that has the <c>Entry</c> method. Mutually exclusive with <see cref="ContentPackFor"/>.</param>
-    /// <param name="contentPackFor">The modID which will read this as a content pack.</param>
+    /// <param name="contentPackFor">The mod ID which will read this as a content pack.</param>
     /// <param name="dependencies">The other mods that must be loaded before this mod.</param>
     /// <param name="updateKeys">The namespaced mod IDs to query for updates (like <c>Nexus:541</c>).</param>
     [JsonConstructor]
@@ -105,8 +104,8 @@ public class Manifest : IManifest
         this.MinimumGameVersion = minimumGameVersion;
         this.EntryDll = this.NormalizeField(entryDll);
         this.ContentPackFor = contentPackFor;
-        this.Dependencies = dependencies ?? Array.Empty<IManifestDependency>();
-        this.UpdateKeys = updateKeys ?? Array.Empty<string>();
+        this.Dependencies = dependencies ?? [];
+        this.UpdateKeys = updateKeys ?? [];
     }
 
     /// <summary>Override the update keys loaded from the mod info.</summary>

@@ -269,7 +269,7 @@ internal class ReplaceReferencesRewriter : BaseInstructionHandler
             }
 
             // map constructor to static methods
-            if (method.IsStatic && method.Name == "Constructor")
+            if (method is { IsStatic: true, Name: "Constructor" })
             {
                 string fromFullName = $"System.Void {fromTypeName}::.ctor({this.FormatCecilParameterList(method.GetParameters())})";
                 this.MapMember(fromFullName, method, "method");

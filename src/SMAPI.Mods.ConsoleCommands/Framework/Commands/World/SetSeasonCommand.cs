@@ -13,7 +13,7 @@ internal class SetSeasonCommand : ConsoleCommand
     ** Fields
     *********/
     /// <summary>The valid season names.</summary>
-    private readonly string[] ValidSeasons = { "winter", "spring", "summer", "fall" };
+    private readonly string[] ValidSeasons = ["winter", "spring", "summer", "fall"];
 
 
     /*********

@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialization.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -18,9 +20,11 @@ public class ModSearchModel
     public bool IncludeExtendedMetadata { get; set; }
 
     /// <summary>The SMAPI version installed by the player. This is used for version mapping in some cases.</summary>
+    [JsonConverter(typeof(NonStandardSemanticVersionConverter))]
     public ISemanticVersion ApiVersion { get; set; }
 
     /// <summary>The Stardew Valley version installed by the player.</summary>
+    [JsonConverter(typeof(NonStandardSemanticVersionConverter))]
     public ISemanticVersion GameVersion { get; set; }
 
     /// <summary>The OS on which the player plays.</summary>
@@ -38,7 +42,7 @@ public class ModSearchModel
         // ASP.NET Web API needs a public empty constructor for top-level request models, and
         // it'll fail if the other constructor is marked with [JsonConstructor]. Apparently
         // it's fine with non-empty constructors in nested models like ModSearchEntryModel.
-        this.Mods = Array.Empty<ModSearchEntryModel>();
+        this.Mods = [];
         this.ApiVersion = null!;
         this.GameVersion = null!;
     }

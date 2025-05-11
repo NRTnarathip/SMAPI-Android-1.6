@@ -39,7 +39,7 @@ internal class ContentPackFileManager : IModFileManager
     public ContentPackFileManager(string projectDir, string contentPackDir, string version, string[] ignoreFilePaths, Regex[] ignoreFilePatterns, bool validateManifest)
     {
         // get folders
-        DirectoryInfo projectDirInfo = new DirectoryInfo(Path.Combine(projectDir, contentPackDir));
+        DirectoryInfo projectDirInfo = new(Path.Combine(projectDir, contentPackDir));
         if (!projectDirInfo.Exists)
             throw GetError($"that folder doesn't exist at {projectDirInfo.FullName}");
 

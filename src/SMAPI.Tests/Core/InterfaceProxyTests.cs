@@ -30,7 +30,7 @@ internal class InterfaceProxyTests
     private readonly Random Random = new();
 
     /// <summary>The proxy factory to use in unit tests.</summary>
-    private static readonly IInterfaceProxyFactory[] ProxyFactories = { new InterfaceProxyFactory() };
+    private static readonly IInterfaceProxyFactory[] ProxyFactories = [new InterfaceProxyFactory()];
 
 
     /*********
@@ -122,7 +122,7 @@ internal class InterfaceProxyTests
             case "set via proxy interface":
                 proxy.NumberProperty = expectedNumber;
                 proxy.ObjectProperty = expectedObject;
-                proxy.ListProperty = new() { expectedListValue };
+                proxy.ListProperty = [expectedListValue];
                 proxy.ListPropertyWithInterface = new List<string> { expectedListWithInterfaceValue };
                 proxy.GenericsProperty = new Dictionary<string, IList<string>>
                 {

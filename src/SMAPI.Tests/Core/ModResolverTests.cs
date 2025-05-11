@@ -11,7 +11,6 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
-using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using SemanticVersion = StardewModdingAPI.SemanticVersion;
@@ -144,7 +143,7 @@ public class ModResolverTests
         mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
 
         // assert
         mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
@@ -154,14 +153,14 @@ public class ModResolverTests
     public void ValidateManifests_ModStatus_AssumeBroken_Fails()
     {
         // arrange
-        Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
+        Mock<IModMetadata> mock = this.GetMetadata("Mod A", [], allowStatusChange: true);
         mock.Setup(p => p.DataRecord).Returns(() => new ModDataRecordVersionedFields(this.GetModDataRecord())
         {
             Status = ModStatus.AssumeBroken
         });
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
 
         // assert
         mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -171,11 +170,11 @@ public class ModResolverTests
     public void ValidateManifests_MinimumApiVersion_Fails()
     {
         // arrange
-        Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
+        Mock<IModMetadata> mock = this.GetMetadata("Mod A", [], allowStatusChange: true);
         mock.Setup(p => p.Manifest).Returns(this.GetManifest(minimumApiVersion: "1.1"));
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
 
         // assert
         mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -185,11 +184,11 @@ public class ModResolverTests
     public void ValidateManifests_MinimumGameVersion_Fails()
     {
         // arrange
-        Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
+        Mock<IModMetadata> mock = this.GetMetadata("Mod A", [], allowStatusChange: true);
         mock.Setup(p => p.Manifest).Returns(this.GetManifest(minimumGameVersion: "1.6.9"));
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
 
         // assert
         mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -204,7 +203,7 @@ public class ModResolverTests
         Directory.CreateDirectory(directoryPath);
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup);
 
         // assert
         mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -214,14 +213,14 @@ public class ModResolverTests
     }
 
     [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
-    public void ValidateManifests_DuplicateUniqueID_Fails()
+    public void ValidateManifests_DuplicateUniqueId_Fails()
     {
         // arrange
-        Mock<IModMetadata> modA = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
+        Mock<IModMetadata> modA = this.GetMetadata("Mod A", [], allowStatusChange: true);
         Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod A", name: "Mod B", version: "1.0"), allowStatusChange: true);
 
         // act
-        new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
+        new ModResolver().ValidateManifests([modA.Object, modB.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup, validateFilesExist: false);
 
         // assert
         modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, ModFailReason.Duplicate, It.IsAny<string>(), It.IsAny<string>()), Times.AtLeastOnce, "The validation did not fail the first mod with a unique ID.");
@@ -247,7 +246,7 @@ public class ModResolverTests
         mock.Setup(p => p.DirectoryPath).Returns(modFolder);
 
         // act
-        new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup);
+        new ModResolver().ValidateManifests([mock.Object], apiVersion: new SemanticVersion("1.0.0"), gameVersion: new SemanticVersion("1.0.0"), getUpdateUrl: _ => null, getFileLookup: this.GetFileLookup);
 
         // assert
         // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
@@ -279,7 +278,7 @@ public class ModResolverTests
         Mock<IModMetadata> modC = this.GetMetadata("Mod C");
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object, modC.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modA.Object, modB.Object, modC.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(3, "it should match number of mods input");
@@ -296,7 +295,7 @@ public class ModResolverTests
         mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
         // act
-        new ModResolver().ProcessDependencies(new[] { mock.Object }, new ModDatabase());
+        new ModResolver().ProcessDependencies([mock.Object], new ModDatabase());
 
         // assert
         mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
@@ -311,11 +310,11 @@ public class ModResolverTests
         // │     │
         // └─ C ─┘
         Mock<IModMetadata> modA = this.GetMetadata("Mod A");
-        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
-        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod A", "Mod B" });
+        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: ["Mod A"]);
+        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: ["Mod A", "Mod B"]);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modC.Object, modA.Object, modB.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(3, "it should match number of mods input");
@@ -330,12 +329,12 @@ public class ModResolverTests
         // arrange
         // A ◀── B ◀── C ◀── D
         Mock<IModMetadata> modA = this.GetMetadata("Mod A");
-        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
-        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" });
-        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod C" });
+        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: ["Mod A"]);
+        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: ["Mod B"]);
+        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: ["Mod C"]);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modC.Object, modA.Object, modB.Object, modD.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(4, "it should match number of mods input");
@@ -354,14 +353,14 @@ public class ModResolverTests
         //       │     │
         //       E ◀── F
         Mock<IModMetadata> modA = this.GetMetadata("Mod A");
-        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
-        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" });
-        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod C" });
-        Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: new[] { "Mod B" });
-        Mock<IModMetadata> modF = this.GetMetadata("Mod F", dependencies: new[] { "Mod C", "Mod E" });
+        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: ["Mod A"]);
+        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: ["Mod B"]);
+        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: ["Mod C"]);
+        Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: ["Mod B"]);
+        Mock<IModMetadata> modF = this.GetMetadata("Mod F", dependencies: ["Mod C", "Mod E"]);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(6, "it should match number of mods input");
@@ -382,13 +381,13 @@ public class ModResolverTests
         //             │     ▼
         //             └──── E
         Mock<IModMetadata> modA = this.GetMetadata("Mod A");
-        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
-        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B", "Mod D" }, allowStatusChange: true);
-        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod E" }, allowStatusChange: true);
-        Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: new[] { "Mod C" }, allowStatusChange: true);
+        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: ["Mod A"]);
+        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: ["Mod B", "Mod D"], allowStatusChange: true);
+        Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: ["Mod E"], allowStatusChange: true);
+        Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: ["Mod C"], allowStatusChange: true);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modE.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modC.Object, modA.Object, modB.Object, modD.Object, modE.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(5, "it should match number of mods input");
@@ -405,14 +404,14 @@ public class ModResolverTests
         // arrange
         // A ◀── B ◀── C   D (failed)
         Mock<IModMetadata> modA = this.GetMetadata("Mod A");
-        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
-        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
+        Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: ["Mod A"]);
+        Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: ["Mod B"], allowStatusChange: true);
         Mock<IModMetadata> modD = new(MockBehavior.Strict);
         modD.Setup(p => p.Manifest).Returns<IManifest>(null!); // deliberately testing null handling
         modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modC.Object, modA.Object, modB.Object, modD.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(4, "it should match number of mods input");
@@ -428,10 +427,10 @@ public class ModResolverTests
         // arrange
         // A 1.0 ◀── B (need A 1.1)
         Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
-        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.1") }), allowStatusChange: true);
+        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: [new ManifestDependency("Mod A", "1.1")]), allowStatusChange: true);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modA.Object, modB.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(2, "it should match number of mods input");
@@ -444,10 +443,10 @@ public class ModResolverTests
         // arrange
         // A 1.0 ◀── B (need A 1.0-beta)
         Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
-        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0-beta") }), allowStatusChange: false);
+        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: [new ManifestDependency("Mod A", "1.0-beta")]), allowStatusChange: false);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modA.Object, modB.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(2, "it should match number of mods input");
@@ -461,10 +460,10 @@ public class ModResolverTests
         // arrange
         // A ◀── B
         Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
-        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0", required: false) }), allowStatusChange: false);
+        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: [new ManifestDependency("Mod A", "1.0", required: false)]), allowStatusChange: false);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object, modA.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modB.Object, modA.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(2, "it should match number of mods input");
@@ -477,10 +476,10 @@ public class ModResolverTests
     {
         // arrange
         // A ◀── B where A doesn't exist
-        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0", required: false) }), allowStatusChange: false);
+        Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: [new ManifestDependency("Mod A", "1.0", required: false)]), allowStatusChange: false);
 
         // act
-        IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object }, new ModDatabase()).ToArray();
+        IModMetadata[] mods = new ModResolver().ProcessDependencies([modB.Object], new ModDatabase()).ToArray();
 
         // assert
         mods.Should().HaveCount(1, "should match number of mods input");
@@ -509,11 +508,11 @@ public class ModResolverTests
     /// <param name="name">The <see cref="IManifest.Name"/> value, or <c>null</c> for a generated value.</param>
     /// <param name="version">The <see cref="IManifest.Version"/> value, or <c>null</c> for a generated value.</param>
     /// <param name="entryDll">The <see cref="IManifest.EntryDll"/> value, or <c>null</c> for a generated value.</param>
-    /// <param name="contentPackForID">The <see cref="IManifest.ContentPackFor"/> value.</param>
+    /// <param name="contentPackForId">The <see cref="IManifest.ContentPackFor"/> value.</param>
     /// <param name="minimumApiVersion">The <see cref="IManifest.MinimumApiVersion"/> value.</param>
     /// <param name="minimumGameVersion">The <see cref="IManifest.MinimumGameVersion"/> value.</param>
     /// <param name="dependencies">The <see cref="IManifest.Dependencies"/> value.</param>
-    private Manifest GetManifest(string? id = null, string? name = null, string? version = null, string? entryDll = null, string? contentPackForID = null, string? minimumApiVersion = null, string? minimumGameVersion = null, IManifestDependency[]? dependencies = null)
+    private Manifest GetManifest(string? id = null, string? name = null, string? version = null, string? entryDll = null, string? contentPackForId = null, string? minimumApiVersion = null, string? minimumGameVersion = null, IManifestDependency[]? dependencies = null)
     {
         return new Manifest(
             uniqueId: id ?? $"{Sample.String()}.{Sample.String()}",
@@ -522,28 +521,28 @@ public class ModResolverTests
             description: Sample.String(),
             version: version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
             entryDll: entryDll ?? $"{Sample.String()}.dll",
-            contentPackFor: contentPackForID != null ? new ManifestContentPackFor(contentPackForID, null) : null,
+            contentPackFor: contentPackForId != null ? new ManifestContentPackFor(contentPackForId, null) : null,
             minimumApiVersion: minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
             minimumGameVersion: minimumGameVersion != null ? new SemanticVersion(minimumGameVersion) : null,
-            dependencies: dependencies ?? Array.Empty<IManifestDependency>(),
-            updateKeys: Array.Empty<string>()
+            dependencies: dependencies ?? [],
+            updateKeys: []
         );
     }
 
     /// <summary>Get a randomized basic manifest.</summary>
-    /// <param name="uniqueID">The mod's name and unique ID.</param>
-    private Mock<IModMetadata> GetMetadata(string uniqueID)
+    /// <param name="uniqueId">The mod's name and unique ID.</param>
+    private Mock<IModMetadata> GetMetadata(string uniqueId)
     {
-        return this.GetMetadata(this.GetManifest(uniqueID, "1.0"));
+        return this.GetMetadata(this.GetManifest(uniqueId, "1.0"));
     }
 
     /// <summary>Get a randomized basic manifest.</summary>
-    /// <param name="uniqueID">The mod's name and unique ID.</param>
+    /// <param name="uniqueId">The mod's name and unique ID.</param>
     /// <param name="dependencies">The dependencies this mod requires.</param>
     /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
-    private Mock<IModMetadata> GetMetadata(string uniqueID, string[] dependencies, bool allowStatusChange = false)
+    private Mock<IModMetadata> GetMetadata(string uniqueId, string[] dependencies, bool allowStatusChange = false)
     {
-        IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null as ISemanticVersion)).ToArray());
+        IManifest manifest = this.GetManifest(id: uniqueId, version: "1.0", dependencies: dependencies.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null as ISemanticVersion)).ToArray());
         return this.GetMetadata(manifest, allowStatusChange);
     }
 
@@ -561,8 +560,8 @@ public class ModResolverTests
         mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
         mod.Setup(p => p.DirectoryPath).Returns(directoryPath);
         mod.Setup(p => p.Manifest).Returns(manifest);
-        mod.Setup(p => p.HasID(It.IsAny<string>())).Returns((string id) => manifest.UniqueID == id);
-        mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns(Enumerable.Empty<UpdateKey>());
+        mod.Setup(p => p.HasId(It.IsAny<string>())).Returns((string id) => manifest.UniqueID == id);
+        mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns([]);
         mod.Setup(p => p.GetRelativePathWithRoot()).Returns(directoryPath);
         if (allowStatusChange)
         {

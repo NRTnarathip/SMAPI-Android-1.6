@@ -18,7 +18,7 @@ internal class LocationTracker : IWatcher
     ** Fields
     *********/
     /// <summary>The underlying watchers.</summary>
-    private readonly List<IWatcher> Watchers = new();
+    private readonly List<IWatcher> Watchers = [];
 
 
     /*********
@@ -77,8 +77,7 @@ internal class LocationTracker : IWatcher
         this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary($"{this.Name}.{nameof(location.terrainFeatures)}", location.terrainFeatures);
         this.FurnitureWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.furniture)}", location.furniture);
 
-        this.Watchers.AddRange(new IWatcher[]
-        {
+        this.Watchers.AddRange([
             this.BuildingsWatcher,
             this.DebrisWatcher,
             this.LargeTerrainFeaturesWatcher,
@@ -86,7 +85,7 @@ internal class LocationTracker : IWatcher
             this.ObjectsWatcher,
             this.TerrainFeaturesWatcher,
             this.FurnitureWatcher
-        });
+        ]);
 
         this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
     }

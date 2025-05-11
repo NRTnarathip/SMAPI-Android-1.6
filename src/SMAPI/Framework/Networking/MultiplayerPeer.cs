@@ -50,15 +50,15 @@ internal class MultiplayerPeer : IMultiplayerPeer
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="playerID">The player's unique ID.</param>
-    /// <param name="screenID">The player's screen ID, if applicable.</param>
+    /// <param name="playerId">The player's unique ID.</param>
+    /// <param name="screenId">The player's screen ID, if applicable.</param>
     /// <param name="model">The metadata to copy.</param>
     /// <param name="sendMessage">A method which sends a message to the peer.</param>
     /// <param name="isHost">Whether this is a connection to the host player.</param>
-    public MultiplayerPeer(long playerID, int? screenID, RemoteContextModel? model, Action<OutgoingMessage> sendMessage, bool isHost)
+    public MultiplayerPeer(long playerId, int? screenId, RemoteContextModel? model, Action<OutgoingMessage> sendMessage, bool isHost)
     {
-        this.PlayerID = playerID;
-        this.ScreenID = screenID;
+        this.PlayerID = playerId;
+        this.ScreenID = screenId;
         this.IsHost = isHost;
 
         if (model != null)

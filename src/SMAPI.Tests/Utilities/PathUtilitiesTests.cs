@@ -20,8 +20,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
 
-            Segments: new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
-            SegmentsLimit3: new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley" },
+            Segments: ["C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley"],
+            SegmentsLimit3: ["C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley"],
 
             NormalizedOnWindows: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
             NormalizedOnUnix: @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley"
@@ -31,8 +31,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
 
-            Segments: new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
-            SegmentsLimit3: new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley\" },
+            Segments: ["C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley"],
+            SegmentsLimit3: ["C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley\"],
 
             NormalizedOnWindows: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
             NormalizedOnUnix: @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/"
@@ -42,8 +42,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"Content\Characters\Dialogue\Abigail",
 
-            Segments: new [] { "Content", "Characters", "Dialogue", "Abigail" },
-            SegmentsLimit3: new [] { "Content", "Characters", @"Dialogue\Abigail" },
+            Segments: ["Content", "Characters", "Dialogue", "Abigail"],
+            SegmentsLimit3: ["Content", "Characters", @"Dialogue\Abigail"],
 
             NormalizedOnWindows: @"Content\Characters\Dialogue\Abigail",
             NormalizedOnUnix: @"Content/Characters/Dialogue/Abigail"
@@ -53,8 +53,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"..\..\Content",
 
-            Segments: new [] { "..", "..", "Content" },
-            SegmentsLimit3: new [] { "..", "..", "Content" },
+            Segments: ["..", "..", "Content"],
+            SegmentsLimit3: ["..", "..", "Content"],
 
             NormalizedOnWindows: @"..\..\Content",
             NormalizedOnUnix: @"../../Content"
@@ -64,8 +64,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"\\unc\path",
 
-            Segments: new [] { "unc", "path" },
-            SegmentsLimit3: new [] { "unc", "path" },
+            Segments: ["unc", "path"],
+            SegmentsLimit3: ["unc", "path"],
 
             NormalizedOnWindows: @"\\unc\path",
             NormalizedOnUnix: "/unc/path" // there's no good way to normalize this on Unix since UNC paths aren't supported; path normalization is meant for asset names anyway, so this test only ensures it returns some sort of sane value
@@ -75,8 +75,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"/home/.steam/steam/steamapps/common/Stardew Valley",
 
-            Segments: new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-            SegmentsLimit3: new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley" },
+            Segments: ["home", ".steam", "steam", "steamapps", "common", "Stardew Valley"],
+            SegmentsLimit3: ["home", ".steam", "steam/steamapps/common/Stardew Valley"],
 
             NormalizedOnWindows: @"\home\.steam\steam\steamapps\common\Stardew Valley",
             NormalizedOnUnix: @"/home/.steam/steam/steamapps/common/Stardew Valley"
@@ -86,8 +86,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"/home/.steam/steam/steamapps/common/Stardew Valley/",
 
-            Segments: new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-            SegmentsLimit3: new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley/" },
+            Segments: ["home", ".steam", "steam", "steamapps", "common", "Stardew Valley"],
+            SegmentsLimit3: ["home", ".steam", "steam/steamapps/common/Stardew Valley/"],
 
             NormalizedOnWindows: @"\home\.steam\steam\steamapps\common\Stardew Valley\",
             NormalizedOnUnix: @"/home/.steam/steam/steamapps/common/Stardew Valley/"
@@ -97,8 +97,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"~/.steam/steam/steamapps/common/Stardew Valley",
 
-            Segments: new [] { "~", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-            SegmentsLimit3: new [] { "~", ".steam", "steam/steamapps/common/Stardew Valley" },
+            Segments: ["~", ".steam", "steam", "steamapps", "common", "Stardew Valley"],
+            SegmentsLimit3: ["~", ".steam", "steam/steamapps/common/Stardew Valley"],
 
             NormalizedOnWindows: @"~\.steam\steam\steamapps\common\Stardew Valley",
             NormalizedOnUnix: @"~/.steam/steam/steamapps/common/Stardew Valley"
@@ -108,8 +108,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"Content/Characters/Dialogue/Abigail",
 
-            Segments: new [] { "Content", "Characters", "Dialogue", "Abigail" },
-            SegmentsLimit3: new [] { "Content", "Characters", "Dialogue/Abigail" },
+            Segments: ["Content", "Characters", "Dialogue", "Abigail"],
+            SegmentsLimit3: ["Content", "Characters", "Dialogue/Abigail"],
 
             NormalizedOnWindows: @"Content\Characters\Dialogue\Abigail",
             NormalizedOnUnix: @"Content/Characters/Dialogue/Abigail"
@@ -119,8 +119,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"../../Content",
 
-            Segments: new [] { "..", "..", "Content" },
-            SegmentsLimit3: new [] { "..", "..", "Content" },
+            Segments: ["..", "..", "Content"],
+            SegmentsLimit3: ["..", "..", "Content"],
 
             NormalizedOnWindows: @"..\..\Content",
             NormalizedOnUnix: @"../../Content"
@@ -130,8 +130,8 @@ internal class PathUtilitiesTests
         new(
             OriginalPath: @"C:\some/mixed\path/separators",
 
-            Segments: new [] { "C:", "some", "mixed", "path", "separators" },
-            SegmentsLimit3: new [] { "C:", "some", @"mixed\path/separators" },
+            Segments: ["C:", "some", "mixed", "path", "separators"],
+            SegmentsLimit3: ["C:", "some", @"mixed\path/separators"],
 
             NormalizedOnWindows: @"C:\some\mixed\path\separators",
             NormalizedOnUnix: @"C:/some/mixed/path/separators"

@@ -96,7 +96,7 @@ internal class ModResolver
                         string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's no longer compatible";
 
                         // get update URLs
-                        List<string> updateUrls = new List<string>();
+                        List<string> updateUrls = [];
                         foreach (UpdateKey key in mod.GetUpdateKeys(validOnly: true))
                         {
                             string? url = getUpdateUrl(key.ToString());
@@ -156,14 +156,14 @@ internal class ModResolver
 
         // validate IDs are unique
         {
-            var duplicatesByID = mods
+            var duplicatesById = mods
                 .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.OrdinalIgnoreCase)
                 .Where(p => !string.IsNullOrEmpty(p.Key) && p.Count() > 1);
-            foreach (var group in duplicatesByID)
+            foreach (var group in duplicatesById)
             {
                 foreach (IModMetadata mod in group)
                 {
-                    if (mod.Status == ModMetadataStatus.Failed && mod.FailReason is not (ModFailReason.InvalidManifest or ModFailReason.LoadFailed or ModFailReason.MissingDependencies))
+                    if (mod is { Status: ModMetadataStatus.Failed, FailReason: not (ModFailReason.InvalidManifest or ModFailReason.LoadFailed or ModFailReason.MissingDependencies) })
                         continue;
 
                     string folderList = string.Join(", ", group.Select(p => p.GetRelativePathWithRoot()).OrderBy(p => p));
@@ -307,8 +307,7 @@ internal class ModResolver
                 (
                     from entry in dependencies
                     where
-                        entry.Mod != null
-                        && entry.MinVersion != null
+                        entry is { Mod: not null, MinVersion: not null }
                         && entry.MinVersion.IsNewerThan(entry.Mod.Manifest.Version)
                     select $"{entry.Mod!.DisplayName} (needs {entry.MinVersion} or later)"
                 )
@@ -379,7 +378,7 @@ internal class ModResolver
     /// <param name="loadedMods">The loaded mods.</param>
     private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IReadOnlyList<IModMetadata> loadedMods)
     {
-        IModMetadata? FindMod(string id) => loadedMods.FirstOrDefault(m => m.HasID(id));
+        IModMetadata? FindMod(string id) => loadedMods.FirstOrDefault(m => m.HasId(id));
 
         // yield dependencies
         foreach (IManifestDependency entry in manifest.Dependencies)

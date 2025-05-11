@@ -17,10 +17,10 @@ internal class ClearCommand : ConsoleCommand
     ** Fields
     *********/
     /// <summary>The valid types that can be cleared.</summary>
-    private readonly string[] ValidTypes = { "crops", "debris", "fruit-trees", "furniture", "grass", "trees", "removable", "everything" };
+    private readonly string[] ValidTypes = ["crops", "debris", "fruit-trees", "furniture", "grass", "trees", "removable", "everything"];
 
     /// <summary>The resource clump IDs to consider debris.</summary>
-    private readonly int[] DebrisClumps = { ResourceClump.stumpIndex, ResourceClump.hollowLogIndex, ResourceClump.meteoriteIndex, ResourceClump.boulderIndex };
+    private readonly int[] DebrisClumps = [ResourceClump.stumpIndex, ResourceClump.hollowLogIndex, ResourceClump.meteoriteIndex, ResourceClump.boulderIndex];
 
 
     /*********

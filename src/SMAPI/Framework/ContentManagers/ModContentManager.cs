@@ -44,7 +44,7 @@ internal sealed class ModContentManager : BaseContentManager
     private readonly IFileLookup FileLookup;
 
     /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
-    private static readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+    private static readonly string[] LocalTilesheetExtensions = [".png", ".xnb"];
 
 
     /*********

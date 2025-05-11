@@ -22,7 +22,7 @@ internal class MetricsModel
 
     /// <summary>The unique mod IDs requested from each site.</summary>
     [JsonIgnore]
-    public HashSet<string?> UniqueKeys { get; } = new();
+    public HashSet<string?> UniqueKeys { get; } = [];
 
     /// <summary>The number of unique mod IDs requested from each site.</summary>
     public int UniqueModsChecked => this.UniqueKeys.Count;

@@ -53,8 +53,8 @@ public class ParsedLog
     public DateTimeOffset Timestamp { get; set; }
 
     /// <summary>Metadata about installed mods and content packs.</summary>
-    public LogModInfo[] Mods { get; set; } = Array.Empty<LogModInfo>();
+    public LogModInfo[] Mods { get; set; } = [];
 
     /// <summary>The log messages.</summary>
-    public LogMessage[] Messages { get; set; } = Array.Empty<LogMessage>();
+    public LogMessage[] Messages { get; set; } = [];
 }

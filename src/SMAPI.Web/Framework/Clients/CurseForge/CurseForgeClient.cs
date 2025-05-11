@@ -164,7 +164,7 @@ internal class CurseForgeClient : ICurseForgeClient
         }
 
         // get downloads
-        List<IModDownload> downloads = new List<IModDownload>();
+        List<IModDownload> downloads = [];
         foreach (ModFileModel file in mod.LatestFiles)
         {
             downloads.Add(

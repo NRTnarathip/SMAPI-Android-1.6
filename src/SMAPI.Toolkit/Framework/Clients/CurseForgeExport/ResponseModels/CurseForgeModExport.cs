@@ -18,7 +18,7 @@ public class CurseForgeModExport
     public string? ModPageUrl { get; set; }
 
     /// <summary>The authors of the mod.</summary>
-    public CurseForgeAuthorExport[] Authors { get; set; } = Array.Empty<CurseForgeAuthorExport>();
+    public CurseForgeAuthorExport[] Authors { get; set; } = [];
 
     /// <summary>When the mod was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
@@ -30,7 +30,7 @@ public class CurseForgeModExport
     public DateTimeOffset DateModified { get; set; }
 
     /// <summary>The files uploaded for the mod.</summary>
-    public CurseForgeFileExport[] Files { get; set; } = Array.Empty<CurseForgeFileExport>();
+    public CurseForgeFileExport[] Files { get; set; } = [];
 
     /// <summary>The extra fields returned by the export API, if any.</summary>
     [JsonExtensionData]

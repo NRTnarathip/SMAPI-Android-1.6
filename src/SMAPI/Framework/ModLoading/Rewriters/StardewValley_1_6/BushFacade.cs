@@ -40,10 +40,10 @@ public class BushFacade : Bush, IRewriteFacade
         switch (season)
         {
             case "spring":
-                return dayOfMonth > 14 && dayOfMonth < 19;
+                return dayOfMonth is > 14 and < 19;
 
             case "fall":
-                return dayOfMonth > 7 && dayOfMonth < 12;
+                return dayOfMonth is > 7 and < 12;
 
             default:
                 return false;

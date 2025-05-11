@@ -129,7 +129,7 @@ public class UtilityFacade : Utility, IRewriteFacade
 
     public new static List<TemporaryAnimatedSprite> sparkleWithinArea(Rectangle bounds, int numberOfSparkles, Color sparkleColor, int delayBetweenSparkles = 100, int delayBeforeStarting = 0, string sparkleSound = "")
     {
-        TemporaryAnimatedSpriteList list = Utility.getTemporarySpritesWithinArea(new[] { 10, 11 }, bounds, numberOfSparkles, sparkleColor, delayBetweenSparkles, delayBeforeStarting, sparkleSound);
+        TemporaryAnimatedSpriteList list = Utility.getTemporarySpritesWithinArea([10, 11], bounds, numberOfSparkles, sparkleColor, delayBetweenSparkles, delayBeforeStarting, sparkleSound);
         return list.ToList();
     }
 

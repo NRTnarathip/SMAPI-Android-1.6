@@ -2,4 +2,4 @@
 namespace Netcode;
 
 /// <summary>A simplified version of Stardew Valley's <c>Netcode.NetObjectList</c> for unit testing.</summary>
-public class NetObjectList<T> : NetList<T> { }
+public class NetObjectList<T> : NetList<T>;

@@ -21,14 +21,14 @@ internal class SetStyleCommand : ConsoleCommand
     public override void Handle(IMonitor monitor, string command, ArgumentParser args)
     {
         // parse arguments
-        if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
+        if (!args.TryGet(0, "target", out string? target, oneOf: ["hair", "shirt", "acc", "skin", "shoe", "swim", "gender"]))
             return;
-        if (!args.TryGet(1, "style ID", out string? styleID))
+        if (!args.TryGet(1, "style ID", out string? styleId))
             return;
 
         bool AssertIntStyle(out int id)
         {
-            if (int.TryParse(styleID, out id))
+            if (int.TryParse(styleId, out id))
                 return true;
 
             monitor.Log($"The style ID must be a numeric integer for the '{target}' target.", LogLevel.Error);
@@ -47,7 +47,7 @@ internal class SetStyleCommand : ConsoleCommand
                 break;
 
             case "shirt":
-                Game1.player.changeShirt(styleID);
+                Game1.player.changeShirt(styleId);
                 monitor.Log("OK, your shirt style is updated.", LogLevel.Info);
                 break;
 
@@ -68,7 +68,7 @@ internal class SetStyleCommand : ConsoleCommand
                 break;
 
             case "shoe":
-                Game1.player.changeShoeColor(styleID);
+                Game1.player.changeShoeColor(styleId);
                 monitor.Log("OK, your shoe style is updated.", LogLevel.Info);
                 break;
 

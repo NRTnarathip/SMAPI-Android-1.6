@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
@@ -42,7 +41,7 @@ public class ModDropModExport
     public int Status { get; set; }
 
     /// <summary>The files uploaded for the mod.</summary>
-    public ModDropFileExport[] Files { get; set; } = Array.Empty<ModDropFileExport>();
+    public ModDropFileExport[] Files { get; set; } = [];
 
     /// <summary>The extra fields returned by the export API, if any.</summary>
     [JsonExtensionData]

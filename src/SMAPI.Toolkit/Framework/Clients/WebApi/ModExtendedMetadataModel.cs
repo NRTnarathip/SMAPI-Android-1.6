@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -18,7 +17,7 @@ public class ModExtendedMetadataModel
     ** Mod info
     ****/
     /// <summary>The mod's unique ID. A mod may have multiple current IDs in rare cases (e.g. due to parallel releases or unofficial updates).</summary>
-    public string[] ID { get; set; } = Array.Empty<string>();
+    public string[] ID { get; set; } = [];
 
     /// <summary>The mod's display name.</summary>
     public string? Name { get; set; }

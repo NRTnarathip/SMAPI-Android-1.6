@@ -10,7 +10,7 @@ internal class CommandQueue
     ** Fields
     ********/
     /// <summary>The underlying list of queued commands to parse and execute.</summary>
-    private readonly List<string> RawCommandQueue = new();
+    private readonly List<string> RawCommandQueue = [];
 
 
     /********

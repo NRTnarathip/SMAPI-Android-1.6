@@ -14,7 +14,7 @@ public class JsonValidatorModel
     public bool IsEditView { get; }
 
     /// <summary>The paste ID.</summary>
-    public string? PasteID { get; }
+    public string? PasteId { get; }
 
     /// <summary>The schema name with which the JSON was validated.</summary>
     public string? SchemaName { get; }
@@ -26,7 +26,7 @@ public class JsonValidatorModel
     public string? Content { get; set; }
 
     /// <summary>The schema validation errors, if any.</summary>
-    public JsonValidatorErrorModel[] Errors { get; set; } = Array.Empty<JsonValidatorErrorModel>();
+    public JsonValidatorErrorModel[] Errors { get; set; } = [];
 
     /// <summary>A non-blocking warning while uploading the file.</summary>
     public string? UploadWarning { get; set; }
@@ -51,13 +51,13 @@ public class JsonValidatorModel
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="pasteID">The stored file ID.</param>
+    /// <param name="pasteId">The stored file ID.</param>
     /// <param name="schemaName">The schema name with which the JSON was validated.</param>
     /// <param name="schemaFormats">The supported JSON schemas (names indexed by ID).</param>
     /// <param name="isEditView">Whether to show the edit view.</param>
-    public JsonValidatorModel(string? pasteID, string? schemaName, IDictionary<string, string> schemaFormats, bool isEditView)
+    public JsonValidatorModel(string? pasteId, string? schemaName, IDictionary<string, string> schemaFormats, bool isEditView)
     {
-        this.PasteID = pasteID;
+        this.PasteId = pasteId;
         this.SchemaName = schemaName;
         this.SchemaFormats = schemaFormats;
         this.IsEditView = isEditView;

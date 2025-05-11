@@ -17,10 +17,10 @@ internal class ComparableListWatcher<TValue> : BaseDisposableWatcher, ICollectio
     private HashSet<TValue> LastValues;
 
     /// <summary>The pairs added since the last reset.</summary>
-    private readonly List<TValue> AddedImpl = new();
+    private readonly List<TValue> AddedImpl = [];
 
     /// <summary>The pairs removed since the last reset.</summary>
-    private readonly List<TValue> RemovedImpl = new();
+    private readonly List<TValue> RemovedImpl = [];
 
 
     /*********

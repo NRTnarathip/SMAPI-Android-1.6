@@ -5,25 +5,25 @@
 
 @{
     // get view data
-    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID }, absoluteUrl: true)!;
+    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteId }, absoluteUrl: true)!;
     string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName })!;
     string? schemaDisplayName = null;
     bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName.ToLower() != "none";
 
     // build title
     ViewData["Title"] = "JSON validator";
-    @if (Model.PasteID != null)
+    @if (Model.PasteId != null)
     {
         ViewData["ViewTitle"] = ViewData["Title"];
         ViewData["Title"] +=
             " ("
-            + string.Join(", ", new[] { isValidSchema ? schemaDisplayName : null, Model.PasteID }.Where(p => p != null))
+            + string.Join(", ", new[] { isValidSchema ? schemaDisplayName : null, Model.PasteId }.Where(p => p != null))
             + ")";
     }
 }
 
 @section Head {
-    @if (Model.PasteID != null)
+    @if (Model.PasteId != null)
     {
         <meta name="robots" content="noindex" />
     }
@@ -39,7 +39,7 @@
     <script src="@Url.ContentWithCacheBust("~/Content/js/json-validator.js")"></script>
     <script>
         $(function() {
-            smapi.jsonValidator(@this.ForJson(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @this.ForJson(Model.PasteID));
+            smapi.jsonValidator(@this.ForJson(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @this.ForJson(Model.PasteId));
         });
     </script>
 }
@@ -62,7 +62,7 @@ else if (Model.ParseError != null)
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
 }
-else if (!Model.IsEditView && Model.PasteID != null)
+else if (Model is { IsEditView: false, PasteId: not null })
 {
     <div class="banner success">
         <strong>Share this link to let someone else see this page:</strong> <code>@curPageUrl</code><br />
@@ -88,7 +88,7 @@ else if (!Model.IsEditView && Model.PasteID != null)
             {
                 <text><s>@(oldExpiryText)</s> </text>
             }
-            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = this.Model.SchemaName, id = this.Model.PasteID, operation = "renew" }))">renew</a>).</text>
+            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = this.Model.SchemaName, id = this.Model.PasteId, operation = "renew" }))">renew</a>).</text>
         }
         <!--@Model.UploadWarning-->
     </div>
@@ -169,7 +169,7 @@ else if (!Model.IsEditView && Model.PasteID != null)
                 {
                     <option value="@pair.Key" selected="@(Model.SchemaName == pair.Key)">@pair.Value</option>
                 }
-            </select>) or <a href="@(this.Url.PlainAction("Index", "JsonValidator", new { id = this.Model.PasteID, schemaName = this.Model.SchemaName, operation = "edit" }))">edit this file</a>.
+            </select>) or <a href="@(this.Url.PlainAction("Index", "JsonValidator", new { id = this.Model.PasteId, schemaName = this.Model.SchemaName, operation = "edit" }))">edit this file</a>.
         </div>
         <pre id="raw-content" class="sunlight-highlight-javascript">@Model.Content</pre>
 

@@ -147,7 +147,7 @@ public class LogParser
                         string description = match.Groups["description"].Value;
 
                         if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
-                            mods[name] = entries = new List<LogModInfo>();
+                            mods[name] = entries = [];
                         entries.Add(new LogModInfo(ModType.CodeMod, name: name, author: author, version: version, description: description, loaded: true));
 
                         message.Section = LogSection.ModsList;
@@ -170,7 +170,7 @@ public class LogParser
                         string forMod = match.Groups["for"].Value.Trim(); // if there's no mod description, trim newline from ID
 
                         if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
-                            mods[name] = entries = new List<LogModInfo>();
+                            mods[name] = entries = [];
                         entries.Add(new LogModInfo(ModType.ContentPack, name: name, author: author, version: version, description: description, contentPackFor: forMod, loaded: true));
 
                         message.Section = LogSection.ContentPackList;
@@ -189,7 +189,7 @@ public class LogParser
                             string version = match.Groups["version"].Value;
 
                             if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
-                                mods[name] = entries = new List<LogModInfo>();
+                                mods[name] = entries = [];
                             entries.Add(new LogModInfo(ModType.Unknown, name: name, author: "", version: version, description: "", contentPackFor: null, loaded: false));
                         }
                     }
@@ -250,7 +250,7 @@ public class LogParser
                     {
                         Match match = this.ModPathPattern.Match(message.Text);
                         log.ModPath = match.Groups["path"].Value;
-                        int lastDelimiterPos = log.ModPath.LastIndexOfAny(new[] { '/', '\\' });
+                        int lastDelimiterPos = log.ModPath.LastIndexOfAny(['/', '\\']);
                         log.GamePath = lastDelimiterPos >= 0
                             ? log.ModPath[..lastDelimiterPos]
                             : log.ModPath;

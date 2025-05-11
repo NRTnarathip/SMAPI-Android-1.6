@@ -58,7 +58,7 @@ public class ButtonsChangedEventArgs : EventArgs
         foreach (var state in new[] { SButtonState.Pressed, SButtonState.Held, SButtonState.Released })
         {
             if (!lookup.ContainsKey(state))
-                lookup[state] = Array.Empty<SButton>();
+                lookup[state] = [];
         }
 
         return lookup;

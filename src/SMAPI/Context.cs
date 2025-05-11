@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
@@ -22,9 +24,6 @@ public static class Context
 
     /// <summary>Whether a player save has been loaded.</summary>
     internal static bool IsSaveLoaded => Game1.hasLoadedGame && Game1.activeClickableMenu is not TitleMenu;
-
-    /// <summary>Whether the game is currently writing to the save file.</summary>
-    internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu or ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something
 
     /// <summary>The active split-screen instance IDs.</summary>
     internal static readonly ISet<int> ActiveScreenIds = new HashSet<int>();
@@ -101,5 +100,27 @@ public static class Context
     public static bool HasScreenId(int id)
     {
         return Context.ActiveScreenIds.Contains(id);
+    }
+
+    /// <summary>Whether the game is currently writing to the save file.</summary>
+    internal static bool IsSaving()
+    {
+        switch (Game1.activeClickableMenu)
+        {
+            case SaveGameMenu:
+                return true;
+
+            case ShippingMenu menu:
+                {
+                    Type type = typeof(ShippingMenu);
+
+                    return
+                        type.GetField("saveGameMenu", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(menu) is not null
+                        && type.GetField("savedYet", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(menu) is false;
+                }
+
+            default:
+                return false;
+        }
     }
 }

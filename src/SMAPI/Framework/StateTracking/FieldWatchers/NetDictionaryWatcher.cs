@@ -102,7 +102,6 @@ internal class NetDictionaryWatcher<TKey, TValue, TField, TSerialDict, TSelf> : 
     /// <param name="value">The entry value.</param>
     private void OnValueRemoved(TKey key, TValue value)
     {
-        if (!this.PairsRemoved.ContainsKey(key))
-            this.PairsRemoved[key] = value;
+        this.PairsRemoved.TryAdd(key, value);
     }
 }

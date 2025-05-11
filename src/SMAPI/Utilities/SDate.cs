@@ -13,7 +13,7 @@ public class SDate : IEquatable<SDate>
     ** Fields
     *********/
     /// <summary>The internal season names in order.</summary>
-    private readonly string[] Seasons = { "spring", "summer", "fall", "winter" };
+    private readonly string[] Seasons = ["spring", "summer", "fall", "winter"];
 
     /// <summary>The number of seasons in a year.</summary>
     private int SeasonsInYear => this.Seasons.Length;

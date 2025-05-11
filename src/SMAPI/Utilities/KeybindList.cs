@@ -56,7 +56,7 @@ public class KeybindList
         if (string.IsNullOrWhiteSpace(input))
         {
             parsed = new KeybindList();
-            errors = Array.Empty<string>();
+            errors = [];
             return true;
         }
 
@@ -84,7 +84,7 @@ public class KeybindList
         else
         {
             parsed = new KeybindList(keybinds.ToArray());
-            errors = Array.Empty<string>();
+            errors = [];
             return true;
         }
     }

@@ -71,12 +71,171 @@ smapi.modList = function (mods) {
         mod.SearchableText = [mod.Name, mod.AlternateNames, mod.Author, mod.AlternateAuthors, mod.Compatibility.Summary, mod.BrokeIn];
         if (mod.Compatibility.UnofficialVersion)
             mod.SearchableText.push(mod.Compatibility.UnofficialVersion);
-        for (var p = 0; p < mod.ModPages; p++)
-            mod.SearchableField.push(mod.ModPages[p].Text);
         mod.SearchableText = mod.SearchableText.join(" ").toLowerCase();
     }
 
     // init app
+    var methods = {
+        /**
+         * Update the visibility of all mods based on the current search text and filters.
+         */
+        applyFilters: function () {
+            // get search terms
+            var words = data.search.toLowerCase().split(" ");
+
+            // apply criteria
+            var stats = data.visibleMainStats = $.extend({}, defaultStats);
+            for (var i = 0; i < data.mods.length; i++) {
+                var mod = data.mods[i];
+                mod.Visible = true;
+
+                // check filters
+                mod.Visible = this.matchesFilters(mod, words);
+                if (mod.Visible) {
+                    stats.total++;
+                    stats[this.getCompatibilityGroup(mod.Compatibility.Status, !!mod.SourceUrl)]++;
+                }
+            }
+
+            // add aggregate stats
+            stats.percentCompatible = Math.round((stats.compatible + stats.workaround) / stats.total * 100);
+            stats.percentBroken = Math.round((stats.soon + stats.broken) / stats.total * 100);
+            stats.percentObsolete = Math.round(stats.abandoned / stats.total * 100);
+        },
+
+        /**
+         * Fix the window position for the current hash.
+         */
+        fixHashPosition: function () {
+            var anchor = location.hash.substring(1);
+            if (!anchor)
+                return;
+
+            // jump to exact anchor
+            if (methods.scrollToRow(anchor))
+                return;
+
+            // else jump to mod by ID
+            for (var i = 0; i < data.mods.length; i++) {
+                var mod = data.mods[i];
+
+                for (var n = 0; n < mod.Id.length; n++) {
+                    if (anchor.localeCompare(mod.Id[n], undefined, { sensitivity: 'accent' }) === 0) {
+                        if (methods.scrollToRow(mod.Slug))
+                            return;
+                    }
+                }
+            }
+        },
+
+        /**
+         * Scroll the page so the given table row comes into view.
+         * @param id The ID of the row element to match.
+         * @returns {boolean} Whether the target was found and scrolled into view.
+         */
+        scrollToRow: function(id) {
+            var row = $("#" + id);
+            var target = row.prev().get(0) || row.get(0); // show previous row if possible, to push the actual row below the sticky header
+            target?.scrollIntoView();
+            return !!target;
+        },
+
+        /**
+         * Get whether a mod matches the current filters.
+         * @param {object} mod The mod to check.
+         * @param {string[]} searchWords The search words to match.
+         * @returns {boolean} Whether the mod matches the filters.
+         */
+        matchesFilters: function (mod, searchWords) {
+            var filters = data.filters;
+
+            // check hash
+            if (location.hash === "#" + mod.Slug)
+                return true;
+
+            // check source
+            if (!filters.source.value.open.value && mod.SourceUrl)
+                return false;
+            if (!filters.source.value.closed.value && !mod.SourceUrl)
+                return false;
+
+            // check status
+            var mainStatus = mod.Compatibility.Status;
+            if (filters.status.value[mainStatus] && !filters.status.value[mainStatus].value)
+                return false;
+
+            // check download sites
+            var ignoreSites = [];
+
+            if (!filters.download.value.chucklefish.value)
+                ignoreSites.push("Chucklefish");
+            if (!filters.download.value.curseforge.value)
+                ignoreSites.push("CurseForge");
+            if (!filters.download.value.moddrop.value)
+                ignoreSites.push("ModDrop");
+            if (!filters.download.value.nexus.value)
+                ignoreSites.push("Nexus");
+            if (!filters.download.value.custom.value)
+                ignoreSites.push("custom");
+
+            if (ignoreSites.length) {
+                var anyLeft = false;
+                for (var i = 0; i < mod.ModPages.length; i++) {
+                    if (ignoreSites.indexOf(mod.ModPages[i].Text) === -1) {
+                        anyLeft = true;
+                        break;
+                    }
+                }
+
+                if (!anyLeft)
+                    return false;
+            }
+
+            // check search terms
+            for (var w = 0; w < searchWords.length; w++) {
+                if (mod.SearchableText.indexOf(searchWords[w]) === -1)
+                    return false;
+            }
+
+            return true;
+        },
+
+        /**
+         * Get a mod's compatibility group for mod metrics.
+         * @param {string} status The mod status for which to get the group.
+         * @param {boolean} hasSourceUrl Whether the mod has a source code URL.
+         * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
+         */
+        getCompatibilityGroup: function (status, hasSourceUrl) {
+            switch (status) {
+                // obsolete
+                case "abandoned":
+                case "obsolete":
+                    return "abandoned";
+
+                // compatible
+                case "ok":
+                case "optional":
+                    return "compatible";
+
+                // workaround
+                case "workaround":
+                case "unofficial":
+                    return "workaround";
+
+                // soon/broken
+                case "broken":
+                    if (hasSourceUrl)
+                        return "soon";
+                    else
+                        return "broken";
+
+                default:
+                    return "invalid";
+            }
+        }
+    };
+
     app = new Vue({
         el: "#app",
         data: data,
@@ -95,141 +254,7 @@ smapi.modList = function (mods) {
             // jump to anchor (since table is added after page load)
             this.fixHashPosition();
         },
-        methods: {
-            /**
-             * Update the visibility of all mods based on the current search text and filters.
-             */
-            applyFilters: function () {
-                // get search terms
-                var words = data.search.toLowerCase().split(" ");
-
-                // apply criteria
-                var stats = data.visibleMainStats = $.extend({}, defaultStats);
-                for (var i = 0; i < data.mods.length; i++) {
-                    var mod = data.mods[i];
-                    mod.Visible = true;
-
-                    // check filters
-                    mod.Visible = this.matchesFilters(mod, words);
-                    if (mod.Visible) {
-                        stats.total++;
-                        stats[this.getCompatibilityGroup(mod.Compatibility.Status)]++;
-                    }
-                }
-
-                // add aggregate stats
-                stats.percentCompatible = Math.round((stats.compatible + stats.workaround) / stats.total * 100);
-                stats.percentBroken = Math.round((stats.soon + stats.broken) / stats.total * 100);
-                stats.percentObsolete = Math.round(stats.abandoned / stats.total * 100);
-            },
-
-            /**
-             * Fix the window position for the current hash.
-             */
-            fixHashPosition: function () {
-                if (!location.hash)
-                    return;
-
-                var row = $(location.hash);
-                var target = row.prev().get(0) || row.get(0);
-                if (target)
-                    target.scrollIntoView();
-            },
-
-            /**
-             * Get whether a mod matches the current filters.
-             * @param {object} mod The mod to check.
-             * @param {string[]} searchWords The search words to match.
-             * @returns {bool} Whether the mod matches the filters.
-             */
-            matchesFilters: function (mod, searchWords) {
-                var filters = data.filters;
-
-                // check hash
-                if (location.hash === "#" + mod.Slug)
-                    return true;
-
-                // check source
-                if (!filters.source.value.open.value && mod.SourceUrl)
-                    return false;
-                if (!filters.source.value.closed.value && !mod.SourceUrl)
-                    return false;
-
-                // check status
-                var mainStatus = mod.Compatibility.Status;
-                if (filters.status.value[mainStatus] && !filters.status.value[mainStatus].value)
-                    return false;
-
-                // check download sites
-                var ignoreSites = [];
-
-                if (!filters.download.value.chucklefish.value)
-                    ignoreSites.push("Chucklefish");
-                if (!filters.download.value.curseforge.value)
-                    ignoreSites.push("CurseForge");
-                if (!filters.download.value.moddrop.value)
-                    ignoreSites.push("ModDrop");
-                if (!filters.download.value.nexus.value)
-                    ignoreSites.push("Nexus");
-                if (!filters.download.value.custom.value)
-                    ignoreSites.push("custom");
-
-                if (ignoreSites.length) {
-                    var anyLeft = false;
-                    for (var i = 0; i < mod.ModPageSites.length; i++) {
-                        if (ignoreSites.indexOf(mod.ModPageSites[i]) === -1) {
-                            anyLeft = true;
-                            break;
-                        }
-                    }
-
-                    if (!anyLeft)
-                        return false;
-                }
-
-                // check search terms
-                for (var w = 0; w < searchWords.length; w++) {
-                    if (mod.SearchableText.indexOf(searchWords[w]) === -1)
-                        return false;
-                }
-
-                return true;
-            },
-
-            /**
-             * Get a mod's compatibility group for mod metrics.
-             * @param {string} mod The mod status for which to get the group.
-             * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
-             */
-            getCompatibilityGroup: function (status) {
-                switch (status) {
-                    // obsolete
-                    case "abandoned":
-                    case "obsolete":
-                        return "abandoned";
-
-                    // compatible
-                    case "ok":
-                    case "optional":
-                        return "compatible";
-
-                    // workaround
-                    case "workaround":
-                    case "unofficial":
-                        return "workaround";
-
-                    // soon/broken
-                    case "broken":
-                        if (mod.SourceUrl)
-                            return "soon";
-                        else
-                            return "broken";
-
-                    default:
-                        return "invalid";
-                }
-            }
-        }
+        methods: methods
     });
     app.applyFilters();
     app.fixHashPosition();

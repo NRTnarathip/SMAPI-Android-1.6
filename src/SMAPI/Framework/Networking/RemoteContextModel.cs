@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Converters;
 
@@ -43,6 +42,6 @@ internal class RemoteContextModel
         this.Platform = platform;
         this.GameVersion = gameVersion;
         this.ApiVersion = apiVersion;
-        this.Mods = mods ?? Array.Empty<RemoteContextModModel>();
+        this.Mods = mods ?? [];
     }
 }

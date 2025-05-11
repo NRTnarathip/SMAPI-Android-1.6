@@ -31,10 +31,7 @@ public static class Extensions
         // get route values
         RouteValueDictionary valuesDict = new(values);
         foreach (var value in helper.ActionContext.RouteData.Values)
-        {
-            if (!valuesDict.ContainsKey(value.Key))
-                valuesDict[value.Key] = null; // explicitly remove it from the URL
-        }
+            valuesDict.TryAdd(value.Key, null); // explicitly remove it from the URL
 
         // get relative URL
         string? url = helper.Action(action, controller, valuesDict);

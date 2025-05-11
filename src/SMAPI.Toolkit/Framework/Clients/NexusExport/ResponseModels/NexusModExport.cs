@@ -43,6 +43,9 @@ public class NexusModExport
     /// <summary>Whether the mod is marked as containing adult content.</summary>
     public bool Adult { get; set; }
 
+    /// <summary>The raw file description, containing BBCode with HTML <c>&lt;&lt;br /&gt;</c> tags.</summary>
+    public string Description { get; set; }
+
     /// <summary>The files uploaded for the mod.</summary>
     public Dictionary<uint, NexusFileExport> Files { get; set; } = new();
 

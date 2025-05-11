@@ -241,7 +241,7 @@ internal class Startup
         app.UseHangfireDashboard("/tasks", new DashboardOptions
         {
             IsReadOnlyFunc = context => !JobDashboardAuthorizationFilter.IsLocalRequest(context),
-            Authorization = new[] { new JobDashboardAuthorizationFilter() }
+            Authorization = [new JobDashboardAuthorizationFilter()]
         });
     }
 
@@ -319,16 +319,16 @@ internal class Startup
         // canimod.com => wiki
         var wikiRedirects = new Dictionary<string, string[]>
         {
-            ["Modding:Index#Migration_guides"] = new[] { "^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod" },
-            ["Modding:Modder_Guide"] = new[] { "^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod", "^/for-devs/creating-a-smapi-mod-advanced-config" },
-            ["Modding:Player_Guide"] = new[] { "^/for-players/install-smapi", "^/guides/using-mods", "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq" },
+            ["Modding:Index#Migration_guides"] = ["^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod"],
+            ["Modding:Modder_Guide"] = ["^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod", "^/for-devs/creating-a-smapi-mod-advanced-config"],
+            ["Modding:Player_Guide"] = ["^/for-players/install-smapi", "^/guides/using-mods", "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq"],
 
-            ["Modding:Editing_XNB_files"] = new[] { "^/for-devs/creating-an-xnb-mod", "^/guides/creating-an-xnb-mod" },
-            ["Modding:Event_data"] = new[] { "^/for-devs/events", "^/guides/events" },
-            ["Modding:Gift_taste_data"] = new[] { "^/for-devs/npc-gift-tastes", "^/guides/npc-gift-tastes" },
-            ["Modding:IDE_reference"] = new[] { "^/for-devs/creating-a-smapi-mod-ide-primer" },
-            ["Modding:Object_data"] = new[] { "^/for-devs/object-data", "^/guides/object-data" },
-            ["Modding:Weather_data"] = new[] { "^/for-devs/weather", "^/guides/weather" }
+            ["Modding:Editing_XNB_files"] = ["^/for-devs/creating-an-xnb-mod", "^/guides/creating-an-xnb-mod"],
+            ["Modding:Event_data"] = ["^/for-devs/events", "^/guides/events"],
+            ["Modding:Gift_taste_data"] = ["^/for-devs/npc-gift-tastes", "^/guides/npc-gift-tastes"],
+            ["Modding:IDE_reference"] = ["^/for-devs/creating-a-smapi-mod-ide-primer"],
+            ["Modding:Object_data"] = ["^/for-devs/object-data", "^/guides/object-data"],
+            ["Modding:Weather_data"] = ["^/for-devs/weather", "^/guides/weather"]
         };
         foreach ((string page, string[] patterns) in wikiRedirects)
         {

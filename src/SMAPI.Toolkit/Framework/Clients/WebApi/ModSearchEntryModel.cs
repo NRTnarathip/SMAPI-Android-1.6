@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -34,7 +33,7 @@ public class ModSearchEntryModel
     {
         this.ID = id;
         this.InstalledVersion = installedVersion;
-        this.UpdateKeys = updateKeys ?? Array.Empty<string>();
+        this.UpdateKeys = updateKeys ?? [];
         this.IsBroken = isBroken;
     }
 

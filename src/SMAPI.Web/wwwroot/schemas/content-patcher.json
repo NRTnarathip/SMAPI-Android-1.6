@@ -14,15 +14,21 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
             "type": "string",
-            "pattern": "^2\\.4\\.[0-9]+$",
+            "pattern": "^2\\.6\\.[0-9]+$",
             "@errorMessages": {
-                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 2.4.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
+                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 2.6.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
             }
         },
         "ConfigSchema": {
             "title": "Config schema",
             "description": "Defines the config.json format, to support more complex mods.",
             "type": "object",
+            "propertyNames": {
+                "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                "@errorMessages": {
+                    "pattern": "The token name should be alphanumeric with no special characters."
+                }
+            },
             "additionalProperties": {
                 "type": "object",
                 "properties": {
@@ -44,7 +50,7 @@
                     "Default": {
                         "title": "Default value",
                         "description": "The default values when the field is missing. Can contain multiple comma-delimited values if AllowMultiple is true. If omitted, blank fields are left blank.",
-                        "type": "string"
+                        "type": [ "boolean", "number", "string" ]
                     },
                     "Description": {
                         "title": "Description",
@@ -142,7 +148,11 @@
                     "Name": {
                         "title": "Name",
                         "description": "The name of the token to use for tokens & conditions.",
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                        "@errorMessages": {
+                            "pattern": "The token name should be alphanumeric with no special characters."
+                        }
                     },
                     "Value": {
                         "title": "Token value",
@@ -152,7 +162,7 @@
                     "When": {
                         "title": "When",
                         "description": "Only set the value if the given conditions match. If not specified, always matches.",
-                        "$ref": "#/definitions/Condition"
+                        "$ref": "#/definitions/Conditions"
                     }
                 },
 
@@ -213,6 +223,11 @@
                         "@errorMessages": {
                             "pattern": "Invalid value; must be 'OnDayStart', 'OnLocationChange', 'OnTimeChange', or a comma-delimited combination of those values."
                         }
+                    },
+                    "LocalTokens": {
+                        "title": "Local tokens",
+                        "description": "Tokens to define for this specific patch, and (for an Include patch) the patches it includes.\n\nLimitation: local tokens defined directly on a patch can't be used in the `FromFile` and `Target` fields (since they can use tokens like `{{FromFile}}`). However, local tokens inherited from a parent Include patch can be used in those fields too.",
+                        "$ref": "#/definitions/LocalTokens"
                     },
                     "FromFile": {
                         "title": "Source file",
@@ -340,7 +355,19 @@
                             "type": "string",
                             "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_\\.]+ -?\\d+ -?\\d+ *$",
                             "@errorMessages": {
-                                "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30'."
+                                "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30')."
+                            }
+                        }
+                    },
+                    "AddNpcWarps": {
+                        "title": "Add NPC-only warps",
+                        "description": "The NPC-only warp values to add to the location, in the format recognized by the game's NPCWarp map property.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_\\.]+ -?\\d+ -?\\d+ *$",
+                            "@errorMessages": {
+                                "pattern": "Each warp must match the exact format recognized by the game's NPCWarp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30')."
                             }
                         }
                     },
@@ -397,7 +424,7 @@
                     "When": {
                         "title": "When",
                         "description": "Only apply the patch if the given conditions match.",
-                        "$ref": "#/definitions/Condition"
+                        "$ref": "#/definitions/Conditions"
                     }
                 },
                 "allOf": [
@@ -423,6 +450,7 @@
                                 "enum": [
                                     "Action",
                                     "FromFile",
+                                    "LocalTokens",
                                     "LogName",
                                     "Target",
                                     "Update",
@@ -458,6 +486,7 @@
                                 "enum": [
                                     "Action",
                                     "FromFile",
+                                    "LocalTokens",
                                     "LogName",
                                     "Target",
                                     "Update",
@@ -487,6 +516,7 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
+                                    "LocalTokens",
                                     "LogName",
                                     "Target",
                                     "Update",
@@ -535,12 +565,14 @@
                                 "enum": [
                                     "Action",
                                     "FromFile",
+                                    "LocalTokens",
                                     "LogName",
                                     "Target",
                                     "Update",
                                     "When",
 
                                     "AddWarps",
+                                    "AddNPCWarps",
                                     "FromArea",
                                     "MapProperties",
                                     "MapTiles",
@@ -564,6 +596,7 @@
                                 "enum": [
                                     "Action",
                                     "FromFile",
+                                    "LocalTokens",
                                     "LogName",
                                     "Update",
                                     "When"
@@ -586,8 +619,20 @@
         }
     },
     "definitions": {
-        "Condition": {
+        "Conditions": {
             "type": "object",
+            "additionalProperties": {
+                "type": [ "boolean", "integer", "string" ]
+            }
+        },
+        "LocalTokens": {
+            "type": "object",
+            "propertyNames": {
+                "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                "@errorMessages": {
+                    "pattern": "The token name should be alphanumeric with no special characters."
+                }
+            },
             "additionalProperties": {
                 "type": [ "boolean", "integer", "string" ]
             }
@@ -644,7 +689,6 @@
             "required": [ "X", "Y", "Width", "Height" ],
             "additionalProperties": false
         },
-
         "EditPriority": {
             "title": "Edit priority",
             "description": "When multiple patches or mods edit the same asset, the order in which they should be applied. Defaults to 'Default'. The patches for an asset are applied in this order: (1) by earliest to latest priority; (2) then by mod load order, e.g. based on dependencies; (3) then by the order of patches in content.json.",
@@ -663,7 +707,6 @@
                 "oneOf": "The edit priority must be 'Early', 'Default', 'Late', or a numeric offset like 'Early + 5'."
             }
         },
-
         "LoadPriority": {
             "title": "Load priority",
             "description": "When multiple patches or mods load the same asset, the priority which decides which one is applied. Defaults to 'Exclusive'. If set to Low/Medium/High, the highest-priority patch is applied (or the first one by load order + patch order is multiple patches have the highest priority). If set to Exclusive, it's applied if only one patch has that priority, else no exclusive patches are applied. Avoid using Exclusive when possible, since it significantly reduces mod compatibility.",

@@ -21,10 +21,10 @@ public class ModMessageReceivedEventArgs : EventArgs
     ** Accessors
     *********/
     /// <summary>The unique ID of the player from whose computer the message was sent.</summary>
-    public long FromPlayerID => this.Message.FromPlayerID;
+    public long FromPlayerID => this.Message.FromPlayerId;
 
     /// <summary>The unique ID of the mod which sent the message.</summary>
-    public string FromModID => this.Message.FromModID;
+    public string FromModID => this.Message.FromModId;
 
     /// <summary>A message type which can be used to decide whether it's the one you want to handle, like <c>SetPlayerLocation</c>. This doesn't need to be globally unique, so mods should check the <see cref="FromModID"/>.</summary>
     public string Type => this.Message.Type;

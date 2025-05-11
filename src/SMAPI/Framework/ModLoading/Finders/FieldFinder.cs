@@ -42,7 +42,7 @@ internal class FieldFinder : BaseInstructionHandler
     /// <param name="fieldName">The field name for which to find references.</param>
     /// <param name="result">The result to return for matching instructions.</param>
     public FieldFinder(string fullTypeName, string fieldName, InstructionHandleResult result)
-        : this(fullTypeName, new[] { fieldName }, result) { }
+        : this(fullTypeName, [fieldName], result) { }
 
     /// <inheritdoc />
     public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)

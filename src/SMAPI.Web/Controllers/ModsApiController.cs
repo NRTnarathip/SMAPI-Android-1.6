@@ -16,7 +16,6 @@ using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Caching;
 using StardewModdingAPI.Web.Framework.Caching.CompatibilityRepo;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
-using StardewModdingAPI.Web.Framework.Clients;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -73,7 +72,7 @@ internal class ModsApiController : Controller
         this.CompatibilityCache = compatibilityCache;
         this.ModCache = modCache;
         this.Config = config;
-        this.ModSites = new ModSiteManager(new IModSiteClient[] { chucklefish, curseForge, github, modDrop, nexus, updateManifest });
+        this.ModSites = new ModSiteManager([chucklefish, curseForge, github, modDrop, nexus, updateManifest]);
     }
 
     /// <summary>Fetch version metadata for the given mods.</summary>
@@ -107,7 +106,7 @@ internal class ModsApiController : Controller
             if (!model.IncludeExtendedMetadata && (model.ApiVersion == null || mod.InstalledVersion == null))
             {
                 result.Errors = result.Errors
-                    .Concat(new[] { $"This API can't suggest an update because {nameof(model.ApiVersion)} or {nameof(mod.InstalledVersion)} are null, and you didn't specify {nameof(model.IncludeExtendedMetadata)} to get other info. See the SMAPI technical docs for usage." })
+                    .Concat([$"This API can't suggest an update because {nameof(model.ApiVersion)} or {nameof(mod.InstalledVersion)} are null, and you didn't specify {nameof(model.IncludeExtendedMetadata)} to get other info. See the SMAPI technical docs for usage."])
                     .ToArray();
             }
 
@@ -217,7 +216,7 @@ internal class ModsApiController : Controller
         if (apiVersion != null && installedVersion != null)
         {
             // get newer versions
-            List<ModEntryVersionModel> updates = new List<ModEntryVersionModel>();
+            List<ModEntryVersionModel> updates = [];
             if (this.IsRecommendedUpdate(installedVersion, main?.Version, useBetaChannel: true))
                 updates.Add(main);
             if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: isSmapiBeta || installedVersion.IsPrerelease() || search.IsBroken))
@@ -340,7 +339,7 @@ internal class ModsApiController : Controller
     private IEnumerable<string> GetUnfilteredUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, ModCompatibilityEntry? entry)
     {
         // specified update keys
-        foreach (string key in specifiedKeys ?? Array.Empty<string>())
+        foreach (string key in specifiedKeys ?? [])
         {
             if (!string.IsNullOrWhiteSpace(key))
                 yield return key.Trim();

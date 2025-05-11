@@ -106,7 +106,7 @@ internal class ContentCache
     /// <returns>Returns any removed keys.</returns>
     public IEnumerable<string> Remove(Func<string, object, bool> predicate, bool dispose)
     {
-        List<string> removed = new();
+        List<string> removed = [];
         foreach ((string key, object value) in this.Cache)
         {
             if (predicate(key, value))

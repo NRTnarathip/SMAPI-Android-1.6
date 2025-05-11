@@ -68,7 +68,7 @@ internal class ContentPackHelper : BaseHelper, IContentPackHelper
 
         // create manifest
         IManifest manifest = new Manifest(
-            uniqueID: id,
+            uniqueId: id,
             name: name,
             author: author,
             description: description,

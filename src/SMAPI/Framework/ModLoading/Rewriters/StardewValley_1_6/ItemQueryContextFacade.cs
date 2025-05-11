@@ -14,7 +14,7 @@ public class ItemQueryContextFacade : ItemQueryContext, IRewriteFacade
     *********/
     public static ItemQueryContext Constructor(ItemQueryContext parentContext)
     {
-        return new ItemQueryContext(parentContext, null);
+        return new ItemQueryContext(parentContext);
     }
 
     public static ItemQueryContext Constructor(GameLocation location, Farmer player, Random random)

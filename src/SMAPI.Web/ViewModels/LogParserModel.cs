@@ -23,7 +23,7 @@ public class LogParserModel
     ** Accessors
     *********/
     /// <summary>The paste ID.</summary>
-    public string? PasteID { get; }
+    public string? PasteId { get; }
 
     /// <summary>The viewer's detected OS, if known.</summary>
     public Platform? DetectedPlatform { get; }
@@ -50,7 +50,7 @@ public class LogParserModel
     public DateTimeOffset? NewExpiry { get; set; }
 
     /// <summary>Whether parsed log data is available.</summary>
-    [MemberNotNullWhen(true, nameof(LogParserModel.PasteID), nameof(LogParserModel.ParsedLog))]
+    [MemberNotNullWhen(true, nameof(LogParserModel.PasteId), nameof(LogParserModel.ParsedLog))]
     public bool HasLog => this.ParsedLog != null;
 
 
@@ -58,11 +58,11 @@ public class LogParserModel
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
-    /// <param name="pasteID">The paste ID.</param>
+    /// <param name="pasteId">The paste ID.</param>
     /// <param name="platform">The viewer's detected OS, if known.</param>
-    public LogParserModel(string? pasteID, Platform? platform)
+    public LogParserModel(string? pasteId, Platform? platform)
     {
-        this.PasteID = pasteID;
+        this.PasteId = pasteId;
         this.DetectedPlatform = platform;
         this.ParsedLog = null;
         this.ShowRaw = false;
@@ -80,7 +80,7 @@ public class LogParserModel
     [JsonConstructor]
     public LogParserModel(string pasteId, Platform? detectedPlatform, ParsedLog? parsedLog, bool showRaw, string? uploadWarning, string? uploadError, DateTime? oldExpiry, DateTime? newExpiry)
     {
-        this.PasteID = pasteId;
+        this.PasteId = pasteId;
         this.DetectedPlatform = detectedPlatform;
         this.ParsedLog = parsedLog;
         this.ShowRaw = showRaw;

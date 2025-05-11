@@ -60,7 +60,7 @@ internal class ContentCoordinator : IDisposable
     private readonly Func<IAssetInfo, AssetOperationGroup?> RequestAssetOperations;
 
     /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
-    private readonly List<IContentManager> ContentManagers = new();
+    private readonly List<IContentManager> ContentManagers = [];
 
     /// <summary>Whether the content coordinator has been disposed.</summary>
     private bool IsDisposed;
@@ -157,7 +157,7 @@ internal class ContentCoordinator : IDisposable
 
         this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
         this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, multiplayer, reflection, name => this.ParseAssetName(name, allowLocales: true));
-        this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
+        this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: []));
     }
 
     /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -298,12 +298,12 @@ internal class ContentCoordinator : IDisposable
 
     /// <summary>Parse a managed SMAPI asset key which maps to a mod folder.</summary>
     /// <param name="key">The asset key.</param>
-    /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
+    /// <param name="contentManagerId">The unique name for the content manager which should load this asset.</param>
     /// <param name="relativePath">The asset name within the mod folder.</param>
     /// <returns>Returns whether the asset was parsed successfully.</returns>
-    public bool TryParseManagedAssetKey(string key, [NotNullWhen(true)] out string? contentManagerID, [NotNullWhen(true)] out IAssetName? relativePath)
+    public bool TryParseManagedAssetKey(string key, [NotNullWhen(true)] out string? contentManagerId, [NotNullWhen(true)] out IAssetName? relativePath)
     {
-        contentManagerID = null;
+        contentManagerId = null;
         relativePath = null;
 
         // not a managed asset
@@ -314,31 +314,31 @@ internal class ContentCoordinator : IDisposable
         string[] parts = PathUtilities.GetSegments(key, 3);
         if (parts.Length != 3) // managed key prefix, mod id, relative path
             return false;
-        contentManagerID = Path.Combine(parts[0], parts[1]);
+        contentManagerId = Path.Combine(parts[0], parts[1]);
         relativePath = this.ParseAssetName(parts[2], allowLocales: false);
         return true;
     }
 
     /// <summary>Get the managed asset key prefix for a mod.</summary>
-    /// <param name="modID">The mod's unique ID.</param>
-    public string GetManagedAssetPrefix(string modID)
+    /// <param name="modId">The mod's unique ID.</param>
+    public string GetManagedAssetPrefix(string modId)
     {
-        return Path.Combine(this.ManagedPrefix, modID.ToLower());
+        return Path.Combine(this.ManagedPrefix, modId.ToLower());
     }
 
     /// <summary>Get whether an asset from a mod folder exists.</summary>
     /// <typeparam name="T">The expected asset type.</typeparam>
-    /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
+    /// <param name="contentManagerId">The unique name for the content manager which should load this asset.</param>
     /// <param name="assetName">The asset name within the mod folder.</param>
-    public bool DoesManagedAssetExist<T>(string contentManagerID, IAssetName assetName)
+    public bool DoesManagedAssetExist<T>(string contentManagerId, IAssetName assetName)
         where T : notnull
     {
         // get content manager
         IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
-            this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
+            this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerId)
         );
         if (contentManager == null)
-            throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
+            throw new InvalidOperationException($"The '{contentManagerId}' prefix isn't handled by any mod.");
 
         // get whether the asset exists
         return contentManager.DoesAssetExist<T>(assetName);
@@ -346,17 +346,17 @@ internal class ContentCoordinator : IDisposable
 
     /// <summary>Get a copy of an asset from a mod folder.</summary>
     /// <typeparam name="T">The asset type.</typeparam>
-    /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
+    /// <param name="contentManagerId">The unique name for the content manager which should load this asset.</param>
     /// <param name="relativePath">The asset name within the mod folder.</param>
-    public T LoadManagedAsset<T>(string contentManagerID, IAssetName relativePath)
+    public T LoadManagedAsset<T>(string contentManagerId, IAssetName relativePath)
         where T : notnull
     {
         // get content manager
         IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
-            this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
+            this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerId)
         );
         if (contentManager == null)
-            throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
+            throw new InvalidOperationException($"The '{contentManagerId}' prefix isn't handled by any mod.");
 
         // get fresh asset
         return contentManager.LoadExact<T>(relativePath, useCache: false);
@@ -497,7 +497,7 @@ internal class ContentCoordinator : IDisposable
     {
         return this.ContentManagerLock.InReadLock(() =>
         {
-            List<object> values = new List<object>();
+            List<object> values = [];
             foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
             {
                 object value = content.LoadExact<object>(assetName, useCache: true);
@@ -521,7 +521,7 @@ internal class ContentCoordinator : IDisposable
             this.VanillaContentManager.Unload();
         }
 
-        return tilesheets ?? Array.Empty<TilesheetReference>();
+        return tilesheets ?? [];
     }
 
     /// <summary>Get the locale code which corresponds to a language enum (e.g. <c>fr-FR</c> given <see cref="LocalizedContentManager.LanguageCode.fr"/>).</summary>

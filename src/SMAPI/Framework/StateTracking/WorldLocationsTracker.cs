@@ -31,7 +31,7 @@ internal class WorldLocationsTracker : IWatcher
     private readonly Dictionary<Building, GameLocation?> BuildingIndoors = new(new ObjectReferenceComparer<Building>());
 
     /// <summary>The pooled list instance for <see cref="GetLocationsWhoseBuildingsChanged"/>.</summary>
-    private static readonly List<LocationTracker> PooledLocationsWithBuildingsChanged = new();
+    private static readonly List<LocationTracker> PooledLocationsWithBuildingsChanged = [];
 
 
     /*********

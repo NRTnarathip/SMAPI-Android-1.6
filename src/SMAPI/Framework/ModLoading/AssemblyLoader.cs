@@ -41,7 +41,7 @@ internal class AssemblyLoader : IDisposable
     private readonly SymbolWriterProvider SymbolWriterProvider = new();
 
     /// <summary>The objects to dispose as part of this instance.</summary>
-    private readonly HashSet<IDisposable> Disposables = new();
+    private readonly HashSet<IDisposable> Disposables = [];
 
     /// <summary>The instruction finders and rewriters to apply.</summary>
     private readonly IInstructionHandler[] InstructionHandlers;
@@ -137,7 +137,7 @@ internal class AssemblyLoader : IDisposable
         // rewrite & load assemblies in leaf-to-root order
         bool oneAssembly = assemblies.Length == 1;
         Assembly? lastAssembly = null;
-        HashSet<string> loggedMessages = new HashSet<string>();
+        HashSet<string> loggedMessages = [];
         foreach (AssemblyParseResult assembly in assemblies)
         {
             if (!assembly.HasDefinition)
@@ -311,12 +311,11 @@ internal class AssemblyLoader : IDisposable
         }
 
         // skip if already visited
-        if (visitedAssemblyNames.Contains(assembly.Name.Name))
+        if (!visitedAssemblyNames.Add(assembly.Name.Name))
         {
             yield return new AssemblyParseResult(file, null, AssemblyLoadStatus.AlreadyLoaded);
             yield break;
         }
-        visitedAssemblyNames.Add(assembly.Name.Name);
 
         // yield referenced assemblies
         foreach (AssemblyNameReference dependency in assembly.MainModule.AssemblyReferences)

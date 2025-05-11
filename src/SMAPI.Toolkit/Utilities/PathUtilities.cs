@@ -40,7 +40,7 @@ public static class PathUtilities
     public static string[] GetSegments(string? path, int? limit = null)
     {
         if (path == null)
-            return Array.Empty<string>();
+            return [];
 
         return limit.HasValue
             ? path.Split(PathUtilities.PossiblePathSeparators, limit.Value, StringSplitOptions.RemoveEmptyEntries)

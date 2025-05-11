@@ -88,7 +88,7 @@ public class NetFieldAnalyzerTests : DiagnosticVerifier
             Id = "AvoidNetField",
             Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/package/avoid-net-field for details.",
             Severity = DiagnosticSeverity.Warning,
-            Locations = new[] { new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column) }
+            Locations = [new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column)]
         };
 
         // assert

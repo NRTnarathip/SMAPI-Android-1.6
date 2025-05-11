@@ -13,10 +13,10 @@ internal class ModRegistry
     ** Fields
     *********/
     /// <summary>The registered mod data.</summary>
-    private readonly List<IModMetadata> Mods = new();
+    private readonly List<IModMetadata> Mods = [];
 
     /// <summary>An assembly full name => mod lookup.</summary>
-    private readonly IDictionary<string, IModMetadata> ModNamesByAssembly = new Dictionary<string, IModMetadata>();
+    private readonly Dictionary<string, IModMetadata> ModNamesByAssembly = [];
 
     /// <summary>Whether all mod assemblies have been loaded.</summary>
     public bool AreAllModsLoaded { get; set; }
@@ -68,7 +68,7 @@ internal class ModRegistry
         uniqueID = uniqueID.Trim();
 
         // find match
-        return this.GetAll().FirstOrDefault(p => p.HasID(uniqueID));
+        return this.GetAll().FirstOrDefault(p => p.HasId(uniqueID));
     }
 
     /// <summary>Get the mod metadata from one of its assemblies.</summary>
@@ -76,17 +76,11 @@ internal class ModRegistry
     /// <returns>Returns the mod's metadata, or <c>null</c> if the type isn't part of a known mod.</returns>
     public IModMetadata? GetFrom(Type? type)
     {
-        // null
         if (type == null)
             return null;
 
-        // known type
         string assemblyName = type.Assembly.FullName!;
-        if (this.ModNamesByAssembly.ContainsKey(assemblyName))
-            return this.ModNamesByAssembly[assemblyName];
-
-        // not found
-        return null;
+        return this.ModNamesByAssembly.GetValueOrDefault(assemblyName);
     }
 
     /// <summary>Get the mod metadata from a stack frame, if any.</summary>

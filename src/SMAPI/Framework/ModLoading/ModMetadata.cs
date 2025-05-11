@@ -191,7 +191,7 @@ internal class ModMetadata : IModMetadata
     }
 
     /// <inheritdoc />
-    public bool HasID()
+    public bool HasId()
     {
         return
             this.HasManifest()
@@ -199,10 +199,10 @@ internal class ModMetadata : IModMetadata
     }
 
     /// <inheritdoc />
-    public bool HasID(string? id)
+    public bool HasId(string? id)
     {
         return
-            this.HasID()
+            this.HasId()
             && string.Equals(this.Manifest.UniqueID.Trim(), id?.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 

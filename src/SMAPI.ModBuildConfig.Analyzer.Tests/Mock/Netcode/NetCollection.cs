@@ -4,4 +4,4 @@ using System.Collections.ObjectModel;
 namespace Netcode;
 
 /// <summary>A simplified version of Stardew Valley's <c>Netcode.NetCollection</c> for unit testing.</summary>
-public class NetCollection<T> : Collection<T> { }
+public class NetCollection<T> : Collection<T>;

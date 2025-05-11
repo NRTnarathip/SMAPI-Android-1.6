@@ -327,13 +327,12 @@ public static class Constants
         targetAssemblies.Add(typeof(StardewModdingAPI.IManifest).Assembly);
 
         // XNA Framework before Stardew Valley 1.5.5
-        removeAssemblyReferences.AddRange(new[]
-        {
+        removeAssemblyReferences.AddRange([
             "Microsoft.Xna.Framework",
             "Microsoft.Xna.Framework.Game",
             "Microsoft.Xna.Framework.Graphics",
             "Microsoft.Xna.Framework.Xact"
-        });
+        ]);
         targetAssemblies.Add(
             typeof(Microsoft.Xna.Framework.Vector2).Assembly
         );
@@ -417,7 +416,7 @@ public static class Constants
 
         // get basic info
         string rawSaveName = Game1.GetSaveGameName(set_value: false);
-        ulong saveID = Context.LoadStage == LoadStage.SaveParsed
+        ulong saveId = Context.LoadStage == LoadStage.SaveParsed
             ? SaveGame.loaded.uniqueIDForThisGame
             : Game1.uniqueIDForThisGame;
 
@@ -427,7 +426,7 @@ public static class Constants
         {
             try
             {
-                folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
+                folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveId}"));
                 if (folder.Exists)
                     return folder;
             }

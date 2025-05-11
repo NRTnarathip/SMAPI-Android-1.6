@@ -156,7 +156,7 @@ internal class SCore : IDisposable
     private readonly CommandQueue RawCommandQueue = new();
 
     /// <summary>A list of commands to execute on each screen.</summary>
-    private readonly PerScreen<List<QueuedCommand>> ScreenCommandQueue = new(() => new List<QueuedCommand>());
+    private readonly PerScreen<List<QueuedCommand>> ScreenCommandQueue = new(() => []);
 
     /// <summary>The last <see cref="ProcessTicksElapsed"/> for which display events were raised.</summary>
     private readonly PerScreen<uint> LastRenderEventTick = new();
@@ -247,13 +247,14 @@ internal class SCore : IDisposable
         // initialize SMAPI
         try
         {
-            JsonConverter[] converters = {
+            JsonConverter[] converters =
+            [
                 new ColorConverter(),
                 new KeybindConverter(),
                 new PointConverter(),
                 new Vector2Converter(),
                 new RectangleConverter()
-            };
+            ];
             foreach (JsonConverter converter in converters)
                 this.Toolkit.JsonHelper.JsonSettings.Converters.Add(converter);
 
@@ -496,7 +497,7 @@ internal class SCore : IDisposable
             // apply load order customizations
             if (this.Settings.ModsToLoadEarly.Any() || this.Settings.ModsToLoadLate.Any())
             {
-                HashSet<string> installedIds = new HashSet<string>(mods.Select(p => p.Manifest?.UniqueID).Where(p => p is not null)!, StringComparer.OrdinalIgnoreCase);
+                HashSet<string> installedIds = new(mods.Select(p => p.Manifest?.UniqueID).Where(p => p is not null)!, StringComparer.OrdinalIgnoreCase);
 
                 string[] missingEarlyMods = this.Settings.ModsToLoadEarly.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
                 string[] missingLateMods = this.Settings.ModsToLoadLate.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
@@ -894,7 +895,7 @@ internal class SCore : IDisposable
             // during enumeration errors). To avoid problems, events are not invoked while a save
             // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
             // opened (since the save hasn't started yet), but all other events should be suppressed.
-            if (Context.IsSaving)
+            if (Context.IsSaving())
             {
                 // raise before-create
                 if (!Context.IsWorldReady && !instance.IsBetweenCreateEvents)
@@ -1107,7 +1108,7 @@ internal class SCore : IDisposable
                 *********/
                 if (Context.IsWorldReady)
                 {
-                    bool raiseWorldEvents = !state.SaveID.IsChanged; // don't report changes from unloaded => loaded
+                    bool raiseWorldEvents = !state.SaveId.IsChanged; // don't report changes from unloaded => loaded
 
                     // location list changes
                     if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners || verbose))
@@ -1609,16 +1610,16 @@ internal class SCore : IDisposable
         if (this.EventManager.ModMessageReceived.HasListeners)
         {
             // get mod IDs to notify
-            HashSet<string> modIDs = new(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
-            if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
-                modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
+            HashSet<string> modIds = new(message.ToModIds ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+            if (message.FromPlayerId == Game1.player?.UniqueMultiplayerID)
+                modIds.Remove(message.FromModId); // don't send a broadcast back to the sender
 
             // raise events
             ModMessageReceivedEventArgs? args = null;
             this.EventManager.ModMessageReceived.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    if (modIDs.Contains(mod.Manifest.UniqueID))
+                    if (modIds.Contains(mod.Manifest.UniqueID))
                     {
                         args ??= new(message, this.Toolkit.JsonHelper);
                         invoke(args);
@@ -1703,7 +1704,7 @@ internal class SCore : IDisposable
 
         try
         {
-            string[] registryKeys = { @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall", @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" };
+            string[] registryKeys = [@"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall", @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"];
 
             string[] installedNames = registryKeys
                 .SelectMany(registryKey =>
@@ -1766,7 +1767,7 @@ internal class SCore : IDisposable
                 {
                     // fetch update check
                     IDictionary<string, ModEntryModel> response = await client.GetModInfoAsync(
-                        mods: new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) },
+                        mods: [new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, [$"GitHub:{this.Settings.GitHubProjectName}"])],
                         apiVersion: Constants.ApiVersion,
                         gameVersion: Constants.GameVersion,
                         platform: Constants.Platform
@@ -1810,10 +1811,10 @@ internal class SCore : IDisposable
                     HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
 
                     // prepare search model
-                    List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
+                    List<ModSearchEntryModel> searchMods = [];
                     foreach (IModMetadata mod in mods)
                     {
-                        if (!mod.HasID() || suppressUpdateChecks.Contains(mod.Manifest.UniqueID))
+                        if (!mod.HasId() || suppressUpdateChecks.Contains(mod.Manifest.UniqueID))
                             continue;
 
                         string[] updateKeys = mod
@@ -1833,7 +1834,7 @@ internal class SCore : IDisposable
                     foreach (IModMetadata mod in mods.OrderBy(p => p.DisplayName))
                     {
                         // link to update-check data
-                        if (!mod.HasID() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel? result))
+                        if (!mod.HasId() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel? result))
                             continue;
                         mod.SetUpdateData(result);
 
@@ -1937,7 +1938,7 @@ internal class SCore : IDisposable
                     string hash = FileUtilities.GetFileHash(md5, assetPath);
                     if (!string.Equals(hash, expectedHash, StringComparison.OrdinalIgnoreCase))
                     {
-                        modifiedFiles ??= new();
+                        modifiedFiles ??= [];
                         modifiedFiles.Add(relativePath);
                     }
 
@@ -1949,7 +1950,7 @@ internal class SCore : IDisposable
         // log missing files
         if (hashes.Count > 0)
         {
-            modifiedFiles ??= new();
+            modifiedFiles ??= [];
 
             foreach (string remainingFile in hashes.Keys)
                 modifiedFiles.Add($"{remainingFile} (missing)");
@@ -2073,7 +2074,7 @@ internal class SCore : IDisposable
                 }
 
                 // validate mod doesn't implement both GetApi() and GetApi(mod)
-                if (metadata.Api != null && mod.GetType().GetMethod(nameof(Mod.GetApi), new[] { typeof(IModInfo) })!.DeclaringType != typeof(Mod))
+                if (metadata.Api != null && mod.GetType().GetMethod(nameof(Mod.GetApi), [typeof(IModInfo)])!.DeclaringType != typeof(Mod))
                     metadata.LogAsMod($"Mod implements both {nameof(Mod.GetApi)}() and {nameof(Mod.GetApi)}({nameof(IModInfo)}), which isn't allowed. The latter will be ignored.", LogLevel.Error);
             }
             Context.HeuristicModsRunningCode.TryPop(out _);
@@ -2126,7 +2127,7 @@ internal class SCore : IDisposable
         }
 
         // add warning for missing update key
-        if (mod.HasID() && !suppressUpdateChecks.Contains(manifest!.UniqueID) && !mod.HasValidUpdateKeys())
+        if (mod.HasId() && !suppressUpdateChecks.Contains(manifest!.UniqueID) && !mod.HasValidUpdateKeys())
             mod.SetWarning(ModWarning.NoUpdateKeys);
 
         // validate status
@@ -2152,7 +2153,7 @@ internal class SCore : IDisposable
 
             // mark failed
             string dependencyName = mods
-                .FirstOrDefault(otherMod => otherMod.HasID(dependency.UniqueID))
+                .FirstOrDefault(otherMod => otherMod.HasId(dependency.UniqueID))
                 ?.DisplayName ?? dependency.UniqueID;
             errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
             failReason = ModFailReason.MissingDependencies;
@@ -2227,7 +2228,7 @@ internal class SCore : IDisposable
 
                     return this.ModRegistry
                         .GetAll(assemblyMods: false)
-                        .Where(p => p.IsContentPack && mod.HasID(p.Manifest.ContentPackFor!.UniqueID))
+                        .Where(p => p.IsContentPack && mod.HasId(p.Manifest.ContentPackFor!.UniqueID))
                         .Select(p => p.ContentPack!)
                         .ToArray();
                 }

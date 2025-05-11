@@ -17,7 +17,7 @@ internal class AssemblyDefinitionResolver : IAssemblyResolver
     private readonly IDictionary<string, AssemblyDefinition> Lookup = new Dictionary<string, AssemblyDefinition>();
 
     /// <summary>The directory paths to search for assemblies.</summary>
-    private readonly HashSet<string> SearchPaths = new();
+    private readonly HashSet<string> SearchPaths = [];
 
 
     /*********

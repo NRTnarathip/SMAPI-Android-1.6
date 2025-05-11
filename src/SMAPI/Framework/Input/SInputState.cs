@@ -25,10 +25,10 @@ internal sealed class SInputState : InputState
     private Vector2? LastPlayerTile;
 
     /// <summary>The buttons to press until the game next handles input.</summary>
-    private readonly HashSet<SButton> CustomPressedKeys = new();
+    private readonly HashSet<SButton> CustomPressedKeys = [];
 
     /// <summary>The buttons to consider released until the actual button is released.</summary>
-    private readonly HashSet<SButton> CustomReleasedKeys = new();
+    private readonly HashSet<SButton> CustomReleasedKeys = [];
 
     /// <summary>Whether there are new overrides in <see cref="CustomPressedKeys"/> or <see cref="CustomReleasedKeys"/> that haven't been applied to the previous state.</summary>
     private bool HasNewOverrides;
@@ -85,7 +85,7 @@ internal sealed class SInputState : InputState
             var mouse = new MouseStateBuilder(base.GetMouseState());
             Vector2 cursorAbsolutePos = new((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
             Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.Tile : null;
-            HashSet<SButton> reallyDown = new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller));
+            HashSet<SButton> reallyDown = new(this.GetPressedButtons(keyboard, mouse, controller));
 
             // apply overrides
             bool hasOverrides = false;
@@ -105,7 +105,7 @@ internal sealed class SInputState : InputState
 
             // get button states
             var pressedButtons = hasOverrides
-                ? new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller))
+                ? new(this.GetPressedButtons(keyboard, mouse, controller))
                 : reallyDown;
             var activeButtons = this.DeriveStates(this.ButtonStates, pressedButtons);
 
@@ -283,8 +283,8 @@ internal sealed class SInputState : InputState
         // handle released keys
         foreach (KeyValuePair<SButton, SButtonState> prev in previousStates)
         {
-            if (prev.Value.IsDown() && !activeButtons.ContainsKey(prev.Key))
-                activeButtons[prev.Key] = SButtonState.Released;
+            if (prev.Value.IsDown())
+                activeButtons.TryAdd(prev.Key, SButtonState.Released);
         }
 
         return activeButtons;

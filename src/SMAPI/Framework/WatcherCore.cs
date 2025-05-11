@@ -17,7 +17,7 @@ internal class WatcherCore
     ** Fields
     *********/
     /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
-    private readonly List<IWatcher> Watchers = new();
+    private readonly List<IWatcher> Watchers = [];
 
 
     /*********
@@ -68,17 +68,16 @@ internal class WatcherCore
         this.ActiveMenuWatcher = WatcherFactory.ForReference(nameof(Game1.activeClickableMenu), () => Game1.activeClickableMenu);
         this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines, VolcanoDungeon.activeLevels);
         this.LocaleWatcher = WatcherFactory.ForGenericEquality(nameof(LocalizedContentManager.CurrentLanguageCode), () => LocalizedContentManager.CurrentLanguageCode);
-        this.Watchers.AddRange(new IWatcher[]
-        {
-                this.CursorWatcher,
-                this.MouseWheelScrollWatcher,
-                this.SaveIdWatcher,
-                this.WindowSizeWatcher,
-                this.TimeWatcher,
-                this.ActiveMenuWatcher,
-                this.LocationsWatcher,
-                this.LocaleWatcher
-        });
+        this.Watchers.AddRange([
+            this.CursorWatcher,
+            this.MouseWheelScrollWatcher,
+            this.SaveIdWatcher,
+            this.WindowSizeWatcher,
+            this.TimeWatcher,
+            this.ActiveMenuWatcher,
+            this.LocationsWatcher,
+            this.LocaleWatcher
+        ]);
     }
 
     /// <summary>Update the watchers and adjust for added or removed entities.</summary>

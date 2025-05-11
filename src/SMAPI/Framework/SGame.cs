@@ -277,7 +277,7 @@ internal class SGame : Game1
 
         bool isCreating =
             (Game1.currentMinigame is Intro) // creating save with intro
-            || (Game1.activeClickableMenu is TitleMenu menu && menu.transitioningCharacterCreationMenu); // creating save, skipped intro
+            || Game1.activeClickableMenu is TitleMenu { transitioningCharacterCreationMenu: true }; // creating save, skipped intro
 
         if (isCreating)
             this.OnLoadStageChanged(LoadStage.CreatedLocations);

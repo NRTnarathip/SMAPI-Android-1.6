@@ -24,7 +24,7 @@ internal class GameContentManager : BaseContentManager
     ** Fields
     *********/
     /// <summary>The assets currently being intercepted by <see cref="AssetLoadOperation"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
-    private readonly ContextHash<string> AssetsBeingLoaded = new();
+    private readonly ContextHash<string> AssetsBeingLoaded = [];
 
     /// <summary>Whether the next load is the first for any game content manager.</summary>
     private static bool IsFirstLoad = true;
@@ -66,8 +66,8 @@ internal class GameContentManager : BaseContentManager
             return true;
 
         // managed asset
-        if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
-            return this.Coordinator.DoesManagedAssetExist<T>(contentManagerID, relativePath);
+        if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerId, out IAssetName? relativePath))
+            return this.Coordinator.DoesManagedAssetExist<T>(contentManagerId, relativePath);
 
         // custom asset from a loader
         string locale = this.GetLocale();
@@ -111,9 +111,9 @@ internal class GameContentManager : BaseContentManager
             return this.RawLoad<T>(assetName, useCache: true);
 
         // get managed asset
-        if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
+        if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerId, out IAssetName? relativePath))
         {
-            T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerID, relativePath);
+            T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerId, relativePath);
             this.TrackAsset(assetName, managedAsset, useCache);
             return managedAsset;
         }
@@ -228,7 +228,7 @@ internal class GameContentManager : BaseContentManager
                 return (IAssetData)this.GetType()
                     .GetMethod(nameof(this.ApplyEditors), BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(actualType)
-                    .Invoke(this, new object[] { info, asset, editOperations })!;
+                    .Invoke(this, [info, asset, editOperations])!;
             }
         }
 

@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Markdig;
+using Newtonsoft.Json;
 using Pathoschild.Http.Client;
 using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo.Internal;
 using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo.RawDataModels;
@@ -47,8 +49,27 @@ public class CompatibilityRepoClient : IDisposable
         RawCompatibilityList brokenContentPacks = await this.Client.GetAsync("broken-content-packs.jsonc").As<RawCompatibilityList>();
 
         return
-            (mods.Mods ?? Array.Empty<RawModEntry>())
-            .Concat(brokenContentPacks.BrokenContentPacks ?? Array.Empty<RawModEntry>())
+            (mods.Mods ?? [])
+            .Concat(brokenContentPacks.BrokenContentPacks ?? [])
+            .Select(this.ParseRawModEntry)
+            .ToArray();
+    }
+
+    /// <summary>Fetch mods from the compatibility list by reading a local copy of the compatibility list repo.</summary>
+    /// <param name="gitRepoPath">The full path to the compatibility list repo folder.</param>
+    public async Task<ModCompatibilityEntry[]> FetchModsFromLocalGitFolderAsync(string gitRepoPath)
+    {
+        string modsJsonPath = Path.Combine(gitRepoPath, "data", "mods.jsonc");
+        string contentPacksJsonPath = Path.Combine(gitRepoPath, "data", "broken-content-packs.jsonc");
+        if (!File.Exists(modsJsonPath) || !File.Exists(contentPacksJsonPath))
+            throw new InvalidOperationException("The compatibility list repo folder doesn't contain the required JSON files.");
+
+        RawCompatibilityList? mods = JsonConvert.DeserializeObject<RawCompatibilityList>(File.ReadAllText(modsJsonPath));
+        RawCompatibilityList? brokenContentPacks = JsonConvert.DeserializeObject<RawCompatibilityList>(File.ReadAllText(contentPacksJsonPath));
+
+        return
+            (mods?.Mods ?? [])
+            .Concat(brokenContentPacks?.BrokenContentPacks ?? [])
             .Select(this.ParseRawModEntry)
             .ToArray();
     }
@@ -111,7 +132,7 @@ public class CompatibilityRepoClient : IDisposable
                 unofficialVersion: this.GetSemanticVersion(rawModEntry.UnofficialUpdate?.Version),
                 unofficialUrl: rawModEntry.UnofficialUpdate?.Url
             ),
-            warnings: rawModEntry.Warnings ?? Array.Empty<string>(),
+            warnings: rawModEntry.Warnings ?? [],
             devNote: rawModEntry.DeveloperNotes,
             overrides: this.ParseOverrideEntries(modIds, rawModEntry.OverrideModData),
             anchor: PathUtilities.CreateSlug(modNames.FirstOrDefault())?.ToLower()
@@ -166,8 +187,8 @@ public class CompatibilityRepoClient : IDisposable
     private string[] GetCsv(string? rawValue)
     {
         return !string.IsNullOrWhiteSpace(rawValue)
-            ? rawValue.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray()
-            : Array.Empty<string>();
+            ? rawValue.Split([','], StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray()
+            : [];
     }
 
     /// <summary>Get a raw value as a semantic version.</summary>

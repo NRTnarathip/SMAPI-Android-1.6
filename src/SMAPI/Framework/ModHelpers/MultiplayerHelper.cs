@@ -58,9 +58,9 @@ internal class MultiplayerHelper : BaseHelper, IMultiplayerHelper
         this.Multiplayer.BroadcastModMessage(
             message: message,
             messageType: messageType,
-            fromModID: this.ModID,
-            toModIDs: modIDs,
-            toPlayerIDs: playerIDs
+            fromModId: this.ModID,
+            toModIds: modIDs,
+            toPlayerIds: playerIDs
         );
     }
 }

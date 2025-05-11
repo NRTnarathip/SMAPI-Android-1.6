@@ -11,10 +11,10 @@ internal class SnapshotListDiff<T>
     ** Fields
     *********/
     /// <summary>The removed values.</summary>
-    private readonly List<T> RemovedImpl = new();
+    private readonly List<T> RemovedImpl = [];
 
     /// <summary>The added values.</summary>
-    private readonly List<T> AddedImpl = new();
+    private readonly List<T> AddedImpl = [];
 
 
     /*********

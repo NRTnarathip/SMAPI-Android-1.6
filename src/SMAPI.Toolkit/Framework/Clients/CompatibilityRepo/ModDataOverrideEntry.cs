@@ -1,5 +1,3 @@
-using System;
-
 namespace StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 
 /// <summary>The data overrides to apply to matching mods.</summary>
@@ -9,7 +7,7 @@ public class ModDataOverrideEntry
     ** Accessors
     *********/
     /// <summary>The unique mod IDs for the mods to override.</summary>
-    public string[] Ids { get; set; } = Array.Empty<string>();
+    public string[] Ids { get; set; } = [];
 
     /// <summary>Maps local versions to a semantic version for update checks.</summary>
     public ChangeDescriptor? ChangeLocalVersions { get; set; }

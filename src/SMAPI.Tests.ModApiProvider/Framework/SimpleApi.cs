@@ -73,7 +73,7 @@ public class SimpleApi : BaseApi
     /// <summary>A simple method which returns a list.</summary>
     public List<string> GetList(string value)
     {
-        return new() { value };
+        return [value];
     }
 
     /// <summary>A simple method which returns a list with an interface.</summary>
@@ -105,7 +105,7 @@ public class SimpleApi : BaseApi
         outReference = new PerScreen<int>(() => inputNumber);
         outComplexType = new Dictionary<int, PerScreen<int>>
         {
-            [inputNumber] = new PerScreen<int>(() => inputNumber)
+            [inputNumber] = new(() => inputNumber)
         };
 
         return true;

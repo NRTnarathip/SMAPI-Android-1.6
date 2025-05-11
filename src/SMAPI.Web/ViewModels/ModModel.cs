@@ -12,6 +12,9 @@ public class ModModel
     /*********
     ** Accessors
     *********/
+    /// <summary>The mod IDs.</summary>
+    public string[] Id { get; }
+
     /// <summary>The mod name.</summary>
     public string? Name { get; }
 
@@ -45,14 +48,12 @@ public class ModModel
     /// <summary>A unique identifier for the mod that can be used in an anchor URL.</summary>
     public string? Slug { get; }
 
-    /// <summary>The sites where the mod can be downloaded.</summary>
-    public string[] ModPageSites => this.ModPages.Select(p => p.Text).ToArray();
-
 
     /*********
     ** Public methods
     *********/
     /// <summary>Construct an instance.</summary>
+    /// <param name="id">The mod IDs.</param>
     /// <param name="name">The mod name.</param>
     /// <param name="alternateNames">The mod's alternative names, if any.</param>
     /// <param name="author">The mod author's name.</param>
@@ -65,8 +66,9 @@ public class ModModel
     /// <param name="devNote">Special notes intended for developers who maintain unofficial updates or submit pull requests.</param>
     /// <param name="slug">A unique identifier for the mod that can be used in an anchor URL.</param>
     [JsonConstructor]
-    public ModModel(string? name, string alternateNames, string author, string alternateAuthors, string gitHubRepo, string sourceUrl, ModCompatibilityModel compatibility, ModLinkModel[] modPages, string[] warnings, string devNote, string slug)
+    public ModModel(string[] id, string? name, string alternateNames, string author, string alternateAuthors, string gitHubRepo, string sourceUrl, ModCompatibilityModel compatibility, ModLinkModel[] modPages, string[] warnings, string devNote, string slug)
     {
+        this.Id = id;
         this.Name = name;
         this.AlternateNames = alternateNames;
         this.Author = author;
@@ -85,6 +87,7 @@ public class ModModel
     public ModModel(ModCompatibilityEntry entry)
     {
         // basic info
+        this.Id = entry.ID.ToArray();
         this.Name = entry.Name.FirstOrDefault();
         this.AlternateNames = string.Join(", ", entry.Name.Skip(1).ToArray());
         this.Author = entry.Author.FirstOrDefault();

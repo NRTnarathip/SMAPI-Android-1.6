@@ -20,7 +20,7 @@ internal class WatcherSnapshot
     public SnapshotDiff<int> Time { get; } = new();
 
     /// <summary>Tracks changes to the save ID.</summary>
-    public SnapshotDiff<ulong> SaveID { get; } = new();
+    public SnapshotDiff<ulong> SaveId { get; } = new();
 
     /// <summary>Tracks changes to the game's locations.</summary>
     public WorldLocationsSnapshot Locations { get; } = new();
@@ -56,7 +56,7 @@ internal class WatcherSnapshot
         this.Locale.Update(watchers.LocaleWatcher);
         this.CurrentPlayer?.Update(watchers.CurrentPlayerTracker!);
         this.Time.Update(watchers.TimeWatcher);
-        this.SaveID.Update(watchers.SaveIdWatcher);
+        this.SaveId.Update(watchers.SaveIdWatcher);
         this.Locations.Update(watchers.LocationsWatcher);
         this.ActiveMenu.Update(watchers.ActiveMenuWatcher);
         this.Cursor.Update(watchers.CursorWatcher);

@@ -251,7 +251,7 @@ internal class ItemRepository
     {
         try
         {
-            SearchableItem item = new SearchableItem(type, key, createItem);
+            SearchableItem item = new(type, key, createItem);
             item.Item.getDescription(); // force-load item data, so it crashes here if it's invalid
 
             if (item.Item.Name is null or "Error Item")

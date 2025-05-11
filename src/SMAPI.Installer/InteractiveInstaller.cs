@@ -27,10 +27,7 @@ internal class InteractiveInstaller
     private readonly string BundlePath;
 
     /// <summary>The mod IDs which the installer should allow as bundled mods.</summary>
-    private readonly string[] BundledModIDs = {
-        "SMAPI.SaveBackup",
-        "SMAPI.ConsoleCommands"
-    };
+    private readonly string[] BundledModIds = ["SMAPI.SaveBackup", "SMAPI.ConsoleCommands"];
 
     /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
     /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
@@ -207,7 +204,7 @@ internal class InteractiveInstaller
             Console.WriteLine();
 
             // handle choice
-            string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" }, printLine: Console.WriteLine);
+            string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", ["1", "2"], printLine: Console.WriteLine);
             switch (choice)
             {
                 case "1":
@@ -298,7 +295,7 @@ internal class InteractiveInstaller
                 this.PrintInfo("[2] Uninstall SMAPI.");
                 Console.WriteLine();
 
-                string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" });
+                string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", ["1", "2"]);
                 switch (choice)
                 {
                     case "1":
@@ -447,7 +444,7 @@ internal class InteractiveInstaller
                             this.PrintWarning($"   ignored invalid bundled mod {sourceMod.DisplayName}: {sourceMod.ManifestParseError}");
                             continue;
                         }
-                        if (!this.BundledModIDs.Contains(sourceMod.Manifest.UniqueID))
+                        if (!this.BundledModIds.Contains(sourceMod.Manifest.UniqueID))
                         {
                             this.PrintWarning($"   ignored unknown '{sourceMod.DisplayName}' mod in the installer folder. To add mods, put them here instead: {paths.ModsPath}");
                             continue;
@@ -709,7 +706,7 @@ internal class InteractiveInstaller
         }
 
         // get valid install paths & log invalid ones
-        List<DirectoryInfo> defaultPaths = new();
+        List<DirectoryInfo> defaultPaths = [];
         foreach ((DirectoryInfo dir, GameFolderType type) in this.DetectGameFolders(toolkit, context))
         {
             if (type is GameFolderType.Valid)
@@ -799,7 +796,7 @@ internal class InteractiveInstaller
     /// <param name="context">The installer context.</param>
     private IEnumerable<(DirectoryInfo, GameFolderType)> DetectGameFolders(ModToolkit toolkit, InstallerContext context)
     {
-        HashSet<string> foundPaths = new HashSet<string>();
+        HashSet<string> foundPaths = [];
 
         // game folder which contains the installer, if any
         {
@@ -830,28 +827,28 @@ internal class InteractiveInstaller
         switch (type)
         {
             case GameFolderType.Valid:
-                return new[] { "OK!" }; // should never happen
+                return ["OK!"]; // should never happen
 
             case GameFolderType.LegacyVersion:
-                return new[]
-                {
+                return
+                [
                     "That directory seems to have Stardew Valley 1.5.6 or earlier.",
                     "Please update your game to the latest version to use SMAPI."
-                };
+                ];
 
             case GameFolderType.LegacyCompatibilityBranch:
-                return new[]
-                {
+                return
+                [
                     "That directory seems to have the Stardew Valley legacy 'compatibility' branch.",
                     "Unfortunately SMAPI is only compatible with the modern version of the game.",
                     "Please update your game to the main branch to use SMAPI."
-                };
+                ];
 
             case GameFolderType.NoGameFound:
-                return new[] { "That directory doesn't contain a Stardew Valley executable." };
+                return ["That directory doesn't contain a Stardew Valley executable."];
 
             default:
-                return new[] { "That directory doesn't seem to contain a valid game install." };
+                return ["That directory doesn't seem to contain a valid game install."];
         }
     }
 

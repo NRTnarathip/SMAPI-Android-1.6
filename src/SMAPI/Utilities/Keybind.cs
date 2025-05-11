@@ -49,14 +49,14 @@ public class Keybind
         if (string.IsNullOrWhiteSpace(input))
         {
             parsed = new Keybind(SButton.None);
-            errors = Array.Empty<string>();
+            errors = [];
             return true;
         }
 
         // parse buttons
         string[] rawButtons = input.Split('+', StringSplitOptions.TrimEntries);
         SButton[] buttons = new SButton[rawButtons.Length];
-        List<string> rawErrors = new List<string>();
+        List<string> rawErrors = [];
         for (int i = 0; i < buttons.Length; i++)
         {
             string rawButton = rawButtons[i];
@@ -98,7 +98,7 @@ public class Keybind
         else
         {
             parsed = new Keybind(buttons);
-            errors = Array.Empty<string>();
+            errors = [];
             return true;
         }
     }

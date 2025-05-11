@@ -306,7 +306,7 @@ internal class AssetNameTests
     public void GetHashCode_HasFewCollisions()
     {
         // generate list of names
-        List<string> names = new();
+        List<string> names = [];
         {
             Random random = new();
             string characters = "abcdefghijklmnopqrstuvwxyz1234567890/";
@@ -322,7 +322,7 @@ internal class AssetNameTests
         }
 
         // get distinct hash codes
-        HashSet<int> hashCodes = new();
+        HashSet<int> hashCodes = [];
         foreach (string name in names)
             hashCodes.Add(AssetName.Parse(name, _ => null).GetHashCode());
 

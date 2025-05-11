@@ -137,7 +137,7 @@ internal class SConfig
         this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(this.UseBetaChannel)];
         this.GitHubProjectName = gitHubProjectName;
         this.WebApiBaseUrl = webApiBaseUrl;
-        this.VerboseLogging = new HashSet<string>(verboseLogging ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+        this.VerboseLogging = new HashSet<string>(verboseLogging ?? [], StringComparer.OrdinalIgnoreCase);
         this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(this.RewriteMods)];
         this.FixHarmony = fixHarmony ?? (bool)SConfig.DefaultValues[nameof(this.FixHarmony)];
         this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
@@ -145,9 +145,9 @@ internal class SConfig
         this.LogTechnicalDetailsForBrokenMods = logTechnicalDetailsForBrokenMods ?? (bool)SConfig.DefaultValues[nameof(this.LogTechnicalDetailsForBrokenMods)];
         this.ConsoleColors = consoleColors;
         this.SuppressHarmonyDebugMode = suppressHarmonyDebugMode ?? (bool)SConfig.DefaultValues[nameof(this.SuppressHarmonyDebugMode)];
-        this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
-        this.ModsToLoadEarly = new HashSet<string>(modsToLoadEarly ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
-        this.ModsToLoadLate = new HashSet<string>(modsToLoadLate ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+        this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? [], StringComparer.OrdinalIgnoreCase);
+        this.ModsToLoadEarly = new HashSet<string>(modsToLoadEarly ?? [], StringComparer.OrdinalIgnoreCase);
+        this.ModsToLoadLate = new HashSet<string>(modsToLoadLate ?? [], StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>Override the value of <see cref="DeveloperMode"/>.</summary>

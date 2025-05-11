@@ -69,9 +69,8 @@ internal class DeprecationManager
 
         // skip if already warned
         string cacheKey = $"{heuristicSource?.Manifest.UniqueID ?? "<unknown>"}::{nounPhrase}::{version}";
-        if (this.LoggedDeprecations.Contains(cacheKey))
+        if (!this.LoggedDeprecations.Add(cacheKey))
             return;
-        this.LoggedDeprecations.Add(cacheKey);
 
         // get more accurate source
         if (stack is not null)

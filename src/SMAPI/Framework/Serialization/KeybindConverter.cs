@@ -52,7 +52,7 @@ internal class KeybindConverter : JsonConverter
                     string? str = JToken.Load(reader).Value<string>();
 
                     if (str is null)
-                        return new Keybind(Array.Empty<SButton>());
+                        return new Keybind();
 
                     if (objectType == typeof(Keybind))
                     {

@@ -14,10 +14,10 @@
     ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
 
     // detect suggested fixes
-    LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? Array.Empty<LogModInfo>();
-    bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsBetween("3.15.0", "3.19.0") is true && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
+    LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? [];
+    bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsBetween("3.15.0", "3.19.0") is true && log.Mods.Any(p => p is { IsCodeMod: true, Name: "PyTK" } && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
 
-    LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
+    LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p is { IsCodeMod: true, Name: "Error Handler" });
     bool errorHandlerNeeded = log?.ApiVersionParsed?.IsOlderThan("4.0.0-alpha") == true && log.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true;
     bool missingErrorHandler = errorHandlerNeeded && errorHandler is null;
     bool hasOlderErrorHandler = errorHandlerNeeded && errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
@@ -34,11 +34,11 @@
         .ToDictionary(section => (int)section, section => section.ToString());
 
     // get form
-    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true)!;
+    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId }, absoluteUrl: true)!;
 }
 
 @section Head {
-    @if (Model.PasteID != null)
+    @if (Model.PasteId != null)
     {
         <meta name="robots" content="noindex" />
     }
@@ -86,7 +86,7 @@
                     logStarted: new Date(@this.ForJson(log?.Timestamp)),
                     dataElement: "script#serializedData",
                     showPopup: @this.ForJson(log == null),
-                    showMods: @this.ForJson(log?.Mods.Where(p => p.Loaded && !p.IsContentPack).Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                    showMods: @this.ForJson(log?.Mods.Where(p => p is { Loaded: true, IsContentPack: false }).Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                     showLevels: @this.ForJson(defaultFilters),
                     enableFilters: @this.ForJson(!Model.ShowRaw),
@@ -168,7 +168,7 @@ else if (log?.IsValid == true)
             {
                 <text><s>@(oldExpiryText)</s> </text>
             }
-            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteID, renew = true }))">renew</a>).</text>
+            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteId, renew = true }))">renew</a>).</text>
         }
     </div>
 }
@@ -288,7 +288,7 @@ else if (log?.IsValid == true)
                         Consider updating these mods to fix problems:
 
                         <table id="updates" class="table">
-                            @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
+                            @foreach (LogModInfo mod in log.Mods.Where(mod => mod is { HasUpdate: true, IsContentPack: false } || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
                             {
                                 <tr class="mod-entry">
                                     <td>
@@ -388,10 +388,10 @@ else if (log?.IsValid == true)
 
             @{
                 var modsWithContentPacks = log.Mods
-                    .Where(mod => mod.Loaded && !mod.IsContentPack)
+                    .Where(mod => mod is { Loaded: true, IsContentPack: false })
                     .Select(mod => (
                         Mod: mod,
-                        ContentPacks: contentPacks?.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) == true ? contentPackList : Array.Empty<LogModInfo>()
+                        ContentPacks: contentPacks?.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) == true ? contentPackList : []
                     ))
                     .ToList();
                 if (contentPacks?.TryGetValue("", out LogModInfo[]? invalidPacks) == true)
@@ -501,7 +501,7 @@ else if (log?.IsValid == true)
 
             <noscript>
                 <div>
-                    This website uses JavaScript to display a filterable table. To view this log, please enable JavaScript or <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view the raw log</a>.
+                    This website uses JavaScript to display a filterable table. To view this log, please enable JavaScript or <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawView })">view the raw log</a>.
                 </div>
                 <br />
             </noscript>
@@ -523,14 +523,14 @@ else if (log?.IsValid == true)
         <small>
             @if (Model.ShowRaw)
             {
-                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a>
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId })">view parsed log</a>
             }
             else
             {
-                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view raw log</a>
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawView })">view raw log</a>
             }
 
-            | <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawDownload })" download>download</a>
+            | <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawDownload })" download>download</a>
         </small>
     </div>
 }

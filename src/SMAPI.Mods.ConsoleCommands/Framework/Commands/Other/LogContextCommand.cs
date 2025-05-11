@@ -20,7 +20,7 @@ internal class LogContextCommand : ConsoleCommand
     /// <param name="args">The command arguments.</param>
     public override void Handle(IMonitor monitor, string command, ArgumentParser args)
     {
-        Monitor.ForceLogContext = true;
+        Monitor.ForceLogContext = !Monitor.ForceLogContext;
 
         monitor.Log(
             Monitor.ForceLogContext ? "OK, logging contextual info until you run this command again." : "OK, no longer logging contextual info.",

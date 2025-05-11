@@ -21,17 +21,18 @@ internal class ChangeDescriptorTests
     {
         // arrange
         string rawDescriptor = "-Nexus:2400,    -B, XX → YY, Nexus:451,+A, XXX → YYY, invalidA →, → invalidB";
-        string[] expectedAdd = { "Nexus:451", "A" };
-        string[] expectedRemove = { "Nexus:2400", "B" };
+        string[] expectedAdd = ["Nexus:451", "A"];
+        string[] expectedRemove = ["Nexus:2400", "B"];
         IDictionary<string, string> expectedReplace = new Dictionary<string, string>
         {
             ["XX"] = "YY",
             ["XXX"] = "YYY"
         };
-        string[] expectedErrors = {
+        string[] expectedErrors =
+        [
             "Failed parsing ' invalidA →': can't map to a blank value. Use the '-value' format to remove a value.",
             "Failed parsing ' → invalidB': can't map from a blank old value. Use the '+value' format to add a value."
-        };
+        ];
 
         // act
         ChangeDescriptor parsed = ChangeDescriptor.Parse(rawDescriptor, out string[] errors);
@@ -48,17 +49,18 @@ internal class ChangeDescriptorTests
     {
         // arrange
         string rawDescriptor = "-1.0.1,    -2.0-beta, 1.00 → 1.0, 1.0.0,+2.0-beta.15, 2.0 → 2.0-beta, invalidA →, → invalidB";
-        string[] expectedAdd = { "1.0.0", "2.0.0-beta.15" };
-        string[] expectedRemove = { "1.0.1", "2.0.0-beta" };
+        string[] expectedAdd = ["1.0.0", "2.0.0-beta.15"];
+        string[] expectedRemove = ["1.0.1", "2.0.0-beta"];
         IDictionary<string, string> expectedReplace = new Dictionary<string, string>
         {
             ["1.00"] = "1.0.0",
             ["2.0.0"] = "2.0.0-beta"
         };
-        string[] expectedErrors = {
+        string[] expectedErrors =
+        [
             "Failed parsing ' invalidA →': can't map to a blank value. Use the '-value' format to remove a value.",
             "Failed parsing ' → invalidB': can't map from a blank old value. Use the '+value' format to add a value."
-        };
+        ];
 
         // act
         ChangeDescriptor parsed = ChangeDescriptor.Parse(

@@ -1,6 +1,43 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+Released 25 March 2025 for Stardew Valley 1.6.14 or later.
+
+* For players:
+  * Fixed crash when some mods' custom tiles are on-screen.
+
+* For mod authors:
+  * Reverted the fix for the game's `Data/ChairTiles` logic not handling unique string IDs like `Maps/Author.ModName` correctly.  
+    _The fix caused crashes loading map tiles in some cases. This will be fixed in the next game update instead._
+
+## 4.2.0
+Released 24 March 2025 for Stardew Valley 1.6.14 or later. See [release highlights](https://www.patreon.com/posts/125017679).
+
+* For players:
+  * Fixed `log_context` command not disabling the extra logs when run again.
+  * Fixed update alerts when using an unofficial port of SMAPI with a four-part version number.
+  * Fixed installer on Linux not always opening a terminal as intended (thanks to HoodedDeath!).
+  * Updated compatibility list.
+
+* For mod authors:
+  * Mod events are now raised on the shipping menu (except when it's actually saving).
+  * Added translation API methods to query translation keys (`ContainsKey` and `GetKeys`).
+  * ~~Fixed the game's `Data/ChairTiles` logic not handling unique string IDs like `Maps/Author.ModName` correctly.~~  
+    _Reverted in 4.2.1._
+  * Fixed exception thrown if `modRegistry.GetApi<T>` can't proxy the API to the given interface. It now logs an error and returns null as intended.
+
+* For external tools:
+  * Added toolkit method to read the compatibility list from a local copy of its Git repo.
+
+* For the web UI:
+  * You can now link to a mod in the compatibility list by its unique ID, like [smapi.io/mods#Pathoschild.ContentPatcher](https://smapi.io/mods#Pathoschild.ContentPatcher).
+  * Fixed search engines able to index uploaded logs and JSON files via the raw download option.
+  * Improved Content Patcher JSON schema:
+    * Updated for Content Patcher 2.5.0.
+    * Added format validation for token names.
+    * Fixed incorrect error when setting a config default to a boolean or number.
+
 ## 4.1.10
 Released 18 December 2024 for Stardew Valley 1.6.14 or later.
 

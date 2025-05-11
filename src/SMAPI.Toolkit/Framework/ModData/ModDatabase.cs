@@ -40,11 +40,11 @@ public class ModDatabase
     }
 
     /// <summary>Get a mod data record.</summary>
-    /// <param name="modID">The unique mod ID.</param>
-    public ModDataRecord? Get(string? modID)
+    /// <param name="modId">The unique mod ID.</param>
+    public ModDataRecord? Get(string? modId)
     {
-        return !string.IsNullOrWhiteSpace(modID)
-            ? this.Records.FirstOrDefault(p => p.HasID(modID))
+        return !string.IsNullOrWhiteSpace(modId)
+            ? this.Records.FirstOrDefault(p => p.HasId(modId))
             : null;
     }
 

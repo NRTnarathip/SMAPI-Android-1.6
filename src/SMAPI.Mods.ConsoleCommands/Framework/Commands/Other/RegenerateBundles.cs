@@ -50,7 +50,7 @@ internal class RegenerateBundlesCommand : ConsoleCommand
         {
             monitor.Log($"WARNING: this may have unintended consequences (type 'help {command}' for details). Are you sure?", LogLevel.Warn);
 
-            string[] newArgs = args.Concat(new[] { "confirm" }).ToArray();
+            string[] newArgs = args.Concat(["confirm"]).ToArray();
             monitor.Log($"To confirm, enter this command: '{command} {string.Join(" ", newArgs)}'.", LogLevel.Info);
             return;
         }

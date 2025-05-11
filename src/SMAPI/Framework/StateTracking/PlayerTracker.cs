@@ -25,7 +25,7 @@ internal class PlayerTracker : IDisposable
     private GameLocation? LastValidLocation;
 
     /// <summary>The underlying watchers.</summary>
-    private readonly List<IWatcher> Watchers = new();
+    private readonly List<IWatcher> Watchers = [];
 
 
     /*********

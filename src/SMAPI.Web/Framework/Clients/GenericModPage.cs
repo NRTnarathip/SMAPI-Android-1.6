@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -28,7 +27,7 @@ internal class GenericModPage : IModPage
     public string? Url { get; set; }
 
     /// <summary>The mod downloads.</summary>
-    public IModDownload[] Downloads { get; set; } = Array.Empty<IModDownload>();
+    public IModDownload[] Downloads { get; set; } = [];
 
     /// <summary>The mod availability status on the remote site.</summary>
     public RemoteModStatus Status { get; set; } = RemoteModStatus.InvalidData;

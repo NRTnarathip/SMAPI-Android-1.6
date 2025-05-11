@@ -24,8 +24,8 @@ static class MiniMonoModHotfix
 {
     // .NET Framework can break member ordering if using Module.Resolve* on certain members.
 
-    private static readonly object[] _NoArgs = Array.Empty<object>();
-    private static readonly object?[] _CacheGetterArgs = { /* MemberListType.All */ 0, /* name apparently always null? */ null };
+    private static readonly object[] _NoArgs = [];
+    private static readonly object?[] _CacheGetterArgs = [/* MemberListType.All */ 0, /* name apparently always null? */ null];
 
     private static readonly Type? t_RuntimeType =
         typeof(Type).Assembly
@@ -186,7 +186,7 @@ static class MiniMonoModHotfix
     private static void _FixReflectionCacheOrder<T>(Array orig) where T : MemberInfo
     {
         // Sort using a short-lived list.
-        List<T> list = new List<T>(orig.Length);
+        List<T> list = new(orig.Length);
         for (int i = 0; i < orig.Length; i++)
             list.Add((T)orig.GetValue(i)!);
 

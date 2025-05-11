@@ -48,7 +48,7 @@ internal class EventFinder : BaseInstructionHandler
     /// <param name="eventName">The event name for which to find references.</param>
     /// <param name="result">The result to return for matching instructions.</param>
     public EventFinder(string fullTypeName, string eventName, InstructionHandleResult result)
-        : this(fullTypeName, new[] { eventName }, result) { }
+        : this(fullTypeName, [eventName], result) { }
 
     /// <inheritdoc />
     public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)

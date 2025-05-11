@@ -110,7 +110,7 @@ internal class TypeReferenceComparer : IEqualityComparer<TypeReference?>
     {
         int openGenerics = 0;
 
-        Queue<char> queue = new Queue<char>(typeName);
+        Queue<char> queue = new(typeName);
         string symbol = "";
         while (queue.Any())
         {

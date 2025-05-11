@@ -18,10 +18,10 @@ internal class SDateTests
     ** Fields
     *********/
     /// <summary>The valid seasons.</summary>
-    private static readonly string[] ValidSeasons = { "spring", "summer", "fall", "winter" };
+    private static readonly string[] ValidSeasons = ["spring", "summer", "fall", "winter"];
 
     /// <summary>Sample user inputs for season names.</summary>
-    private static readonly string[] SampleSeasonValues = SDateTests.ValidSeasons.Concat(new[] { "  WIntEr  " }).ToArray();
+    private static readonly string[] SampleSeasonValues = SDateTests.ValidSeasons.Concat(["  WIntEr  "]).ToArray();
 
     /// <summary>All valid days of a month.</summary>
     private static readonly int[] ValidDays = Enumerable.Range(1, 28).ToArray();

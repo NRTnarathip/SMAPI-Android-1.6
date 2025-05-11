@@ -22,7 +22,7 @@ internal class SetColorCommand : ConsoleCommand
     public override void Handle(IMonitor monitor, string command, ArgumentParser args)
     {
         // parse arguments
-        if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "hair", "eyes", "pants" }))
+        if (!args.TryGet(0, "target", out string? target, oneOf: ["hair", "eyes", "pants"]))
             return;
         if (!args.TryGet(1, "color", out string? rawColor))
             return;

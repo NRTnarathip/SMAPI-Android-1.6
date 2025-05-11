@@ -115,11 +115,11 @@ internal interface IModMetadata : IModInfo
     bool HasManifest();
 
     /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
-    bool HasID();
+    bool HasId();
 
     /// <summary>Whether the mod has the given ID.</summary>
     /// <param name="id">The mod ID to check.</param>
-    bool HasID(string? id);
+    bool HasId(string? id);
 
     /// <summary>Get the defined update keys.</summary>
     /// <param name="validOnly">Only return valid update keys.</param>

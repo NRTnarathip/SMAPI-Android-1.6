@@ -14,7 +14,7 @@ internal class KeyboardStateBuilder : IInputStateBuilder<KeyboardStateBuilder, K
     private KeyboardState? State;
 
     /// <summary>The pressed buttons.</summary>
-    private readonly HashSet<Keys> PressedButtons = new();
+    private readonly HashSet<Keys> PressedButtons = [];
 
 
     /*********

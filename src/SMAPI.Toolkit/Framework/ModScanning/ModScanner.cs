@@ -19,12 +19,12 @@ public class ModScanner
     private readonly JsonHelper JsonHelper;
 
     /// <summary>A list of filesystem entry names to ignore when checking whether a folder should be treated as a mod.</summary>
-    private readonly HashSet<Regex> IgnoreFilesystemNames = new()
-    {
-        new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
-        new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // macOS
-        new Regex(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase) // Windows
-    };
+    private readonly HashSet<Regex> IgnoreFilesystemNames =
+    [
+        new(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
+        new(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // macOS
+        new(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase)
+    ];
 
     /// <summary>A list of file extensions to ignore when searching for mod files.</summary>
     private readonly HashSet<string> IgnoreFileExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -243,11 +243,11 @@ public class ModScanner
         {
             // a collection of empty folders
             if (subfolders.All(p => p.ManifestParseError == ModParseError.EmptyFolder))
-                return new[] { new ModFolder(root, parentFolder, ModType.Invalid, null, ModParseError.EmptyFolder, subfolders[0].ManifestParseErrorText) };
+                return [new ModFolder(root, parentFolder, ModType.Invalid, null, ModParseError.EmptyFolder, subfolders[0].ManifestParseErrorText)];
 
             // an XNB mod
             if (subfolders.All(p => p.Type == ModType.Xnb || p.ManifestParseError == ModParseError.EmptyFolder))
-                return new[] { new ModFolder(root, parentFolder, ModType.Xnb, null, ModParseError.XnbMod, subfolders[0].ManifestParseErrorText) };
+                return [new ModFolder(root, parentFolder, ModType.Xnb, null, ModParseError.XnbMod, subfolders[0].ManifestParseErrorText)];
         }
 
         return subfolders;

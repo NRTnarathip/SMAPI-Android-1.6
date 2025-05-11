@@ -96,7 +96,7 @@ internal class IndexController : Controller
             {
                 HtmlDocument doc = new();
                 doc.LoadHtml(release.Body);
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? Array.Empty<HtmlNode>())
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? [])
                     node.Remove();
                 release.Body = doc.DocumentNode.InnerHtml.Trim();
             }

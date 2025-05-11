@@ -56,6 +56,19 @@ internal class Translator
         }
     }
 
+    /// <summary>Get whether a translation key exists for the current locale (including its fallback locales).</summary>
+    /// <param name="key">The translation key.</param>
+    public bool ContainsKey(string key)
+    {
+        return this.ForLocale.ContainsKey(key);
+    }
+
+    /// <summary>Get the translation keys which exist for the current locale (including its fallback locales).</summary>
+    public IEnumerable<string> GetKeys()
+    {
+        return this.ForLocale.Keys;
+    }
+
     /// <summary>Get all translations for the current locale.</summary>
     public IEnumerable<Translation> GetTranslations()
     {

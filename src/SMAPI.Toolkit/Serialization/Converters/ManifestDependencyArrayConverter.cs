@@ -37,13 +37,13 @@ internal class ManifestDependencyArrayConverter : JsonConverter
     /// <param name="serializer">The calling serializer.</param>
     public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        List<ManifestDependency> result = new List<ManifestDependency>();
+        List<ManifestDependency> result = [];
         foreach (JObject obj in JArray.Load(reader).Children<JObject>())
         {
-            string uniqueID = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.UniqueID))!; // will be validated separately if null
+            string uniqueId = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.UniqueID))!; // will be validated separately if null
             string? minVersion = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.MinimumVersion));
             bool required = obj.ValueIgnoreCase<bool?>(nameof(ManifestDependency.IsRequired)) ?? true;
-            result.Add(new ManifestDependency(uniqueID, minVersion, required));
+            result.Add(new ManifestDependency(uniqueId, minVersion, required));
         }
         return result.ToArray();
     }

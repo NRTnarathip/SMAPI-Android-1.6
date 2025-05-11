@@ -37,10 +37,10 @@ public class AssetRequestedEventArgs : EventArgs
     public Type DataType => this.AssetInfo.DataType;
 
     /// <summary>The load operations requested by the event handler.</summary>
-    internal List<AssetLoadOperation> LoadOperations { get; } = new();
+    internal List<AssetLoadOperation> LoadOperations { get; } = [];
 
     /// <summary>The edit operations requested by the event handler.</summary>
-    internal List<AssetEditOperation> EditOperations { get; } = new();
+    internal List<AssetEditOperation> EditOperations { get; } = [];
 
 
     /*********

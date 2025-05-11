@@ -14,7 +14,7 @@ internal class WorldLocationsSnapshot
     private readonly Dictionary<GameLocation, LocationSnapshot> LocationsDict = new(new ObjectReferenceComparer<GameLocation>());
 
     /// <summary>The pooled list instance for <see cref="GetMissingLocations"/>.</summary>
-    private static readonly List<GameLocation> PooledMissingLocations = new();
+    private static readonly List<GameLocation> PooledMissingLocations = [];
 
 
     /*********

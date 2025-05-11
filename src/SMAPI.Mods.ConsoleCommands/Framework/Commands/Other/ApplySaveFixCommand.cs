@@ -68,7 +68,7 @@ internal class ApplySaveFixCommand : ConsoleCommand
     /// <summary>Get all item instances in the world.</summary>
     private List<Item> GetLoadedItems()
     {
-        List<Item> loadedItems = new();
+        List<Item> loadedItems = [];
         Utility.ForEachItem(item =>
         {
             loadedItems.Add(item);

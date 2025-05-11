@@ -41,7 +41,7 @@ internal class TypeFinder : BaseInstructionHandler
     /// <param name="result">The result to return for matching instructions.</param>
     /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
     public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool>? shouldIgnore = null)
-        : this(new[] { fullTypeName }, result, shouldIgnore) { }
+        : this([fullTypeName], result, shouldIgnore) { }
 
     /// <inheritdoc />
     public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)

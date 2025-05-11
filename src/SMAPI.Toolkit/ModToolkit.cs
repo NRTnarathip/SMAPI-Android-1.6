@@ -70,6 +70,14 @@ public class ModToolkit
         return await client.FetchModsAsync();
     }
 
+    /// <summary>Extract mod metadata from the compatibility list repo by reading a local copy of the repo.</summary>
+    /// <param name="gitRepoPath">The full path to the compatibility list repo folder.</param>
+    public async Task<ModCompatibilityEntry[]> GetCompatibilityListFromLocalGitFolderAsync(string gitRepoPath)
+    {
+        using CompatibilityRepoClient client = new(this.UserAgent);
+        return await client.FetchModsFromLocalGitFolderAsync(gitRepoPath);
+    }
+
     /// <summary>Get SMAPI's internal mod database.</summary>
     /// <param name="metadataPath">The file path for the SMAPI metadata file.</param>
     public ModDatabase GetModDatabase(string metadataPath)

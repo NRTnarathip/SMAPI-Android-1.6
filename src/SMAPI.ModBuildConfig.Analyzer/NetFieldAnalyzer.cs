@@ -154,7 +154,7 @@ public class NetFieldAnalyzer : DiagnosticAnalyzer
     /// <summary>Construct an instance.</summary>
     public NetFieldAnalyzer()
     {
-        this.SupportedDiagnostics = ImmutableArray.Create(this.AvoidNetFieldRule);
+        this.SupportedDiagnostics = [this.AvoidNetFieldRule];
     }
 
     /// <summary>Called once at session start to register actions in the analysis context.</summary>

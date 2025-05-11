@@ -29,9 +29,9 @@ internal class InterfaceProxyFactory : IInterfaceProxyFactory
     }
 
     /// <inheritdoc />
-    public TInterface CreateProxy<TInterface>(object instance, string sourceModID, string targetModID)
+    public TInterface CreateProxy<TInterface>(object instance, string sourceModId, string targetModId)
         where TInterface : class
     {
-        return this.ProxyManager.ObtainProxy<string, TInterface>(instance, targetContext: targetModID, proxyContext: sourceModID);
+        return this.ProxyManager.ObtainProxy<string, TInterface>(instance, targetContext: targetModId, proxyContext: sourceModId);
     }
 }

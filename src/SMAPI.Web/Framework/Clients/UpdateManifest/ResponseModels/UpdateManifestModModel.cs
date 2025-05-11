@@ -1,5 +1,3 @@
-using System;
-
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels;
 
 /// <summary>The data model for a mod in an update manifest file.</summary>
@@ -29,6 +27,6 @@ internal class UpdateManifestModModel
     {
         this.Name = name;
         this.ModPageUrl = modPageUrl;
-        this.Versions = versions ?? Array.Empty<UpdateManifestVersionModel>();
+        this.Versions = versions ?? [];
     }
 }

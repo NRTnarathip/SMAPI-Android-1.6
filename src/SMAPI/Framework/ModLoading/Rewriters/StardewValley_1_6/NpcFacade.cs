@@ -38,7 +38,7 @@ public abstract class NpcFacade : NPC, IRewriteFacade
 
     public static NPC Constructor(AnimatedSprite sprite, Vector2 position, string defaultMap, int facingDir, string name, Dictionary<int, int[]> schedule, Texture2D portrait, bool eventActor, string? syncedPortraitPath = null)
     {
-        NPC npc = new NPC(sprite, position, defaultMap, facingDir, name, portrait, eventActor);
+        NPC npc = new(sprite, position, defaultMap, facingDir, name, portrait, eventActor);
 
         if (!string.IsNullOrWhiteSpace(syncedPortraitPath))
         {

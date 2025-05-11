@@ -323,7 +323,7 @@ internal class LogManager : IDisposable
         // log loaded content packs
         if (loadedContentPacks.Any())
         {
-            string? GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
+            string? GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasId(id))?.DisplayName;
 
             this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
             foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
@@ -471,15 +471,15 @@ internal class LogManager : IDisposable
                     match: mod => mod.HasWarnings(ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
                     level: LogLevel.Debug,
                     heading: "Direct system access",
-                    blurb: new[]
-                    {
-                            "You enabled paranoid warnings and these mods directly access the filesystem, shells/processes, or",
-                            "SMAPI console. (This is usually legitimate and innocent usage; this warning is only useful for",
-                            "further investigation.)"
-                    },
+                    blurb:
+                    [
+                        "You enabled paranoid warnings and these mods directly access the filesystem, shells/processes, or",
+                        "SMAPI console. (This is usually legitimate and innocent usage; this warning is only useful for",
+                        "further investigation.)"
+                    ],
                     modLabel: mod =>
                     {
-                        List<string> labels = new List<string>();
+                        List<string> labels = [];
                         if (mod.HasWarnings(ModWarning.AccessesFilesystem))
                             labels.Add("files");
                         if (mod.HasWarnings(ModWarning.AccessesShell))
@@ -503,7 +503,7 @@ internal class LogManager : IDisposable
     private IEnumerable<IList<IModMetadata>> GroupFailedModsByPriority(IList<IModMetadata> failedMods)
     {
         var failedOthers = failedMods.ToList();
-        var skippedModIds = new HashSet<string>(from mod in failedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
+        var skippedModIds = new HashSet<string>(from mod in failedMods where mod.HasId() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
 
         // group B: dependencies which failed
         var failedOtherDependencies = new List<IModMetadata>();
@@ -520,7 +520,7 @@ internal class LogManager : IDisposable
             this.FilterThrough(
                 fromList: failedOthers,
                 toList: failedOtherDependencies,
-                match: mod => mod.HasID() && skippedDependencyIds.Contains(mod.Manifest.UniqueID)
+                match: mod => mod.HasId() && skippedDependencyIds.Contains(mod.Manifest.UniqueID)
             );
         }
 
@@ -557,12 +557,7 @@ internal class LogManager : IDisposable
         }
 
         // return groups
-        return new[]
-        {
-                failedRootDependencies,
-                failedOtherDependencies,
-                failedOthers
-            };
+        return [failedRootDependencies, failedOtherDependencies, failedOthers];
     }
 
     /// <summary>Filter matching items from one list and add them to the other.</summary>
