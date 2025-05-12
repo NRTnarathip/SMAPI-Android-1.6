@@ -148,7 +148,7 @@ internal class SGame : Game1
 
         try
         {
-            //]var newLocations = new ObservableCollection<GameLocation>();
+            // no need to set anything
         }
         catch (Exception ex)
         {
@@ -292,8 +292,7 @@ internal class SGame : Game1
         {
             this.Input.TrueUpdate();
 #if SMAPI_FOR_ANDROID
-            //Not sure
-            this.Watchers = new WatcherCore(this.Input, new ObservableCollection<GameLocation>(this._locations));
+            this.Watchers = new WatcherCore(this.Input, this._locations);
 #else
             this.Watchers = new WatcherCore(this.Input, (ObservableCollection<GameLocation>)this._locations);
 #endif

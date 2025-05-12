@@ -336,8 +336,7 @@ internal class SCore : IDisposable
 #if SMAPI_FOR_ANDROID
         try
         {
-            var activityField = AccessTools.Field(typeof(MainActivity), nameof(MainActivity.instance));
-            var activity = activityField.GetValue(null) as Android.App.Activity;
+            var activity = SMAPIActivityTool.MainActivity;
             var gameView = GameRunner.instance.Services.GetService<View>();
             activity.SetContentView(gameView);
 
