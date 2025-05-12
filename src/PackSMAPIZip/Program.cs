@@ -18,11 +18,11 @@ internal class Program
         string version = RawApiVersionForAndroidField.Constant as string;
         return version;
     }
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         try
         {
-            StartRunPack(args);
+            await StartRunPack(args);
         }
         catch (Exception ex)
         {
@@ -31,12 +31,12 @@ internal class Program
         }
     }
 
-    static void StartRunPack(string[] args)
+    static async Task StartRunPack(string[] args)
     {
 
         //Create Folder SMAPI-x.x.x.x
         string SMAPIBinDir = GetParentDirectory(Directory.GetCurrentDirectory(), 4);
-        SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/Android Release");
+        SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/Arm64/Android Release");
 
         string SMAPIVersionName = GetSMAPIVersion(Path.Combine(SMAPIBinDir, StardewModdingAPIFileName)).ToString();
         string PackFolderName = $"SMAPI-{SMAPIVersionName}";
@@ -62,7 +62,10 @@ internal class Program
         Directory.CreateDirectory(smapiInternalDir);
         CloneDirectory(Path.Combine(SMAPIBinDir, "i18n"), Path.Combine(smapiInternalDir, "i18n"));
         File.Copy(Path.Combine(SMAPIBinDir, "SMAPI.config.json"), Path.Combine(smapiInternalDir, "config.json"));
-        File.Copy(Path.Combine(SMAPIBinDir, "SMAPI.metadata.json"), Path.Combine(smapiInternalDir, "metadata.json"));
+
+        await DownloadSMAPIMetadataJson();
+        File.Copy("SMAPI.metadata.json", Path.Combine(smapiInternalDir, "metadata.json"));
+
         Console.WriteLine("done added smapi-internal");
 
 
@@ -88,6 +91,18 @@ internal class Program
         Console.WriteLine("Successfully Pack SMAPI Zip");
         Console.WriteLine("result file: " + new FileInfo(outputZipFilePath).Name);
     }
+
+    private static async Task DownloadSMAPIMetadataJson()
+    {
+        var url = "https://raw.githubusercontent.com/Pathoschild/SMAPI/develop/src/SMAPI.Web/wwwroot/SMAPI.metadata.json";
+        var outputPath = "SMAPI.metadata.json";
+
+        using HttpClient client = new HttpClient();
+        var json = await client.GetStringAsync(url);
+        await File.WriteAllTextAsync(outputPath, json);
+        Console.WriteLine("downloaded: " + outputPath);
+    }
+
     static string GetParentDirectory(string currentDir, int levelsUp)
     {
         string targetDir = currentDir;
