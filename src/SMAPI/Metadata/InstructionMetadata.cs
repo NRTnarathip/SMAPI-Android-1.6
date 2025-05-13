@@ -293,6 +293,7 @@ internal class InstructionMetadata
                 .MapFacade<Toolbar, ToolbarFacade>()
                 .MapFacade<OptionsPage, OptionsPageFacade>()
                 .MapFacade<SocialPage, SocialPageFacade>()
+                .MapFacade<OptionsDropDown, OptionsDropDownFacade>()
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))

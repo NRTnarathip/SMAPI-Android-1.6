@@ -84,7 +84,7 @@ public static class Texture2DRewriter
             }
 
             var monitor = SCore.Instance.SMAPIMonitor;
-            monitor.Log($"try fix GetDataForPC(); texture: {texture.Name}, crop resize to: {texture.Width}x{texture.Height}");
+            //monitor.Log($"try fix GetDataForPC(); texture: {texture.Name}, crop resize to: {texture.Width}x{texture.Height}");
 
             //correct to data pixels
             Color[] srcPixels = new Color[texture.ActualWidth * texture.ActualHeight];

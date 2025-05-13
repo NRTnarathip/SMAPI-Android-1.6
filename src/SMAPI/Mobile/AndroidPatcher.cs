@@ -72,6 +72,7 @@ internal static class AndroidPatcher
         GenericConfigMenuModFix.Init(modFix);
         UnlockableBundlesModFix.Init(modFix);
         DisableQuickSave.Init(modFix);
+        FashionSenseModFix.Init(modFix);
     }
 
     internal static void OnBeforeSCoreRun()
