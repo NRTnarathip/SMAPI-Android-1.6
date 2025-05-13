@@ -60,6 +60,7 @@
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="StbImageWriteSharp" />
     <PackageReference Include="System.Reflection.Emit" />
+    <PackageReference Include="TextCopy" />
     <PackageReference Include="ThisAssembly.Constants">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -16,3 +16,4 @@ Mono.Cecil.Mdb.dll
 Mono.Cecil.Pdb.dll
 Mono.Cecil.Rocks.dll
 NVorbis.dll
+TextCopy.dll
