@@ -87,6 +87,16 @@ internal sealed class SInputState : InputState
             Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.Tile : null;
             HashSet<SButton> reallyDown = new(this.GetPressedButtons(keyboard, mouse, controller));
 
+            // Binding Back button to Escape
+            foreach (var btn in keyboard.GetPressedButtons())
+            {
+                if (btn == SButton.Back)
+                {
+                    this.OverrideButton(SButton.Escape, true);
+                    break;
+                }
+            }
+
             // apply overrides
             bool hasOverrides = false;
             if (this.CustomPressedKeys.Count > 0 || this.CustomReleasedKeys.Count > 0)

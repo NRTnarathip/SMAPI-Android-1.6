@@ -281,7 +281,6 @@ internal class InstructionMetadata
 
 #if SMAPI_FOR_ANDROID
                 //Map Method For Android Only
-                .MapType("Force.DeepCloner.DeepClonerExtensions", typeof(DeepClonerExtensions))
                 .MapFacade<GameMenu, GameMenuFacade>()
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
@@ -365,7 +364,10 @@ internal class InstructionMetadata
                     StardewAudioMethods.get_IsPitchBeingControlledByRPC_FullName,
                     StardewAudioMethods.Get_IsPitchBeingControlledByRPC_MethodInfo
                 )
-
+                .AddWithTypeFullName(
+                    "Force.DeepCloner.DeepClonerExtensions",
+                    DeepClonerRewriter.OnRewriterIL
+                )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
                    Texture2DRewriter.RewriterCallback

@@ -83,5 +83,11 @@ internal static class AndroidPatcher
 
         // debug only
         //SpriteBatcherOptimizer.Init(harmony);
+        //AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+    }
+
+    private static void CurrentDomain_AssemblyLoad(object? sender, AssemblyLoadEventArgs args)
+    {
+        Console.WriteLine("on assembly loaded: " + args.LoadedAssembly);
     }
 }
