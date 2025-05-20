@@ -55,8 +55,6 @@ internal class CustomAudioCueModificationManager : AudioCueModificationManager
     {
         try
         {
-            Console.WriteLine("Start ApplyAllCueModifications count: " + this.cueModificationData.Count);
-
             if (this.cueModificationData.Count == 0)
                 return;
 

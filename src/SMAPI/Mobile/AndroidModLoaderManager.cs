@@ -140,12 +140,10 @@ internal static class AndroidModLoaderManager
         StardewModdingAPI.Framework.Monitor.RegisterOnLogImpl(OnLogImpl);
         queueNumberShowLogger++;
         ClearLogs();
-        Console.WriteLine("On start mod logger");
     }
 
     internal static void StopLoggerToScreen()
     {
-        Console.WriteLine("On stop mod loader logger");
         StardewModdingAPI.Framework.Monitor.UnregisterOnLogImpl(OnLogImpl);
         queueNumberShowLogger--;
         ClearLogs();

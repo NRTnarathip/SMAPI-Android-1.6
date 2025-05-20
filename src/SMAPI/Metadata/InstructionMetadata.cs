@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Android.Views;
 using Force.DeepCloner;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Netcode;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
@@ -293,6 +295,8 @@ internal class InstructionMetadata
                 .MapFacade<OptionsPage, OptionsPageFacade>()
                 .MapFacade<SocialPage, SocialPageFacade>()
                 .MapFacade<OptionsDropDown, OptionsDropDownFacade>()
+                .MapType(typeof(KeyboardInput).FullName, typeof(KeyboardInput))
+                .MapType(typeof(KeyEventArgs).FullName, typeof(KeyEventArgs))
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
@@ -367,6 +371,18 @@ internal class InstructionMetadata
                 .AddWithTypeFullName(
                     "Force.DeepCloner.DeepClonerExtensions",
                     DeepClonerRewriter.OnRewriterIL
+                )
+                .AddWithTypeFullName(
+                    typeof(GameWindow).FullName,
+                    GameWindowRewriter.OnRewriteIL
+                )
+                .AddWithTypeFullName(
+                    "StardewValley.KeyboardInput",
+                    KeyboardInputRewriter.OnRewriteIL
+                )
+                .AddWithMethodFullName(
+                    "System.Void StardewValley.KeyEventHandler::.ctor(System.Object,System.IntPtr)",
+                    AccessTools.Method(typeof(KeyEventHandlerRewriter), nameof(KeyEventHandlerRewriter.Ctor))
                 )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,

@@ -80,6 +80,7 @@ internal static class AndroidPatcher
         SetupModFix();
         ApplyHarmonyPatchAll();
         VectorTypeConverterFix.ApplyPatch(harmony);
+        MobileFarmChooserPatcher.Patch(harmony);
 
         // debug only
         //SpriteBatcherOptimizer.Init(harmony);

@@ -135,7 +135,7 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
 
 #if false
         //debug only
-        if (thisMethodFullName.Contains("Pitch"))
+        if (thisMethodFullName.Contains("KeyEventHandler"))
         {
             Console.WriteLine(thisMethodFullName);
         }
