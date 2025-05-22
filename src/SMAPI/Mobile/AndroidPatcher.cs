@@ -77,18 +77,12 @@ internal static class AndroidPatcher
 
     internal static void OnBeforeSCoreRun()
     {
+        var saveBackupZip = new SaveBackupZip();
+        saveBackupZip.Start();
+
         SetupModFix();
         ApplyHarmonyPatchAll();
         VectorTypeConverterFix.ApplyPatch(harmony);
         MobileFarmChooserPatcher.Patch(harmony);
-
-        // debug only
-        //SpriteBatcherOptimizer.Init(harmony);
-        //AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
-    }
-
-    private static void CurrentDomain_AssemblyLoad(object? sender, AssemblyLoadEventArgs args)
-    {
-        Console.WriteLine("on assembly loaded: " + args.LoadedAssembly);
     }
 }
