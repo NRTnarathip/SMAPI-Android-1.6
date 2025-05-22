@@ -54,10 +54,14 @@ public class ObjectFacade : SObject, IRewriteFacade
         base.ApplySprinklerAnimation();
     }
 
+#if SMAPI_FOR_ANDROID
+    // Error!! call il, so we just disable it
+#else
     public new void ConsumeInventoryItem(Farmer who, Item drop_in, int amount)
     {
         Object.ConsumeInventoryItem(who, drop_in, amount);
     }
+#endif
 
     public void DayUpdate(GameLocation location)
     {

@@ -47,7 +47,6 @@ internal static class MobileFarmChooserPatcher
 
     static void Prefix_Ctor(MobileFarmChooser __instance)
     {
-        Console.WriteLine("on prefix ctor: " + __instance);
         // force reset to Standard Farm
         Game1.whichFarm = 0;
         selectFarmIndexCounter = 0;
@@ -71,9 +70,6 @@ internal static class MobileFarmChooserPatcher
         bool ___isStandaloneScreen,
         Dictionary<int, ClickableComponent> ___farmTypeButtonLookup)
     {
-        Console.WriteLine("On postfix Ctor Mobile Farm Chooser");
-        Console.WriteLine("is stand alone: " + ___isStandaloneScreen);
-
         var menu = __instance;
         // check if is already added
         if (menu.farmTypeButtons.Count != 8)
@@ -109,12 +105,11 @@ internal static class MobileFarmChooserPatcher
         }
 
         // debug only
-#if true
+#if false
         Game1.player.name.Value = "Guy";
         Game1.player.farmName.Value = "Hello Guy";
         Game1.player.favoriteThing.Value = "I dont know";
 #endif
-        Console.WriteLine("end Ctor");
     }
 
     static string GetFarmTypeTooltip(string translationKey)
@@ -179,7 +174,6 @@ internal static class MobileFarmChooserPatcher
             ___nameSize = Game1.dialogueFont.MeasureString(___nameString);
             ___descSize = Game1.dialogueFont.MeasureString(___descString);
 
-            Console.WriteLine("success assign for pick mod farm");
             return false;
         }
 
@@ -210,8 +204,6 @@ internal static class MobileFarmChooserPatcher
         int x, int y, bool playSound = true
     )
     {
-        Console.WriteLine("on Prefix_receiveLeftClick");
-
         var menu = __instance;
         var farmTypeButtons = menu.farmTypeButtons;
         var leftSelectButton = ___leftSelectButton;
