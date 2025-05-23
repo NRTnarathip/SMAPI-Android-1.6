@@ -84,5 +84,6 @@ internal static class AndroidPatcher
         ApplyHarmonyPatchAll();
         VectorTypeConverterFix.ApplyPatch(harmony);
         MobileFarmChooserPatcher.Patch(harmony);
+        LetterViewerMenuRewriter.ApplyPatch(harmony);
     }
 }

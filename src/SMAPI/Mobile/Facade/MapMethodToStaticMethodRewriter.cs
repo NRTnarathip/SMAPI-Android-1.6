@@ -5,6 +5,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Mobile.Facade;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,9 +136,9 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
 
 #if false
         //debug only
-        if (thisMethodFullName.Contains("KeyEventHandler"))
+        if (thisMethodFullName.Contains("OnPageChange"))
         {
-            Console.WriteLine(thisMethodFullName);
+            Console.WriteLine("il found: " + thisMethodFullName);
         }
 #endif
         try

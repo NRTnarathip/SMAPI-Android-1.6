@@ -29,7 +29,6 @@ public static class StardewAudioMethods
 
     internal static int AudioEngine_GetCategoryIndex(this AudioEngine audioEngine, string name)
     {
-        //Console.WriteLine("Try get GetCategoryIndex on AudioEngine: " + audioEngine);
         var _categories = _categories_Field.GetValue(audioEngine) as AudioCategory[];
         for (int i = 0; i < _categories.Length; i++)
         {
@@ -42,13 +41,10 @@ public static class StardewAudioMethods
     }
     internal static int AudioEngineWrapper_GetCategoryIndex(this AudioEngineWrapper audioEngineWrapper, string name)
     {
-        //Console.WriteLine("Try get GetCategoryIndex on AudioEngineWrapper: " + audioEngineWrapper);
         try
         {
             var engine = audioEngineWrapper.Engine;
-            //Console.WriteLine("engine: " + engine);
             int index = AudioEngine_GetCategoryIndex(engine, name);
-            //Console.WriteLine("result index: " + index);
             return index;
         }
         catch (Exception ex)
@@ -59,14 +55,8 @@ public static class StardewAudioMethods
     }
     public static int IAudioEngine_GetCategoryIndex(this IAudioEngine obj, string name)
     {
-        //Console.WriteLine("On GetCategoryIndex()");
-        //Console.WriteLine("obj: " + obj);
-        //Console.WriteLine("name: " + name);
         switch (obj)
         {
-            case AudioEngine audioEngine:
-                return audioEngine.GetCategoryIndex(name);
-
             case AudioEngineWrapper audioEngineWrapper:
                 return audioEngineWrapper.AudioEngineWrapper_GetCategoryIndex(name);
 
@@ -83,32 +73,51 @@ public static class StardewAudioMethods
 
     #region SoundBank
     static readonly FieldInfo soundBank_FieldInfo = AccessTools.Field(typeof(SoundBankWrapper), "soundBank");
-    internal static void SoundBankWrapper_AddCue(this SoundBankWrapper soundBankWrapper, CueDefinition cue)
+    static void SoundBankWrapper_AddCue(this SoundBankWrapper soundBankWrapper, CueDefinition cue)
     {
         soundBankWrapper.GetSoundBank().AddCue(cue);
     }
-    internal static SoundBank GetSoundBank(this SoundBankWrapper soundBankWrapper)
+    public static SoundBank GetSoundBank(this SoundBankWrapper soundBankWrapper)
         => soundBank_FieldInfo.GetValue(soundBankWrapper) as SoundBank;
 
-    internal readonly static MethodInfo ISoundBank_AddCue_MethodInfo
+    public readonly static MethodInfo ISoundBank_AddCue_MethodInfo
         = AccessTools.Method(typeof(StardewAudioMethods), nameof(ISoundBank_AddCue));
-    internal static void ISoundBank_AddCue(this ISoundBank obj, CueDefinition cue)
+    static void ISoundBank_AddCue(this ISoundBank obj, CueDefinition cue)
     {
         switch (obj)
         {
-            case SoundBank soundBank:
-                soundBank.AddCue(cue);
-                break;
-
             case SoundBankWrapper soundBankWrapper:
                 SoundBankWrapper_AddCue(soundBankWrapper, cue);
                 break;
 
             default:
                 //called method on base type of object
-                var monitor = SCore.Instance.SMAPIMonitor;
                 AccessTools.Method(obj.GetType(), "AddCue").Invoke(obj, [cue]);
                 break;
+        }
+    }
+
+    // Fixed patch
+    // ISoundBank.Exist(string name)
+    public const string ISoundBank_Exists_MethodFullName
+        = "System.Boolean StardewValley.ISoundBank::Exists(System.String)";
+    public static readonly MethodInfo ISoundBank_Exists_MethodInfo
+        = AccessTools.Method(typeof(StardewAudioMethods), nameof(ISoundBank_Exists));
+    static bool ISoundBank_Exists(this ISoundBank thisObject, string name)
+    {
+        switch (thisObject)
+        {
+            case SoundBankWrapper soundBankWrapper:
+                var soundBank_FieldValue = soundBankWrapper.GetSoundBank();
+                return soundBank_FieldValue.Exists(name);
+
+            case DummySoundBank dummy:
+                return true;
+
+            default:
+                //called method on base type of object
+                var result = AccessTools.Method(thisObject.GetType(), "Exist").Invoke(thisObject, [name]);
+                return (bool)result;
         }
     }
 

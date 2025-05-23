@@ -368,6 +368,11 @@ internal class InstructionMetadata
                     StardewAudioMethods.get_IsPitchBeingControlledByRPC_FullName,
                     StardewAudioMethods.Get_IsPitchBeingControlledByRPC_MethodInfo
                 )
+                .AddWithMethodFullName(
+                    StardewAudioMethods.ISoundBank_Exists_MethodFullName,
+                    StardewAudioMethods.ISoundBank_Exists_MethodInfo
+                )
+
                 .AddWithTypeFullName(
                     "Force.DeepCloner.DeepClonerExtensions",
                     DeepClonerRewriter.OnRewriterIL
@@ -383,6 +388,10 @@ internal class InstructionMetadata
                 .AddWithMethodFullName(
                     "System.Void StardewValley.KeyEventHandler::.ctor(System.Object,System.IntPtr)",
                     AccessTools.Method(typeof(KeyEventHandlerRewriter), nameof(KeyEventHandlerRewriter.Ctor))
+                )
+                .AddWithMethodFullName(
+                    LetterViewerMenuRewriter.OnPageChange_FullName,
+                    LetterViewerMenuRewriter.OnPageChangeProxy_MethodInfo
                 )
                 .AddWithTypeFullName(
                    typeof(Texture2D).FullName,
