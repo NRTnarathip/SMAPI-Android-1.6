@@ -136,9 +136,9 @@ internal class MapMethodToStaticMethodRewriter : BaseInstructionHandler
 
 #if false
         //debug only
-        if (thisMethodFullName.Contains("OnPageChange"))
+        if (thisMethodFullName.Contains("BundleType"))
         {
-            Console.WriteLine("il found: " + thisMethodFullName);
+            Console.WriteLine("il method ref found: " + thisMethodFullName);
         }
 #endif
         try

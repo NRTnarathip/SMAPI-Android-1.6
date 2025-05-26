@@ -297,6 +297,7 @@ internal class InstructionMetadata
                 .MapFacade<OptionsDropDown, OptionsDropDownFacade>()
                 .MapType(typeof(KeyboardInput).FullName, typeof(KeyboardInput))
                 .MapType(typeof(KeyEventArgs).FullName, typeof(KeyEventArgs))
+                .MapType("StardewValley.Game1/BundleType", typeof(StardewValley.BundleType))
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
