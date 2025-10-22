@@ -69,40 +69,40 @@
 
   <ItemGroup>
     <Reference Include="BmFont">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\BmFont.dll</HintPath>
+      <HintPath>..\DependenciesDll\BmFont.dll</HintPath>
     </Reference>
     <Reference Include="Lidgren.Network">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\Lidgren.Network.dll</HintPath>
+      <HintPath>..\DependenciesDll\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Backports">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Backports.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.Backports.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Core">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Core.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.Core.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Iced">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Iced.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.Iced.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.ILHelpers">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.ILHelpers.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.ILHelpers.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod Android\MonoMod-Android\artifacts\bin\MonoMod.RuntimeDetour\debug_net8.0\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\DependenciesDll\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\StardewValley.dll</HintPath>
+      <HintPath>..\DependenciesDll\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\DependenciesDll\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
-      <HintPath>..\..\..\Stardew Valley Android\Apks Latest File\assemblies\out\xTile.dll</HintPath>
+      <HintPath>..\DependenciesDll\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -127,6 +127,6 @@
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call &quot;$(ProjectDir)post-build.cmd&quot;" />
+    <Exec Command="call &quot;$(ProjectDir)post-build.cmd&quot; || exit /b 0" />
   </Target>
 </Project>

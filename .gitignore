@@ -37,3 +37,9 @@ src/SMAPI.Web/Properties/ServiceDependencies
 
 # macOS
 .DS_Store
+src/DependenciesDll/Lidgren.Network.dll
+src/DependenciesDll/MonoGame.Framework.dll
+src/DependenciesDll/StardewValley.dll
+src/DependenciesDll/StardewValley.GameData.dll
+src/DependenciesDll/xTile.dll
+src/DependenciesDll/BmFont.dll

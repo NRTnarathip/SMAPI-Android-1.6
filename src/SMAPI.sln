@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31912.275
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11111.16 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
@@ -77,8 +77,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{3B5BF14D-F61
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackSMAPIZip", "PackSMAPIZip\PackSMAPIZip.csproj", "{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearningCode", "LearningCode\LearningCode.csproj", "{5BA1B0E5-CA0A-474C-87A8-461A381872FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -264,46 +262,6 @@ Global
 		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|x64.Build.0 = Release|Any CPU
 		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|x86.ActiveCfg = Release|Any CPU
 		{D72D15A6-A0A4-40E5-95CE-CC7BD9FA47E1}.Release|x86.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|ARM.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|ARM.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|ARM64.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|x64.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|x64.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|x86.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Debug|x86.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|Any CPU.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|ARM.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|ARM.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|ARM64.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|ARM64.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|x64.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|x64.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|x86.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Android Release|x86.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|ARM.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|x64.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Debug|x86.Build.0 = Debug|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|ARM.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|ARM.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|ARM64.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|x64.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|x64.Build.0 = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|x86.ActiveCfg = Release|Any CPU
-		{5BA1B0E5-CA0A-474C-87A8-461A381872FA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

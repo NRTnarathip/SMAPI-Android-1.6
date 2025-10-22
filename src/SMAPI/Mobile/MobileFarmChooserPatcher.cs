@@ -143,7 +143,8 @@ internal static class MobileFarmChooserPatcher
         var menu = __instance;
         var farmTypeButtons = menu.farmTypeButtons;
         // check if you select any farm button
-        var farmTypeButton = farmTypeButtons.Single(f => f.name == name);
+        var farmTypeButton = farmTypeButtons.SingleOrDefault(f => f.name == name);
+        Console.WriteLine("selected farm btn: " + farmTypeButton?.name);
         if (farmTypeButton == null)
             return true;
 
@@ -174,12 +175,15 @@ internal static class MobileFarmChooserPatcher
             ___nameSize = Game1.dialogueFont.MeasureString(___nameString);
             ___descSize = Game1.dialogueFont.MeasureString(___descString);
 
+            Console.WriteLine("apply which mod farm: " + pickModFarm.Id);
+
             return false;
         }
 
         return true;
     }
 
+    // helper method
     static void optionButtonClick(this MobileFarmChooser menu, string name)
     {
         var method = AccessTools.Method(typeof(MobileFarmChooser), "optionButtonClick");
@@ -260,35 +264,48 @@ internal static class MobileFarmChooserPatcher
     }
 
     // fix FarmType button not render correct
+    // On Single Player
     [HarmonyPrefix]
     [HarmonyPatch(typeof(MobileFarmChooser), nameof(MobileFarmChooser.draw))]
     static void Prefix_draw(
         MobileFarmChooser __instance,
         Dictionary<int, ClickableComponent> ___farmTypeButtonLookup,
+        bool ___isStandaloneScreen,
+        CharacterCustomization.Source ___source,
 
         // original params
         SpriteBatch b
     )
     {
         // fake with current farm type index 
-        if (Game1.whichModFarm?.Id != MeadowlandsFarm_ID)
+        // Single Player
+        if (___source.HasFlag(CharacterCustomization.Source.HostNewFarm) is false)
         {
-            Game1.whichFarm = selectFarmIndexCounter;
-            ___farmTypeButtonLookup[7] = __instance.farmTypeButtons[selectFarmIndexCounter];
+            if (Game1.whichModFarm?.Id != MeadowlandsFarm_ID)
+            {
+                Game1.whichFarm = selectFarmIndexCounter;
+                ___farmTypeButtonLookup[7] = __instance.farmTypeButtons[selectFarmIndexCounter];
+            }
         }
     }
 
+    // Fix farm type button render incorrect
+    // on Single Player
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MobileFarmChooser), nameof(MobileFarmChooser.draw))]
     static void Postfix_draw(
         MobileFarmChooser __instance,
         Dictionary<int, ClickableComponent> ___farmTypeButtonLookup,
+        CharacterCustomization.Source ___source,
 
         SpriteBatch b)
     {
         // restore to back correct type
-        Game1.whichFarm = Math.Clamp(selectFarmIndexCounter, 0, 7);
-        ___farmTypeButtonLookup[7] = __instance.farmTypeButtons[7];
+        if (___source.HasFlag(CharacterCustomization.Source.HostNewFarm) is false)
+        {
+            Game1.whichFarm = Math.Clamp(selectFarmIndexCounter, 0, 7);
+            ___farmTypeButtonLookup[7] = __instance.farmTypeButtons[7];
+        }
     }
 }
 
