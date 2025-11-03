@@ -65,6 +65,9 @@ public class RawModEntry
     /// <summary>The unofficial update which fixes compatibility with the latest Stardew Valley and SMAPI versions.</summary>
     public RawModUnofficialUpdate? UnofficialUpdate { get; set; }
 
+    /// <summary>If the compatibility status is <see cref="ModCompatibilityStatus.Abandoned"/>, the reason it was abandoned.</summary>
+    public string? AbandonedReason { get; set; }
+
     /****
     ** Content packs only
     ****/
@@ -103,6 +106,14 @@ public class RawModEntry
         }
 
         return status;
+    }
+
+    /// <summary>Get the reason the mod was abandoned, if applicable.</summary>
+    public ModCompatibilityReasonAbandoned GetReasonAbandoned()
+    {
+        return Enum.TryParse(this.AbandonedReason, true, out ModCompatibilityReasonAbandoned reason)
+            ? reason
+            : ModCompatibilityReasonAbandoned.None;
     }
 
     /// <summary>Get the compatibility summary as shown on the compatibility list.</summary>

@@ -100,6 +100,7 @@ public class CompatibilityRepoClient : IDisposable
         string[] modNames = this.GetCsv(rawModEntry.Name);
         string[] authorNames = this.GetCsv(rawModEntry.Author);
         ModCompatibilityStatus status = rawModEntry.GetStatus();
+        ModCompatibilityReasonAbandoned reasonAbandoned = rawModEntry.GetReasonAbandoned();
         rawModEntry.GetCompatibilitySummary(out string summary, out bool hasMarkdown);
 
         // get HTML summary
@@ -130,7 +131,8 @@ public class CompatibilityRepoClient : IDisposable
                 htmlSummary: htmlSummary,
                 brokeIn: rawModEntry.BrokeIn,
                 unofficialVersion: this.GetSemanticVersion(rawModEntry.UnofficialUpdate?.Version),
-                unofficialUrl: rawModEntry.UnofficialUpdate?.Url
+                unofficialUrl: rawModEntry.UnofficialUpdate?.Url,
+                abandonedReason: reasonAbandoned
             ),
             warnings: rawModEntry.Warnings ?? [],
             devNote: rawModEntry.DeveloperNotes,

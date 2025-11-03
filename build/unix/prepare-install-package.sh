@@ -163,6 +163,7 @@ for folder in ${folders[@]}; do
         cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     done
 
+    cp "$smapiBin/SMAPI.blacklist.json" "$bundlePath/smapi-internal/blacklist.json"
     cp "$smapiBin/SMAPI.config.json" "$bundlePath/smapi-internal/config.json"
     cp "$smapiBin/SMAPI.metadata.json" "$bundlePath/smapi-internal/metadata.json"
     if [ $folder == "linux" ] || [ $folder == "macOS" ]; then

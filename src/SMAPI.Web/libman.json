@@ -1,0 +1,55 @@
+{
+    "version": "3.0",
+    "defaultProvider": "jsdelivr",
+    "defaultDestination": "wwwroot/Content/lib/[Name]",
+    "libraries": [
+        {
+            "library": "jquery@3.5.1",
+            "files": [
+                "dist/jquery.min.js",
+                "dist/jquery.min.map"
+            ]
+        },
+        {
+            "library": "prismjs@1.30.0",
+            "files": [
+                "prism.min.js",
+                "components/prism-json.min.js",
+                "plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js",
+                "plugins/line-highlight/prism-line-highlight.min.css",
+                "plugins/line-highlight/prism-line-highlight.min.js",
+                "plugins/line-numbers/prism-line-numbers.min.css",
+                "plugins/line-numbers/prism-line-numbers.min.js",
+                "plugins/match-braces/prism-match-braces.min.css",
+                "plugins/match-braces/prism-match-braces.min.js",
+                "plugins/toolbar/prism-toolbar.min.css",
+                "plugins/toolbar/prism-toolbar.min.js"
+            ]
+        },
+        {
+            "library": "prism-themes@1.9.0",
+            "files": [
+                "themes/prism-vs.min.css"
+            ]
+        },
+        {
+            "library": "tabbyjs@12.0.3",
+            "files": [
+                "dist/css/tabby-ui-vertical.min.css",
+                "dist/js/tabby.polyfills.min.js"
+            ]
+        },
+        {
+            "library": "tablesorter@2.31.3",
+            "files": [
+                "dist/js/jquery.tablesorter.min.js"
+            ]
+        },
+        {
+            "library": "vue@2.6.14",
+            "files": [
+                "dist/vue.min.js"
+            ]
+        }
+    ]
+}

@@ -57,8 +57,9 @@ internal class ColorfulConsoleWriter : IConsoleWriter
             {
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(message);
-                Console.ResetColor();
+                Console.Write(message);
+                Console.ResetColor(); // reset color before line break, so we don't apply background color to the next line
+                Console.WriteLine();
             }
             else
             {

@@ -5,8 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Win32;
 #endif
 using Newtonsoft.Json;
+using Pathoschild.Http.Client;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
@@ -37,6 +40,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.ModBlacklistData;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -358,6 +362,17 @@ internal class SCore : IDisposable
             this.Game.Run();
             this.Dispose(isError: false);
         }
+        catch (NoSuitableGraphicsDeviceException ex)
+        {
+            string? graphicsCardName = this.TryGetGraphicsDeviceName();
+            string suggestedFix = Constants.TargetPlatform == GamePlatform.Windows
+                ? "You can usually fix this by running SMAPI on your dedicated graphics card. See instructions here:"
+                : "See common fixes here:";
+
+            this.Monitor.Log($"Your graphics card{(graphicsCardName != null ? $" ({graphicsCardName})" : "")} isn't compatible with Stardew Valley. {suggestedFix} https://smapi.io/troubleshoot/no-suitable-gpu\n\nTechnical details:\n{ex.GetLogSummary()}", LogLevel.Error);
+            this.LogManager.PressAnyKeyToExit();
+            this.Dispose(isError: true);
+        }
         catch (Exception ex)
         {
             this.LogManager.LogFatalLaunchError(ex);
@@ -457,12 +472,27 @@ internal class SCore : IDisposable
         ModToolkit toolkit = new();
         ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
-#if SMAPI_FOR_ANDROID
-        Console.WriteLine("start loading mods in background thread");
-        AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.Starting;
-        AndroidModLoaderManager.StartLoggerToScreen();
-        Task.Run(() =>
-#endif
+        // load 'malicious mods' blacklist
+        ModBlacklist? modBlacklist = null;
+        if (File.Exists(Constants.ApiBlacklistFetchedPath) && File.GetLastWriteTimeUtc(Constants.ApiBlacklistFetchedPath) > File.GetLastWriteTimeUtc(Constants.ApiBlacklistPath))
+        {
+            try
+            {
+                modBlacklist = toolkit.GetModBlacklist(Constants.ApiBlacklistFetchedPath);
+                Constants.ApiBlacklistActualPath = Constants.ApiBlacklistFetchedPath;
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't load mod blacklist fetched from the SMAPI web server. Defaulting to the version included with the SMAPI install.", LogLevel.Warn);
+                this.Monitor.Log(ex.GetLogSummary());
+            }
+        }
+        if (modBlacklist is null)
+        {
+            modBlacklist = toolkit.GetModBlacklist(Constants.ApiBlacklistPath);
+            Constants.ApiBlacklistActualPath = Constants.ApiBlacklistPath;
+        }
+
         // load mods
         {
             this.Monitor.Log("Loading mod metadata...", LogLevel.Debug);
@@ -483,7 +513,7 @@ internal class SCore : IDisposable
             }
 
             // load manifests
-            IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase, useCaseInsensitiveFilePaths: this.Settings.UseCaseInsensitivePaths).ToArray();
+            IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modBlacklist, modDatabase, useCaseInsensitiveFilePaths: this.Settings.UseCaseInsensitivePaths).ToArray();
 
             // filter out ignored mods
             foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
@@ -534,10 +564,8 @@ internal class SCore : IDisposable
             //    Thread.Sleep(1000);
             //}
             AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm;
-        });
-#else
-        }
 #endif
+        }
 
         // update window titles
         this.UpdateWindowTitles();
@@ -574,7 +602,7 @@ internal class SCore : IDisposable
 
         // log GPU info
 #if SMAPI_FOR_WINDOWS
-        this.Monitor.Log($"Running on GPU: {Game1.game1.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
+        this.Monitor.Log($"Running on GPU: {this.TryGetGraphicsDeviceName() ?? "<unknown>"}");
 #endif
     }
 
@@ -1609,7 +1637,7 @@ internal class SCore : IDisposable
         if (this.EventManager.ModMessageReceived.HasListeners)
         {
             // get mod IDs to notify
-            HashSet<string> modIds = new(message.ToModIds ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+            HashSet<string> modIds = new(message.ToModIds ?? this.ModRegistry.GetAllIds(), StringComparer.OrdinalIgnoreCase);
             if (message.FromPlayerId == Game1.player?.UniqueMultiplayerID)
                 modIds.Remove(message.FromModId); // don't send a broadcast back to the sender
 
@@ -1745,144 +1773,197 @@ internal class SCore : IDisposable
 #endif
     }
 
-    /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
-    /// <param name="mods">The mods to include in the update check (if eligible).</param>
+    /// <summary>Asynchronously check for a new version of SMAPI, installed mods, or the 'malicious mods' blacklist.</summary>
+    /// <param name="mods">The mods to include in update checks (if eligible).</param>
     private async Task CheckForUpdatesAsync(IModMetadata[] mods)
     {
-        try
+        //
+        // Note: all asynchronous HTTP calls are deliberately done in the same background thread to
+        // avoid AccessViolationException crashes for players with ReShade installed. See
+        // discussion: https://discord.com/channels/137344473976799233/1394409970153427157
+        //
+
+        if (this.Settings.CheckForUpdates)
         {
-            if (!this.Settings.CheckForUpdates)
-                return;
-
-            // create client
-            using WebApiClient client = new(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
-            this.Monitor.Log("Checking for updates...");
-
-            // check SMAPI version
+            try
             {
-                ISemanticVersion? updateFound = null;
-                string? updateUrl = null;
-                try
+                // create client
+                using WebApiClient client = new(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
+                this.Monitor.Log("Checking for updates...");
+
+                // check SMAPI version
                 {
-                    // fetch update check
-                    IDictionary<string, ModEntryModel> response = await client.GetModInfoAsync(
-                        mods: [new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, [$"GitHub:{this.Settings.GitHubProjectName}"])],
-                        apiVersion: Constants.ApiVersion,
-                        gameVersion: Constants.GameVersion,
-                        platform: Constants.Platform
-                    );
-                    ModEntryModel updateInfo = response.Single().Value;
-                    updateFound = updateInfo.SuggestedUpdate?.Version;
-                    updateUrl = updateInfo.SuggestedUpdate?.Url;
-
-                    // log message
-                    if (updateFound != null)
-                        this.Monitor.Log($"You can update SMAPI to {updateFound}: {updateUrl}", LogLevel.Alert);
-                    else
-                        this.Monitor.Log("   SMAPI okay.");
-
-                    // show errors
-                    if (updateInfo.Errors.Any())
+                    ISemanticVersion? updateFound = null;
+                    string? updateUrl = null;
+                    try
                     {
-                        this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                        this.Monitor.Log($"Error: {string.Join("\n", updateInfo.Errors)}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
-                    this.Monitor.Log(ex is WebException && ex.InnerException == null
-                        ? $"Error: {ex.Message}"
-                        : $"Error: {ex.GetLogSummary()}"
-                    );
-                }
+                        // fetch update check
+                        IDictionary<string, ModEntryModel> response = await client.GetModInfoAsync(
+                            mods: [new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, [$"GitHub:{this.Settings.GitHubProjectName}"])],
+                            apiVersion: Constants.ApiVersion,
+                            gameVersion: Constants.GameVersion,
+                            platform: Constants.Platform
+                        );
+                        ModEntryModel updateInfo = response.Single().Value;
+                        updateFound = updateInfo.SuggestedUpdate?.Version;
+                        updateUrl = updateInfo.SuggestedUpdate?.Url;
 
-                // show update message on next launch
-                if (updateFound != null)
-                    this.LogManager.WriteUpdateMarker(updateFound.ToString(), updateUrl ?? Constants.HomePageUrl);
-            }
+                        // log message
+                        if (updateFound != null)
+                            this.Monitor.Log($"You can update SMAPI to {updateFound}: {updateUrl}", LogLevel.Alert);
+                        else
+                            this.Monitor.Log("   SMAPI okay.");
 
-            // check mod versions
-            if (mods.Any())
-            {
-                try
-                {
-                    HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
-
-                    // prepare search model
-                    List<ModSearchEntryModel> searchMods = [];
-                    foreach (IModMetadata mod in mods)
-                    {
-                        if (!mod.HasId() || suppressUpdateChecks.Contains(mod.Manifest.UniqueID))
-                            continue;
-
-                        string[] updateKeys = mod
-                            .GetUpdateKeys(validOnly: true)
-                            .Select(p => p.ToString())
-                            .ToArray();
-                        searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, mod.Manifest.Version, updateKeys.ToArray(), isBroken: mod.Status == ModMetadataStatus.Failed));
-                    }
-
-                    // fetch results
-                    this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...");
-                    IDictionary<string, ModEntryModel> results = await client.GetModInfoAsync(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
-
-                    // extract update alerts & errors
-                    var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
-                    var errors = new StringBuilder();
-                    foreach (IModMetadata mod in mods.OrderBy(p => p.DisplayName))
-                    {
-                        // link to update-check data
-                        if (!mod.HasId() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel? result))
-                            continue;
-                        mod.SetUpdateData(result);
-
-                        // handle errors
-                        if (result.Errors.Any())
+                        // show errors
+                        if (updateInfo.Errors.Any())
                         {
-                            errors.AppendLine(result.Errors.Length == 1
-                                ? $"   {mod.DisplayName}: {result.Errors[0]}"
-                                : $"   {mod.DisplayName}:\n      - {string.Join("\n      - ", result.Errors)}"
-                            );
+                            this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
+                            this.Monitor.Log($"Error: {string.Join("\n", updateInfo.Errors)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log(ex is WebException && ex.InnerException == null
+                            ? $"Error: {ex.Message}"
+                            : $"Error: {ex.GetLogSummary()}"
+                        );
+                    }
+
+                    // show update message on next launch
+                    if (updateFound != null)
+                        this.LogManager.WriteUpdateMarker(updateFound.ToString(), updateUrl ?? Constants.HomePageUrl);
+                }
+
+                // check mod versions
+                if (mods.Any())
+                {
+                    try
+                    {
+                        HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
+
+                        // prepare search model
+                        List<ModSearchEntryModel> searchMods = [];
+                        foreach (IModMetadata mod in mods)
+                        {
+                            if (!mod.HasId() || suppressUpdateChecks.Contains(mod.Manifest.UniqueID))
+                                continue;
+
+                            string[] updateKeys = mod
+                                .GetUpdateKeys(validOnly: true)
+                                .Select(p => p.ToString())
+                                .ToArray();
+                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, mod.Manifest.Version, updateKeys.ToArray(), isBroken: mod.Status == ModMetadataStatus.Failed));
                         }
 
-                        // handle update
-                        if (result.SuggestedUpdate != null)
-                            updates.Add(Tuple.Create(mod, result.SuggestedUpdate.Version, result.SuggestedUpdate.Url));
+                        // fetch results
+                        this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...");
+                        IDictionary<string, ModEntryModel> results = await client.GetModInfoAsync(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
+
+                        // extract update alerts & errors
+                        var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
+                        var errors = new StringBuilder();
+                        foreach (IModMetadata mod in mods.OrderBy(p => p.DisplayName))
+                        {
+                            // link to update-check data
+                            if (!mod.HasId() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel? result))
+                                continue;
+                            mod.SetUpdateData(result);
+
+                            // handle errors
+                            if (result.Errors.Any())
+                            {
+                                errors.AppendLine(result.Errors.Length == 1
+                                    ? $"   {mod.DisplayName}: {result.Errors[0]}"
+                                    : $"   {mod.DisplayName}:\n      - {string.Join("\n      - ", result.Errors)}"
+                                );
+                            }
+
+                            // handle update
+                            if (result.SuggestedUpdate != null)
+                                updates.Add(Tuple.Create(mod, result.SuggestedUpdate.Version, result.SuggestedUpdate.Url));
+                        }
+
+                        // show update errors
+                        if (errors.Length != 0)
+                            this.Monitor.Log("Got update-check errors for some mods:\n" + errors.ToString().TrimEnd());
+
+                        // show update alerts
+                        if (updates.Any())
+                        {
+                            this.Monitor.Newline();
+                            this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
+                            foreach ((IModMetadata mod, ISemanticVersion newVersion, string newUrl) in updates)
+                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl} (you have {mod.Manifest.Version})", LogLevel.Alert);
+                        }
+                        else
+                            this.Monitor.Log("   All mods up to date.");
                     }
-
-                    // show update errors
-                    if (errors.Length != 0)
-                        this.Monitor.Log("Got update-check errors for some mods:\n" + errors.ToString().TrimEnd());
-
-                    // show update alerts
-                    if (updates.Any())
+                    catch (Exception ex)
                     {
-                        this.Monitor.Newline();
-                        this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
-                        foreach ((IModMetadata mod, ISemanticVersion newVersion, string newUrl) in updates)
-                            this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl} (you have {mod.Manifest.Version})", LogLevel.Alert);
+                        this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log(ex is WebException && ex.InnerException == null
+                            ? ex.Message
+                            : ex.ToString()
+                        );
                     }
-                    else
-                        this.Monitor.Log("   All mods up to date.");
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
-                    this.Monitor.Log(ex is WebException && ex.InnerException == null
-                        ? ex.Message
-                        : ex.ToString()
-                    );
                 }
             }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't check for updates. This won't affect your game, but you won't be notified of SMAPI or mod updates if this keeps happening.", LogLevel.Warn);
+                this.Monitor.Log(ex is WebException && ex.InnerException == null
+                    ? ex.Message
+                    : ex.ToString()
+                );
+            }
         }
-        catch (Exception ex)
+
+        if (this.Settings.CheckForBlacklistUpdates)
         {
-            this.Monitor.Log("Couldn't check for updates. This won't affect your game, but you won't be notified of SMAPI or mod updates if this keeps happening.", LogLevel.Warn);
-            this.Monitor.Log(ex is WebException && ex.InnerException == null
-                ? ex.Message
-                : ex.ToString()
-            );
+            try
+            {
+                // get MD5 hash on the server
+                using IClient client = new FluentClient();
+                string serverHash;
+                {
+                    IResponse response = await client.SendAsync(HttpMethod.Head, this.Settings.BlacklistUrl);
+                    byte[] hashBytes =
+                        response.Message.Content.Headers.ContentMD5
+                        ?? throw new InvalidOperationException("Can't fetch Content-MD5 header from the web server.");
+
+                    serverHash = FileUtilities.GetHashString(hashBytes);
+                }
+
+                // skip if up-to-date
+                string localHash = FileUtilities.GetFileHash(Constants.ApiBlacklistActualPath!);
+                if (localHash == serverHash)
+                {
+                    this.Monitor.Log("   Mod blacklist OK.");
+                    return;
+                }
+
+                // fetch new file
+                IResponse newData = await client.GetAsync(this.Settings.BlacklistUrl);
+                ModBlacklistModel? newModel = await newData.As<ModBlacklistModel?>();
+                if (newModel?.Blacklist.Length is not >= 0)
+                    throw new InvalidOperationException("Can't deserialize mod blacklist from the web server, skipping update.");
+
+                // save new file
+                await using (Stream downloadStream = await newData.AsStream())
+                await using (FileStream stream = File.OpenWrite(Constants.ApiBlacklistFetchedPath))
+                    await downloadStream.CopyToAsync(stream);
+
+                this.Monitor.Log($"   Mod blacklist updated to match the server (updated from {localHash} to {serverHash}). The changes will take effect on the next SMAPI launch.");
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't check for updates to the mod blacklist. This won't affect your game, but SMAPI may not block new malicious mods.", LogLevel.Warn);
+                this.Monitor.Log(ex is WebException && ex.InnerException == null
+                    ? ex.Message
+                    : ex.ToString()
+                );
+            }
         }
     }
 
@@ -2547,6 +2628,23 @@ internal class SCore : IDisposable
                 yield return new(locale, false, relativePath, file);
             }
         }
+    }
+
+    /// <summary>Get the display name for the current graphics card, if available.</summary>
+    private string? TryGetGraphicsDeviceName()
+    {
+#if SMAPI_FOR_WINDOWS
+        try
+        {
+            return Game1.game1.GraphicsDevice?.Adapter?.Description;
+        }
+        catch
+        {
+            // return null if unavailable
+        }
+#endif
+
+        return null;
     }
 
     /// <summary>Get a file lookup for the given directory.</summary>

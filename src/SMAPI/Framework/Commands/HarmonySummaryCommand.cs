@@ -16,7 +16,16 @@ internal class HarmonySummaryCommand : IInternalCommand
     public string Name { get; } = "harmony_summary";
 
     /// <summary>The human-readable documentation shown when the player runs the built-in 'help' command.</summary>
-    public string Description { get; } = "Harmony is a library which rewrites game code, used by SMAPI and some mods. This command lists current Harmony patches.\n\nUsage: harmony_summary\nList all Harmony patches.\n\nUsage: harmony_summary <search>\n- search: one more more words to search. If any word matches a method name, the method and all its patchers will be listed; otherwise only matching patchers will be listed for the method.";
+    public string Description { get; } =
+        """
+        Harmony is a library which rewrites game code, used by SMAPI and some mods. This command lists current Harmony patches.
+
+        Usage: harmony_summary
+        List all Harmony patches.
+
+        Usage: harmony_summary <search>
+        - search: one more more words to search. If any word matches a method name, the method and all its patchers will be listed; otherwise only matching patchers will be listed for the method.
+        """;
 
 
     /*********

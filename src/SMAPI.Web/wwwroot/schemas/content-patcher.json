@@ -1,0 +1,731 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://smapi.io/schemas/content-patcher.json",
+    "title": "Content Patcher content pack",
+    "description": "Content Patcher content file for mods",
+    "@documentationUrl": "https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme",
+
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
+    "type": "object",
+    "properties": {
+        "Format": {
+            "title": "Format version",
+            "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
+            "type": "string",
+            "pattern": "^2\\.8\\.[0-9]+$",
+            "@errorMessages": {
+                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 2.8.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
+            }
+        },
+        "ConfigSchema": {
+            "title": "Config schema",
+            "description": "Defines the config.json format, to support more complex mods.",
+            "type": "object",
+            "propertyNames": {
+                "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                "@errorMessages": {
+                    "pattern": "The token name should be alphanumeric with no special characters."
+                }
+            },
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "AllowValues": {
+                        "title": "Allowed values",
+                        "description": "The values the player can provide, as a comma-delimited string. If omitted, any value is allowed.\nTip: for a boolean flag, use \"true, false\".",
+                        "type": "string"
+                    },
+                    "AllowBlank": {
+                        "title": "Allow blank",
+                        "description": "Whether the field can be left blank. If false or omitted, blank fields will be replaced with the default value.",
+                        "type": "boolean"
+                    },
+                    "AllowMultiple": {
+                        "title": "Allow multiple values",
+                        "description": "Whether the player can specify multiple comma-delimited values. Default false.",
+                        "type": "boolean"
+                    },
+                    "Default": {
+                        "title": "Default value",
+                        "description": "The default values when the field is missing. Can contain multiple comma-delimited values if AllowMultiple is true. If omitted, blank fields are left blank.",
+                        "type": [ "boolean", "number", "string" ]
+                    },
+                    "Description": {
+                        "title": "Description",
+                        "description": "An optional explanation of the config field for players, shown in UIs like Generic Mod Config Menu.",
+                        "type": "string"
+                    },
+                    "Section": {
+                        "title": "Section",
+                        "description": "An optional section key to group related fields on config UIs. This can be the literal text to show, or you can add a translation with the key 'config.section.<section value>.name' and '.description' to add a translated name & tooltip.",
+                        "type": "string"
+                    },
+
+                    "additionalProperties": false
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "AllowBlank": { "const": false }
+                            }
+                        },
+                        "then": {
+                            "required": [ "Default" ]
+                        }
+                    }
+                ],
+
+                "@errorMessages": {
+                    "allOf": "If 'AllowBlank' is false, the 'Default' field is required."
+                }
+            }
+        },
+        "CustomLocations": {
+            "title": "Custom locations",
+            "description": "The custom in-game locations to make available.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Name": {
+                        "title": "Name",
+                        "description": "The location's unique internal name. This can't contain tokens. The name must begin with 'Custom_' (to avoid conflicting with current or future vanilla locations), can only contain alphanumeric or underscore characters, and must be *globally* unique. Prefixing it with your mod name is strongly recommended.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "pattern": "._."
+                            },
+                            {
+                                "pattern": "^ *[a-zA-Z0-9_\\.]+ *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Custom location names must be prefixed with your mod's ID (like 'Example.ModName_LocationName') or the exact text 'Custom_' (deprecated).",
+                            "allOf:indexes: 1": "Custom location names can only contain alphanumeric, period, or underscore characters."
+                        }
+                    },
+                    "FromMapFile": {
+                        "title": "From map file",
+                        "description": "The relative path to the location's map file in your content pack folder (file can be .tmx, .tbin, or .xnb). This can't contain tokens, but you can make conditional changes using EditMap.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "not": {
+                                    "pattern": "\\b\\.\\.[/\\\\]"
+                                }
+                            },
+                            {
+                                "pattern": "\\.(tbin|tmx|xnb) *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .tbin, .tmx, or .xnb."
+                        }
+                    },
+                    "MigrateLegacyNames": {
+                        "title": "Migrate legacy names",
+                        "description": "An optional list of former location names that may appear in the save file instead of the one given by Name. This can't contain tokens. This is only meant to allow migrating older locations, and shouldn't be used in most cases.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "DynamicTokens": {
+            "title": "Dynamic tokens",
+            "description": "Custom tokens that you can use.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Name": {
+                        "title": "Name",
+                        "description": "The name of the token to use for tokens & conditions.",
+                        "type": "string",
+                        "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                        "@errorMessages": {
+                            "pattern": "The token name should be alphanumeric with no special characters."
+                        }
+                    },
+                    "Value": {
+                        "title": "Token value",
+                        "description": "The value(s) to set. This can be a comma-delimited value to give it multiple values. If any block for a token name has multiple values, it will only be usable in conditions. This field supports tokens, including dynamic tokens defined before this entry.",
+                        "type": [ "boolean", "integer", "number", "string" ]
+                    },
+                    "When": {
+                        "title": "When",
+                        "description": "Only set the value if the given conditions match. If not specified, always matches.",
+                        "$ref": "#/definitions/Conditions"
+                    }
+                },
+
+                "required": [ "Name", "Value" ],
+                "additionalProperties": false
+            }
+        },
+        "AliasTokenNames": {
+            "title": "Alias token names",
+            "description": "Defines optional alternate name for existing tokens. This only affects your content pack, and you can use both the alias name and the original token name. This is mostly useful for custom tokens provided by other mods, which often have longer names. Each entry key is the alias name, and the value is the original token name.",
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "Changes": {
+            "title": "Changes",
+            "description": "The changes you want to make. Each entry is called a patch, and describes a specific action to perform: replace this file, copy this image into the file, etc. You can list any number of patches.",
+            "type": "array",
+            "items": {
+                "properties": {
+                    "Action": {
+                        "title": "Action",
+                        "description": "The kind of change to make.",
+                        "type": "string",
+                        "enum": [ "Load", "EditImage", "EditData", "EditMap", "Include" ]
+                    },
+                    "Target": {
+                        "title": "Target asset",
+                        "description": "The game asset you want to patch (or multiple comma-delimited assets). This is the file path inside your game's Content folder, without the file extension or language (like Animals/Dinosaur to edit Content/Animals/Dinosaur.xnb). This field supports tokens and capitalization doesn't matter. Your changes are applied in all languages unless you specify a language condition.",
+                        "type": "string",
+                        "not": {
+                            "pattern": "(?i)(?:\\bcontent/|\\.xnb\\b|\\.[a-zA-Z][a-zA-Z]-[a-zA-Z][a-zA-Z](?:.xnb)\\b)"
+                        },
+                        "@errorMessages": {
+                            "not": "Invalid target; it shouldn't include the 'Content/' folder, '.xnb' extension, or locale code."
+                        }
+                    },
+                    "TargetLocale": {
+                        "title": "Target locale",
+                        "description": "The locale code in the target asset's name to match (like 'fr-FR' to target `Characters/Dialogue/Abigail.fr-FR`), or an empty string to match only the base unlocalized asset, or omit to match all localized or unlocalized variants of the target asset.",
+                        "type": "string",
+                        "pattern": "^ *[a-zA-Z0-9_\\-]+ *$",
+                        "@errorMessages": {
+                            "pattern": "Invalid target locale; it should only contain alphanumeric, underscore, or dash characters."
+                        }
+                    },
+                    "LogName": {
+                        "title": "Patch log name",
+                        "description": "A name for this patch shown in log messages. This is very useful for understanding errors; if not specified, will default to a name like 'entry #14 (EditImage Animals/Dinosaurs)'.",
+                        "type": "string"
+                    },
+                    "Update": {
+                        "title": "Update",
+                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart', 'OnLocationChange', or 'OnTimeChange' (defaults to OnDayStart).",
+                        "type": "string",
+                        "pattern": "^ *((OnDayStart|OnLocationChange|OnTimeChange), *)*(OnDayStart|OnLocationChange|OnTimeChange) *$",
+                        "@errorMessages": {
+                            "pattern": "Invalid value; must be 'OnDayStart', 'OnLocationChange', 'OnTimeChange', or a comma-delimited combination of those values."
+                        }
+                    },
+                    "LocalTokens": {
+                        "title": "Local tokens",
+                        "description": "Tokens to define for this specific patch, and (for an Include patch) the patches it includes.\n\nLimitation: local tokens defined directly on a patch can't be used in the `FromFile` and `Target` fields (since they can use tokens like `{{FromFile}}`). However, local tokens inherited from a parent Include patch can be used in those fields too.",
+                        "$ref": "#/definitions/LocalTokens"
+                    },
+                    "FromFile": {
+                        "title": "Source file",
+                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'), or multiple comma-delimited values. This can be a .fnt (font), .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "not": {
+                                    "pattern": "\\b\\.\\.[/\\\\]"
+                                }
+                            },
+                            {
+                                "pattern": "\\.(fnt|json|png|tbin|tmx|xnb) *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .fnt, .json, .png, .tbin, .tmx, or .xnb."
+                        }
+                    },
+                    "FromArea": {
+                        "title": "Source area",
+                        "description": "The part of the source image to copy. Defaults to the whole source image.",
+                        "$ref": "#/definitions/Rectangle"
+                    },
+                    "ToArea": {
+                        "title": "Destination area",
+                        "description": "The part of the target image to replace. Defaults to the FromArea size starting from the top-left corner.",
+                        "$ref": "#/definitions/Rectangle"
+                    },
+                    "TargetField": {
+                        "title": "Target field",
+                        "description": "The path to the field within the value to set as the root scope. See 'target field' in the EditData documentation for more info. This field supports tokens.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "Fields": {
+                        "title": "Fields",
+                        "description": "The individual fields you want to change for existing entries. This field supports tokens in field keys and values. The key for each field is the field index (starting at zero) for a slash-delimited string, or the field name for an object.",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object"
+                        }
+                    },
+                    "Entries": {
+                        "title": "Entries",
+                        "description": "The entries in the data file you want to add, replace, or delete. If you only want to change a few fields, use Fields instead for best compatibility with other mods. To add an entry, just specify a key that doesn't exist; to delete an entry, set the value to null (like \"some key\": null). This field supports tokens in entry keys and values.\nCaution: some XNB files have extra fields at the end for translations; when adding or replacing an entry for all locales, make sure you include the extra fields to avoid errors for non-English players.",
+                        "type": [ "object", "null" ]
+                    },
+                    "MoveEntries": {
+                        "title": "Move entries",
+                        "description": "Change the entry order in a list asset like Data/MoviesReactions. (Using this with a non-list asset will cause an error, since those have no order.)",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "ID": {
+                                    "title": "ID",
+                                    "description": "The ID of the entry to move",
+                                    "type": "string"
+                                },
+                                "BeforeID": {
+                                    "title": "Before ID",
+                                    "description": "Move entry so it's right before this ID",
+                                    "type": "string"
+                                },
+                                "AfterID": {
+                                    "title": "After ID",
+                                    "description": "Move entry so it's right after this ID",
+                                    "type": "string"
+                                },
+                                "ToPosition": {
+                                    "title": "To position",
+                                    "description": "Move entry so it's right at this position",
+                                    "enum": [ "Top", "Bottom" ]
+                                }
+                            },
+
+                            "anyOf": [
+                                {
+                                    "required": [ "BeforeID" ]
+                                },
+                                {
+                                    "required": [ "AfterID" ]
+                                },
+                                {
+                                    "required": [ "ToPosition" ]
+                                }
+                            ],
+
+                            "dependencies": {
+                                "BeforeID": {
+                                    "propertyNames": {
+                                        "enum": [ "ID", "BeforeID" ]
+                                    }
+                                },
+                                "AfterID": {
+                                    "propertyNames": {
+                                        "enum": [ "ID", "AfterID" ]
+                                    }
+                                },
+                                "ToPosition": {
+                                    "propertyNames": {
+                                        "enum": [ "ID", "ToPosition" ]
+                                    }
+                                }
+                            },
+
+                            "required": [ "ID" ],
+                            "@errorMessages": {
+                                "anyOf": "You must specify one of 'AfterID', 'BeforeID', or 'ToPosition'.",
+                                "dependencies:BeforeID": "If 'BeforeID' is specified, only 'ID' and 'BeforeID' fields are valid.",
+                                "dependencies:AfterID": "If 'AfterID' is specified, only 'ID' and 'AfterID' fields are valid.",
+                                "dependencies:ToPosition": "If 'ToPosition' is specified, only 'ID' and 'ToPosition' fields are valid."
+                            }
+                        }
+                    },
+                    "AddWarps": {
+                        "title": "Add warps",
+                        "description": "The warp values to add to the location, in the format recognized by the game's Warp map property.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": " *((.*\\{\\{.*\\}\\})|-?\\d+ -?\\d+ [A-Za-z0-9_\\.]+ -?\\d+ -?\\d+) *$",
+                            "@errorMessages": {
+                                "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30')."
+                            }
+                        }
+                    },
+                    "AddNpcWarps": {
+                        "title": "Add NPC-only warps",
+                        "description": "The NPC-only warp values to add to the location, in the format recognized by the game's NPCWarp map property.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": " *((.*\\{\\{.*\\}\\})|(-?\\d+ -?\\d+ [A-Za-z0-9_\\.]+ -?\\d+ -?\\d+)) *$",
+                            "@errorMessages": {
+                                "pattern": "Each warp must match the exact format recognized by the game's NPCWarp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30')."
+                            }
+                        }
+                    },
+                    "MapProperties": {
+                        "title": "Map properties",
+                        "description": "The map properties (not tile properties) to add, replace, or delete. To add an property, just specify a key that doesn't exist; to delete an entry, set the value to null (like \"some key\": null). This field supports tokens in property keys and values.",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": [ "string", "null" ]
+                        }
+                    },
+                    "MapTiles": {
+                        "title": "Map tiles",
+                        "description": "The individual map tiles to add, edit, or remove.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "Layer": {
+                                    "description": "The map layer name to change.",
+                                    "type": "string"
+                                },
+                                "Position": {
+                                    "description": "The tile coordinates to change. You can use the Debug Mode mod to see tile coordinates in-game.",
+                                    "$ref": "#/definitions/Position"
+                                },
+                                "SetTilesheet": {
+                                    "title": "Set tilesheet",
+                                    "description": "Sets the tilesheet ID for the tile index.",
+                                    "type": "string"
+                                },
+                                "SetIndex": {
+                                    "title": "Set tile index",
+                                    "description": "Sets the tile index in the tilesheet.",
+                                    "type": [ "string", "number" ]
+                                },
+                                "SetProperties": {
+                                    "title": "Set tile properties",
+                                    "description": "The properties to set or remove. This is merged into the existing tile properties, if any. To remove a property, set its value to `null` (not \"null\" in quotes).",
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": [ "string", "null" ]
+                                    }
+                                },
+                                "Remove": {
+                                    "description": "Whether to remove the current tile and all its properties on that layer. If combined with the other fields, a new tile is created from the other fields as if the tile didn't previously exist.",
+                                    "type": "boolean"
+                                }
+                            },
+
+                            "required": [ "Layer", "Position" ]
+                        }
+                    },
+                    "When": {
+                        "title": "When",
+                        "description": "Only apply the patch if the given conditions match.",
+                        "$ref": "#/definitions/Conditions"
+                    }
+                },
+                "allOf": [
+                    {
+                        "required": [ "Action" ]
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "Load" }
+                            }
+                        },
+                        "then": {
+                            "required": [ "FromFile", "Target" ],
+
+                            "properties": {
+                                "Priority": {
+                                    "$ref": "#/definitions/LoadPriority"
+                                }
+                            },
+
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "FromFile",
+                                    "LocalTokens",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "Priority"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "EditImage" }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to Replace.",
+                                    "type": "string",
+                                    "enum": [ "Replace", "Overlay" ],
+                                    "default": "Replace"
+                                },
+
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
+                                }
+                            },
+                            "required": [ "FromFile", "Target" ],
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "FromFile",
+                                    "LocalTokens",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "FromArea",
+                                    "PatchMode",
+                                    "Priority",
+                                    "ToArea"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "EditData" }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
+                                }
+                            },
+
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "LocalTokens",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "TargetField",
+                                    "Entries",
+                                    "Fields",
+                                    "MoveEntries",
+                                    "Priority",
+                                    "TextOperations"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "EditMap" }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "FromFile": {
+                                    "description": "The relative path to the map in your content pack folder from which to copy (like assets/town.tbin). This can be a .tbin, .tmx, or .xnb file. This field supports tokens and capitalization doesn't matter.\nContent Patcher will handle tilesheets referenced by the FromFile map for you:\n - If a tilesheet isn't referenced by the target map, Content Patcher will add it for you (with a z_ ID prefix to avoid conflicts with hardcoded game logic). If the source map has a custom version of a tilesheet that's already referenced, it'll be added as a separate tilesheet only used by your tiles.\n - If you include the tilesheet file in your mod folder, Content Patcher will use that one automatically; otherwise it will be loaded from the game's Content/Maps folder."
+                                },
+                                "FromArea": {
+                                    "description": "The part of the source map to copy. Defaults to the whole source map."
+                                },
+                                "ToArea": {
+                                    "description": "The part of the target map to replace."
+                                },
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to ReplaceByLayer.",
+                                    "type": "string",
+                                    "enum": [ "Overlay", "Replace", "ReplaceByLayer" ],
+                                    "default": "ReplaceByLayer"
+                                },
+
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
+                                }
+                            },
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "FromFile",
+                                    "LocalTokens",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "AddWarps",
+                                    "AddNpcWarps",
+                                    "FromArea",
+                                    "MapProperties",
+                                    "MapTiles",
+                                    "PatchMode",
+                                    "Priority",
+                                    "TextOperations",
+                                    "ToArea"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "Include" }
+                            }
+                        },
+                        "then": {
+                            "required": [ "FromFile" ],
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "FromFile",
+                                    "LocalTokens",
+                                    "LogName",
+                                    "Update",
+                                    "When"
+                                ]
+                            }
+                        }
+                    }
+                ],
+
+                "@errorMessages": {
+                    "allOf": "$transparent"
+                }
+            }
+        },
+        "$schema": {
+            "title": "Schema",
+            "description": "A reference to this JSON schema. Not part of the actual format, but useful for validation tools.",
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "Conditions": {
+            "type": "object",
+            "additionalProperties": {
+                "type": [ "boolean", "integer", "string" ]
+            }
+        },
+        "LocalTokens": {
+            "type": "object",
+            "propertyNames": {
+                "pattern": "^[^\\{\\}\\[\\]\\(\\)\\.\\-]+$",
+                "@errorMessages": {
+                    "pattern": "The token name should be alphanumeric with no special characters."
+                }
+            },
+            "additionalProperties": {
+                "type": [ "boolean", "integer", "number", "string" ]
+            }
+        },
+        "Position": {
+            "type": "object",
+            "properties": {
+                "X": {
+                    "title": "X position",
+                    "description": "The X position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                },
+                "Y": {
+                    "title": "Y position",
+                    "description": "The Y position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                }
+            },
+
+            "required": [ "X", "Y" ],
+            "additionalProperties": false
+        },
+        "Rectangle": {
+            "type": "object",
+            "properties": {
+                "X": {
+                    "title": "X position",
+                    "description": "The X position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                },
+                "Y": {
+                    "title": "Y position",
+                    "description": "The Y position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                },
+                "Width": {
+                    "title": "Width",
+                    "description": "The width of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                },
+                "Height": {
+                    "title": "Height",
+                    "description": "The height of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum": 0
+                }
+            },
+
+            "required": [ "X", "Y", "Width", "Height" ],
+            "additionalProperties": false
+        },
+        "EditPriority": {
+            "title": "Edit priority",
+            "description": "When multiple patches or mods edit the same asset, the order in which they should be applied. Defaults to 'Default'. The patches for an asset are applied in this order: (1) by earliest to latest priority; (2) then by mod load order, e.g. based on dependencies; (3) then by the order of patches in content.json.",
+            "type": "string",
+
+            "oneOf": [
+                {
+                    "enum": [ "Early", "Default", "Late" ]
+                },
+                {
+                    "pattern": "^\\s*(Early|Default|Late)\\s*(?:[\\+\\-]\\s*\\d+)\\s*$"
+                }
+            ],
+
+            "@errorMessages": {
+                "oneOf": "The edit priority must be 'Early', 'Default', 'Late', or a numeric offset like 'Early + 5'."
+            }
+        },
+        "LoadPriority": {
+            "title": "Load priority",
+            "description": "When multiple patches or mods load the same asset, the priority which decides which one is applied. Defaults to 'Exclusive'. If set to Low/Medium/High, the highest-priority patch is applied (or the first one by load order + patch order is multiple patches have the highest priority). If set to Exclusive, it's applied if only one patch has that priority, else no exclusive patches are applied. Avoid using Exclusive when possible, since it significantly reduces mod compatibility.",
+            "type": "string",
+
+            "oneOf": [
+                {
+                    "enum": [ "Low", "Medium", "High", "Exclusive" ]
+                },
+                {
+                    "pattern": "^\\s*(Low|Medium|High)\\s*(?:[\\+\\-]\\s*\\d+)\\s*$"
+                }
+            ],
+
+            "@errorMessages": {
+                "oneOf": "The load priority must be 'Low', 'Medium', 'High', 'Exclusive', or a non-exclusive numeric offset like 'Low + 5'."
+            }
+        }
+    },
+
+    "required": [ "Format", "Changes" ],
+    "additionalProperties": false
+}

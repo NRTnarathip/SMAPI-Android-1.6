@@ -104,6 +104,11 @@ in future SMAPI versions.
     "WebApiBaseUrl": "https://smapi.io/api/",
 
     /**
+     * The URL for the 'malicious mods' blacklist on the SMAPI web server.
+     */
+    "BlacklistUrl": "https://smapi.io/SMAPI.blacklist.json",
+
+    /**
      * Whether SMAPI should log network traffic (may be very verbose). Best combined with VerboseLogging, which includes network metadata.
      */
     "LogNetworkTraffic": false,

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework;
+using StardewModdingAPI.Toolkit.Framework.ModBlacklistData;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -22,14 +23,28 @@ internal class ModResolver
     /// <summary>Get manifest metadata for each folder in the given root path.</summary>
     /// <param name="toolkit">The mod toolkit.</param>
     /// <param name="rootPath">The root path to search for mods.</param>
+    /// <param name="modBlacklist">The malicious mods which should be blocked by SMAPI.</param>
     /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
     /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
     /// <returns>Returns the manifests by relative folder.</returns>
-    public IEnumerable<IModMetadata> ReadManifests(ModToolkit toolkit, string rootPath, ModDatabase modDatabase, bool useCaseInsensitiveFilePaths)
+    public IEnumerable<IModMetadata> ReadManifests(ModToolkit toolkit, string rootPath, ModBlacklist modBlacklist, ModDatabase modDatabase, bool useCaseInsensitiveFilePaths)
     {
         foreach (ModFolder folder in toolkit.GetModFolders(rootPath, useCaseInsensitiveFilePaths))
         {
             Manifest? manifest = folder.Manifest;
+
+            // check blacklist
+            ModBlacklistEntryModel? blacklistEntry = null;
+            if (manifest?.UniqueID != null)
+            {
+                string? entryDllPath = !string.IsNullOrWhiteSpace(manifest.EntryDll)
+                    ? Path.Combine(folder.DirectoryPath, manifest.EntryDll)
+                    : null;
+                if (!File.Exists(entryDllPath))
+                    entryDllPath = null;
+
+                blacklistEntry = modBlacklist.Get(manifest.UniqueID, entryDllPath);
+            }
 
             // parse internal data record (if any)
             ModDataRecordVersionedFields? dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
@@ -40,14 +55,12 @@ internal class ModResolver
 
             // build metadata
             bool shouldIgnore = folder.Type == ModType.Ignored;
-            ModMetadataStatus status = folder.ManifestParseError == ModParseError.None || shouldIgnore
-                ? ModMetadataStatus.Found
-                : ModMetadataStatus.Failed;
-
             IModMetadata metadata = new ModMetadata(folder.DisplayName, folder.Directory.FullName, rootPath, manifest, dataRecord, isIgnored: shouldIgnore);
-            if (shouldIgnore)
-                metadata.SetStatus(status, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
-            else if (status == ModMetadataStatus.Failed)
+            if (blacklistEntry != null)
+                metadata.SetStatus(ModMetadataStatus.Failed, ModFailReason.Malicious, blacklistEntry.Message);
+            else if (shouldIgnore)
+                metadata.SetStatus(ModMetadataStatus.Failed, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
+            else if (folder.ManifestParseError != ModParseError.None)
             {
                 ModFailReason reason = folder.ManifestParseError switch
                 {
@@ -56,7 +69,7 @@ internal class ModResolver
                     _ => ModFailReason.InvalidManifest
                 };
 
-                metadata.SetStatus(status, reason, folder.ManifestParseErrorText);
+                metadata.SetStatus(ModMetadataStatus.Failed, reason, folder.ManifestParseErrorText);
             }
 
             yield return metadata;

@@ -13,6 +13,12 @@ public interface IModRegistry : IModLinked
     /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
     IModInfo? Get(string uniqueID);
 
+    /// <summary>Get the mod which matches a <a href="https://stardewvalleywiki.com/Modding:Common_data_field_types#Unique_string_ID">standard namespaced ID</a>, if any.</summary>
+    /// <param name="namespacedId">The unique string ID for an entity which applies the standard namespaced ID pattern (i.e. <c>ModId_EntityId</c>).</param>
+    /// <param name="requirePrefix">Whether to only return a match if the ID is namespaced (i.e. <c>ModId_EntityId</c> rather than just <c>ModId</c>).</param>
+    /// <remarks>For example, you can get the mod which added an item by passing the item ID (assuming it applies the expected format).</remarks>
+    IModInfo? GetFromNamespacedId(string? namespacedId, bool requirePrefix = false);
+
     /// <summary>Get whether a mod has been loaded.</summary>
     /// <param name="uniqueID">The mod's unique ID.</param>
     bool IsLoaded(string uniqueID);

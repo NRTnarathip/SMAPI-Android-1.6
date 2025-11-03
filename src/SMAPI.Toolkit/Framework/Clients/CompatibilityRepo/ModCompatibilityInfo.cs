@@ -24,6 +24,9 @@ public class ModCompatibilityInfo
     /// <summary>The URL to the latest unofficial update, if applicable.</summary>
     public string? UnofficialUrl { get; }
 
+    /// <summary>If the compatibility status is <see cref="ModCompatibilityStatus.Abandoned"/>, the reason it was abandoned.</summary>
+    public ModCompatibilityReasonAbandoned AbandonedReason { get; }
+
 
     /*********
     ** Accessors
@@ -35,7 +38,8 @@ public class ModCompatibilityInfo
     /// <param name="brokeIn">The game or SMAPI version which broke this mod, if applicable.</param>
     /// <param name="unofficialVersion">The version of the latest unofficial update, if applicable.</param>
     /// <param name="unofficialUrl">The URL to the latest unofficial update, if applicable.</param>
-    public ModCompatibilityInfo(ModCompatibilityStatus status, string? summary, string? htmlSummary, string? brokeIn, ISemanticVersion? unofficialVersion, string? unofficialUrl)
+    /// <param name="abandonedReason">If the compatibility status is <see cref="ModCompatibilityStatus.Abandoned"/>, the reason it was abandoned.</param>
+    public ModCompatibilityInfo(ModCompatibilityStatus status, string? summary, string? htmlSummary, string? brokeIn, ISemanticVersion? unofficialVersion, string? unofficialUrl, ModCompatibilityReasonAbandoned abandonedReason)
     {
         this.Status = status;
         this.Summary = summary;
@@ -43,5 +47,17 @@ public class ModCompatibilityInfo
         this.BrokeIn = brokeIn;
         this.UnofficialVersion = unofficialVersion;
         this.UnofficialUrl = unofficialUrl;
+        this.AbandonedReason = abandonedReason;
+    }
+
+    /// <summary>Get whether this mod is compatible with no notes.</summary>
+    public bool IsDefault()
+    {
+        return
+            this.Status == ModCompatibilityStatus.Ok
+            && this.Summary is "use latest version."
+            && this.BrokeIn is null
+            && this.UnofficialUrl is null
+            && this.UnofficialVersion is null;
     }
 }

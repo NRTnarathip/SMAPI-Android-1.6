@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Framework.Clients.CompatibilityRepo;
 using StardewModdingAPI.Toolkit.Framework.GameScanning;
+using StardewModdingAPI.Toolkit.Framework.ModBlacklistData;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -78,11 +79,21 @@ public class ModToolkit
         return await client.FetchModsFromLocalGitFolderAsync(gitRepoPath);
     }
 
-    /// <summary>Get SMAPI's internal mod database.</summary>
-    /// <param name="metadataPath">The file path for the SMAPI metadata file.</param>
-    public ModDatabase GetModDatabase(string metadataPath)
+    /// <summary>Get SMAPI's internal blacklist of malicious or harmful mods.</summary>
+    /// <param name="path">The file path for the SMAPI blacklist file.</param>
+    public ModBlacklist GetModBlacklist(string path)
     {
-        MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath)) ?? new MetadataModel();
+        ModBlacklistModel? data = JsonConvert.DeserializeObject<ModBlacklistModel>(File.ReadAllText(path));
+        return data != null
+            ? new ModBlacklist(data)
+            : new ModBlacklist();
+    }
+
+    /// <summary>Get SMAPI's internal mod database.</summary>
+    /// <param name="path">The file path for the SMAPI metadata file.</param>
+    public ModDatabase GetModDatabase(string path)
+    {
+        MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(path)) ?? new MetadataModel();
         ModDataRecord[] records = metadata.ModData.Select(pair => new ModDataRecord(pair.Key, pair.Value)).ToArray();
         return new ModDatabase(records, this.GetUpdateUrl);
     }

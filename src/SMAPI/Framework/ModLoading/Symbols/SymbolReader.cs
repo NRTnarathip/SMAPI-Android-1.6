@@ -64,6 +64,13 @@ internal class SymbolReader : ISymbolReader
         return this.Reader.Read(method);
     }
 
+    /// <summary>Read the method debug information for a method in the assembly.</summary>
+    /// <param name="provider">The debug info provider.</param>
+    public Collection<CustomDebugInformation> Read(ICustomDebugInformationProvider provider)
+    {
+        return this.Reader.Read(provider);
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {

@@ -60,7 +60,7 @@ internal static class EarlyConstants
     internal static int? LogScreenId { get; set; }
 
     /// <summary>SMAPI's current raw semantic version.</summary>
-    internal const string RawApiVersion = "4.2.1";
+    internal const string RawApiVersion = "4.3.2";
 
     /// <summary>Current version for android</summary>
     internal const string AndroidFixBugVersionCode = "1";
@@ -149,6 +149,15 @@ public static class Constants
 
     /// <summary>The file path for the SMAPI metadata file.</summary>
     internal static string ApiMetadataPath => Path.Combine(Constants.InternalFilesPath, "metadata.json");
+
+    /// <summary>The file path for the 'malicious mods' blacklist included with the SMAPI install.</summary>
+    internal static string ApiBlacklistPath => Path.Combine(Constants.InternalFilesPath, "blacklist.json");
+
+    /// <summary>The file path for the 'malicious mod' blacklist fetched from the server, if different from the <see cref="ApiBlacklistPath"/>.</summary>
+    internal static string ApiBlacklistFetchedPath => Path.Combine(Constants.InternalFilesPath, "blacklist-updated.json");
+
+    /// <summary>The <see cref="ApiBlacklistPath"/> or <see cref="ApiBlacklistFetchedPath"/>, depending on which file is loaded.</summary>
+    internal static string? ApiBlacklistActualPath;
 
     /// <summary>The filename prefix used for all SMAPI logs.</summary>
     internal static string LogNamePrefix { get; } = "SMAPI-";

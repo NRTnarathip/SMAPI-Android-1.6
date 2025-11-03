@@ -53,6 +53,42 @@ internal class ModRegistryHelper : BaseHelper, IModRegistry
     }
 
     /// <inheritdoc />
+    public IModInfo? GetFromNamespacedId(string? namespacedId, bool requirePrefix = false)
+    {
+        if (string.IsNullOrWhiteSpace(namespacedId))
+            return null;
+
+        // ID is just a mod ID
+        IModInfo? mod = this.Get(namespacedId);
+        if (mod != null)
+        {
+            return requirePrefix
+                ? null
+                : mod;
+        }
+
+        // The unique string ID convention is `{mod id}_{content id}`, but both the mod ID and content ID can contain
+        // underscores. So here we split by `_` and check every possible prefix before the final underscore to see
+        // if it's a valid mod ID. We take the longest match since some mods use suffixes for grouped mods, like
+        // `mainMod` and `mainMod_cp`.
+        string[] parts = namespacedId.Split('_');
+        if (parts.Length > 1)
+        {
+            string modId = parts[0];
+            int idIndex = parts.Length - 1;
+            for (int i = 0; i < idIndex; i++)
+            {
+                if (i != 0)
+                    modId += '_' + parts[i];
+
+                mod = this.Get(modId) ?? mod;
+            }
+        }
+
+        return mod;
+    }
+
+    /// <inheritdoc />
     public bool IsLoaded(string uniqueID)
     {
         return this.Registry.Get(uniqueID) != null;

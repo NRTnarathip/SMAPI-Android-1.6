@@ -90,8 +90,7 @@ internal class AssetDataForMap : AssetData<Map>, IAssetDataForMap
 
                 // add tilesheet
                 targetSheet = new TileSheet(id, target, sourceSheet.ImageSource, sourceSheet.SheetSize, sourceSheet.TileSize);
-                for (int i = 0, tileCount = sourceSheet.TileCount; i < tileCount; ++i)
-                    targetSheet.TileIndexProperties[i].CopyFrom(sourceSheet.TileIndexProperties[i]);
+                targetSheet.Properties.CopyFrom(sourceSheet.Properties);
                 target.AddTileSheet(targetSheet);
             }
 

@@ -165,6 +165,10 @@ internal class Translator
     /// <param name="locale">The locale for which to find valid locales.</param>
     private IEnumerable<string> GetRelevantLocales(string locale)
     {
+        // special case: the game's locale code for English is an empty string, but we still want to allow 'en' as a locale
+        if (locale == string.Empty)
+            locale = "en";
+
         // given locale
         yield return locale;
 

@@ -136,4 +136,19 @@ public class ModCompatibilityEntry
         if (!anyFound && !string.IsNullOrWhiteSpace(this.GitHubRepo))
             yield return new KeyValuePair<ModSiteKey, string>(ModSiteKey.GitHub, $"https://github.com/{this.GitHubRepo}/releases");
     }
+
+    /// <summary>Get whether this compatibility entry refers to the given mod site page ID.</summary>
+    /// <param name="site">The mod site.</param>
+    /// <param name="id">The mod page ID.</param>
+    public bool HasSiteId(ModSiteKey site, int id)
+    {
+        return site switch
+        {
+            ModSiteKey.Chucklefish => this.ChucklefishID == id,
+            ModSiteKey.CurseForge => this.CurseForgeID == id,
+            ModSiteKey.ModDrop => this.ModDropID == id,
+            ModSiteKey.Nexus => this.NexusID == id,
+            _ => false
+        };
+    }
 }

@@ -1,0 +1,377 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Security.Cryptography;
+using Hangfire;
+using Hangfire.Console;
+using Hangfire.MemoryStorage;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Framework.Clients.CurseForgeExport;
+using StardewModdingAPI.Toolkit.Framework.Clients.ModDropExport;
+using StardewModdingAPI.Toolkit.Framework.Clients.NexusExport;
+using StardewModdingAPI.Toolkit.Serialization;
+using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Caching.CompatibilityRepo;
+using StardewModdingAPI.Web.Framework.Caching.CurseForgeExport;
+using StardewModdingAPI.Web.Framework.Caching.ModDropExport;
+using StardewModdingAPI.Web.Framework.Caching.Mods;
+using StardewModdingAPI.Web.Framework.Caching.NexusExport;
+using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.CurseForge;
+using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.ModDrop;
+using StardewModdingAPI.Web.Framework.Clients.Nexus;
+using StardewModdingAPI.Web.Framework.Clients.Pastebin;
+using StardewModdingAPI.Web.Framework.Clients.UpdateManifest;
+using StardewModdingAPI.Web.Framework.Compression;
+using StardewModdingAPI.Web.Framework.ConfigModels;
+using StardewModdingAPI.Web.Framework.RedirectRules;
+using StardewModdingAPI.Web.Framework.Storage;
+
+namespace StardewModdingAPI.Web;
+
+/// <summary>The web app startup configuration.</summary>
+internal class Startup
+{
+    /*********
+    ** Fields
+    *********/
+    /// <summary>The name of the static 'malicious mods' blacklist file.</summary>
+    private const string BlacklistFileName = "SMAPI.blacklist.json";
+
+    /// <summary>The MD5 hash for the 'malicious mods' blacklist file.</summary>
+    private readonly Lazy<string> BlacklistMd5Hash;
+
+
+    /*********
+    ** Accessors
+    *********/
+    /// <summary>The web app configuration.</summary>
+    public IConfigurationRoot Configuration { get; }
+
+
+    /*********
+    ** Public methods
+    *********/
+    /// <summary>Construct an instance.</summary>
+    /// <param name="env">The hosting environment.</param>
+    public Startup(IWebHostEnvironment env)
+    {
+        // load config
+        this.Configuration = new ConfigurationBuilder()
+            .SetBasePath(env.ContentRootPath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        // get cached 'malicious mods' blacklist MD5 hash
+        this.BlacklistMd5Hash = new Lazy<string>(() => this.GetBlacklistMd5Hash(env.WebRootPath));
+    }
+
+    /// <summary>The method called by the runtime to add services to the container.</summary>
+    /// <param name="services">The service injection container.</param>
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // init basic services
+        services
+            .Configure<ApiClientsConfig>(this.Configuration.GetRequiredSection("ApiClients"))
+            .Configure<BackgroundServicesConfig>(this.Configuration.GetRequiredSection("BackgroundServices"))
+            .Configure<ModCompatibilityListConfig>(this.Configuration.GetRequiredSection("ModCompatibilityList"))
+            .Configure<ModUpdateCheckConfig>(this.Configuration.GetRequiredSection("ModUpdateCheck"))
+            .Configure<SiteConfig>(this.Configuration.GetRequiredSection("Site"))
+            .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
+            .AddLogging()
+            .AddMemoryCache();
+
+        // init MVC
+        services
+            .AddControllers()
+            .AddNewtonsoftJson(options => this.ConfigureJsonNet(options.SerializerSettings))
+            .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()));
+        services
+            .AddRazorPages();
+
+        // init storage
+        services.AddSingleton<IModCacheRepository>(new ModCacheMemoryRepository());
+        services.AddSingleton<ICompatibilityCacheRepository>(new CompatibilityCacheMemoryRepository());
+        services.AddSingleton<ICurseForgeExportCacheRepository>(new CurseForgeExportCacheMemoryRepository());
+        services.AddSingleton<IModDropExportCacheRepository>(new ModDropExportCacheMemoryRepository());
+        services.AddSingleton<INexusExportCacheRepository>(new NexusExportCacheMemoryRepository());
+
+        // init Hangfire
+        services
+            .AddHangfire((_, config) =>
+            {
+                config
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseMemoryStorage()
+                    .UseConsole();
+            });
+
+        // init background service
+        {
+            BackgroundServicesConfig config = this.Configuration.GetRequiredSection("BackgroundServices").Get<BackgroundServicesConfig>() ?? throw new InvalidOperationException("Can't initialize server: required 'ApiClients' config section couldn't be loaded.");
+            if (config.Enabled)
+                services.AddHostedService<BackgroundService>();
+        }
+
+        // init API clients
+        {
+            ApiClientsConfig api = this.Configuration.GetRequiredSection("ApiClients").Get<ApiClientsConfig>() ?? throw new InvalidOperationException("Can't initialize server: required 'ApiClients' config section couldn't be loaded.");
+            string version = this.GetType().Assembly.GetName().Version!.ToString(3);
+            string userAgent = string.Format(api.UserAgent, version);
+
+            services.AddSingleton<IChucklefishClient>(new ChucklefishClient(
+                userAgent: userAgent,
+                baseUrl: api.ChucklefishBaseUrl,
+                modPageUrlFormat: api.ChucklefishModPageUrlFormat
+            ));
+
+            if (!string.IsNullOrWhiteSpace(api.CurseForgeExportUrl))
+            {
+                services.AddSingleton<ICurseForgeExportApiClient>(new CurseForgeExportApiClient(
+                    userAgent: userAgent,
+                    baseUrl: api.CurseForgeExportUrl
+                ));
+            }
+            else
+                services.AddSingleton<ICurseForgeExportApiClient>(new DisabledCurseForgeExportApiClient());
+
+            services.AddSingleton<ICurseForgeClient>(
+                provider => new CurseForgeClient(
+                    userAgent: userAgent,
+                    apiUrl: api.CurseForgeBaseUrl,
+                    apiKey: api.CurseForgeApiKey,
+                    webModUrl: api.CurseForgeWebPageUrl,
+                    exportCache: provider.GetRequiredService<ICurseForgeExportCacheRepository>()
+                )
+            );
+
+            services.AddSingleton<IGitHubClient>(new GitHubClient(
+                baseUrl: api.GitHubBaseUrl,
+                userAgent: userAgent,
+                acceptHeader: api.GitHubAcceptHeader,
+                username: api.GitHubUsername,
+                password: api.GitHubPassword
+            ));
+
+            if (!string.IsNullOrWhiteSpace(api.ModDropExportUrl))
+            {
+                services.AddSingleton<IModDropExportApiClient>(new ModDropExportApiClient(
+                    userAgent: userAgent,
+                    baseUrl: api.ModDropExportUrl
+                ));
+            }
+            else
+                services.AddSingleton<IModDropExportApiClient>(new DisabledModDropExportApiClient());
+
+            services.AddSingleton<IModDropClient>(
+                provider => new ModDropClient(
+                    userAgent: userAgent,
+                    apiUrl: api.ModDropApiUrl,
+                    modUrlFormat: api.ModDropModPageUrl,
+                    exportCache: provider.GetRequiredService<IModDropExportCacheRepository>()
+                )
+            );
+
+            if (!string.IsNullOrWhiteSpace(api.NexusExportUrl))
+            {
+                services.AddSingleton<INexusExportApiClient>(
+                    new NexusExportApiClient(
+                        userAgent: userAgent,
+                        baseUrl: api.NexusExportUrl
+                    )
+                );
+            }
+            else
+                services.AddSingleton<INexusExportApiClient>(new DisabledNexusExportApiClient());
+
+            if (!string.IsNullOrWhiteSpace(api.NexusApiKey))
+            {
+                services.AddSingleton<INexusClient>(
+                    provider => new NexusClient(
+                        webUserAgent: userAgent,
+                        webBaseUrl: api.NexusBaseUrl,
+                        webModUrlFormat: api.NexusModUrlFormat,
+                        webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
+                        apiAppVersion: version,
+                        apiKey: api.NexusApiKey,
+                        exportCache: provider.GetRequiredService<INexusExportCacheRepository>()
+                    ));
+            }
+            else
+                services.AddSingleton<INexusClient>(new DisabledNexusClient());
+
+            services.AddSingleton<IPastebinClient>(new PastebinClient(
+                baseUrl: api.PastebinBaseUrl,
+                userAgent: userAgent
+            ));
+
+            services.AddSingleton<IUpdateManifestClient>(new UpdateManifestClient(userAgent: userAgent));
+        }
+
+        // init helpers
+        services
+            .AddSingleton<IGzipHelper>(new GzipHelper())
+            .AddSingleton<IStorageProvider>(serv => new StorageProvider(
+                serv.GetRequiredService<IOptions<ApiClientsConfig>>(),
+                serv.GetRequiredService<IPastebinClient>(),
+                serv.GetRequiredService<IGzipHelper>()
+            ));
+    }
+
+    /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>
+    /// <param name="app">The application builder.</param>
+    public void Configure(IApplicationBuilder app)
+    {
+        // basic config
+        app.UseDeveloperExceptionPage();
+        app
+            .UseCors(policy => policy
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithOrigins("https://smapi.io")
+            )
+            .UseRewriter(this.GetRedirectRules())
+            .UseStaticFiles(new StaticFileOptions { OnPrepareResponse = this.OnPrepareStaticFileResponse }) // wwwroot folder
+            .UseRouting()
+            .UseAuthorization()
+            .UseEndpoints(p =>
+            {
+                p.MapControllers();
+                p.MapRazorPages();
+            });
+
+        // enable Hangfire dashboard
+        app.UseHangfireDashboard("/tasks", new DashboardOptions
+        {
+            IsReadOnlyFunc = context => !JobDashboardAuthorizationFilter.IsLocalRequest(context),
+            Authorization = [new JobDashboardAuthorizationFilter()]
+        });
+    }
+
+
+    /*********
+    ** Private methods
+    *********/
+    /// <summary>Configure a Json.NET serializer.</summary>
+    /// <param name="settings">The serializer settings to edit.</param>
+    private void ConfigureJsonNet(JsonSerializerSettings settings)
+    {
+        foreach (JsonConverter converter in JsonHelper.CreateDefaultSettings().Converters)
+            settings.Converters.Add(converter);
+
+        settings.Formatting = Formatting.Indented;
+        settings.NullValueHandling = NullValueHandling.Ignore;
+    }
+
+    /// <summary>Prepare a response.</summary>
+    /// <param name="context">The file response content.</param>
+    private void OnPrepareStaticFileResponse(StaticFileResponseContext context)
+    {
+        if (context.File.Name == Startup.BlacklistFileName)
+            context.Context.Response.Headers.ContentMD5 = this.BlacklistMd5Hash.Value;
+    }
+
+    /// <summary>Get the redirect rules to apply.</summary>
+    private RewriteOptions GetRedirectRules()
+    {
+        var redirects = new RewriteOptions()
+            // shortcut paths
+            .Add(new RedirectPathsToUrlsRule(new Dictionary<string, string>
+            {
+                // wiki pages
+                [@"^/3\.0\.?$"] = "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0",
+                [@"^/community\.?$"] = "https://stardewvalleywiki.com/Modding:Community",
+                [@"^/docs\.?$"] = "https://stardewvalleywiki.com/Modding:Index",
+                [@"^/help\.?$"] = "https://stardewvalleywiki.com/Modding:Help",
+                [@"^/install\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI",
+                [@"^/troubleshoot(?:/?(.*))$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#$1",
+                [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods",
+                [@"^/reset-content\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#reset-content",
+
+                // GitHub docs
+                ["^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
+                ["^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
+
+                // Content Patcher docs
+                ["/cp-migrate(?:/?(.*))$"] = "https://github.com/Pathoschild/StardewMods/blob/develop/ContentPatcher/docs/author-migration-guide.md#$1",
+
+                // legacy redirects
+                [@"^/compat\.?$"] = "https://smapi.io/mods"
+            }))
+
+            // legacy paths
+            .Add(new RedirectPathsToUrlsRule(this.GetLegacyPathRedirects()))
+
+            // subdomains
+            .Add(new RedirectHostsToUrlsRule(HttpStatusCode.PermanentRedirect, host => host switch
+            {
+                "api.smapi.io" => "smapi.io/api",
+                "json.smapi.io" => "smapi.io/json",
+                "log.smapi.io" => "smapi.io/log",
+                "mods.smapi.io" => "smapi.io/mods",
+                _ => host.EndsWith(".smapi.io")
+                    ? "smapi.io"
+                    : null
+            }))
+
+            // redirect to HTTPS (except API for Linux/macOS Mono compatibility)
+            .Add(
+                new RedirectToHttpsRule(except: req => req.Host.Host == "localhost" || req.Path.StartsWithSegments("/api"))
+            );
+
+        return redirects;
+    }
+
+    /// <summary>Get the redirects for legacy paths that have been moved elsewhere.</summary>
+    private IDictionary<string, string> GetLegacyPathRedirects()
+    {
+        var redirects = new Dictionary<string, string>();
+
+        // canimod.com => wiki
+        var wikiRedirects = new Dictionary<string, string[]>
+        {
+            ["Modding:Index#Migration_guides"] = ["^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod"],
+            ["Modding:Modder_Guide"] = ["^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod", "^/for-devs/creating-a-smapi-mod-advanced-config"],
+            ["Modding:Player_Guide"] = ["^/for-players/install-smapi", "^/guides/using-mods", "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq"],
+
+            ["Modding:Editing_XNB_files"] = ["^/for-devs/creating-an-xnb-mod", "^/guides/creating-an-xnb-mod"],
+            ["Modding:Event_data"] = ["^/for-devs/events", "^/guides/events"],
+            ["Modding:Gift_taste_data"] = ["^/for-devs/npc-gift-tastes", "^/guides/npc-gift-tastes"],
+            ["Modding:IDE_reference"] = ["^/for-devs/creating-a-smapi-mod-ide-primer"],
+            ["Modding:Object_data"] = ["^/for-devs/object-data", "^/guides/object-data"],
+            ["Modding:Weather_data"] = ["^/for-devs/weather", "^/guides/weather"]
+        };
+        foreach ((string page, string[] patterns) in wikiRedirects)
+        {
+            foreach (string pattern in patterns)
+                redirects.Add(pattern, "https://stardewvalleywiki.com/" + page);
+        }
+
+        return redirects;
+    }
+
+    /// <summary>Get the <c>Content-MD5</c> header value for the 'malicious mods' blacklist file.</summary>
+    /// <param name="webRootPath">The web root path.</param>
+    private string GetBlacklistMd5Hash(string webRootPath)
+    {
+        string path = Path.Combine(webRootPath, Startup.BlacklistFileName);
+        using FileStream stream = File.OpenRead(path);
+        byte[] hash = MD5.HashData(stream);
+
+        return Convert.ToBase64String(hash);
+    }
+}

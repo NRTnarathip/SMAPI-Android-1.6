@@ -21,7 +21,12 @@ internal class ReloadI18nCommand : IInternalCommand
     public string Name { get; } = "reload_i18n";
 
     /// <summary>The human-readable documentation shown when the player runs the built-in 'help' command.</summary>
-    public string Description { get; } = "Reloads translation files for all mods.\n\nUsage: reload_i18n";
+    public string Description { get; } =
+        """
+        Reloads translation files for all mods.
+
+        Usage: reload_i18n
+        """;
 
 
     /*********

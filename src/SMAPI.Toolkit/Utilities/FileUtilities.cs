@@ -60,6 +60,13 @@ public static class FileUtilities
     {
         using FileStream stream = File.OpenRead(absolutePath);
         byte[] hash = md5.ComputeHash(stream);
-        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        return FileUtilities.GetHashString(hash);
+    }
+
+    /// <summary>Get the string representation of MD5 hash bytes.</summary>
+    /// <param name="hashBytes">The MD5 hash bytes to represent.</param>
+    internal static string GetHashString(byte[] hashBytes)
+    {
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 }

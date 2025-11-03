@@ -15,6 +15,9 @@ internal class ModRegistry
     /// <summary>The registered mod data.</summary>
     private readonly List<IModMetadata> Mods = [];
 
+    /// <summary>An ID => mod lookup.</summary>
+    private readonly Dictionary<string, IModMetadata> ModsById = new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>An assembly full name => mod lookup.</summary>
     private readonly Dictionary<string, IModMetadata> ModNamesByAssembly = [];
 
@@ -33,6 +36,9 @@ internal class ModRegistry
     public void Add(IModMetadata metadata)
     {
         this.Mods.Add(metadata);
+
+        if (metadata.HasId())
+            this.ModsById.TryAdd(metadata.Manifest.UniqueID.Trim(), metadata);
     }
 
     /// <summary>Track a mod's assembly for use via <see cref="GetFrom(Type?)"/>.</summary>
@@ -41,6 +47,12 @@ internal class ModRegistry
     public void TrackAssemblies(IModMetadata metadata, Assembly modAssembly)
     {
         this.ModNamesByAssembly[modAssembly.FullName!] = metadata;
+    }
+
+    /// <summary>Get the unique mod IDs for all loaded mods.</summary>
+    public IReadOnlyCollection<string> GetAllIds()
+    {
+        return this.ModsById.Keys;
     }
 
     /// <summary>Get metadata for all loaded mods.</summary>
@@ -68,7 +80,7 @@ internal class ModRegistry
         uniqueID = uniqueID.Trim();
 
         // find match
-        return this.GetAll().FirstOrDefault(p => p.HasId(uniqueID));
+        return this.ModsById.GetValueOrDefault(uniqueID);
     }
 
     /// <summary>Get the mod metadata from one of its assemblies.</summary>

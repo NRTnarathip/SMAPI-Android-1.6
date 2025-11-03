@@ -1,0 +1,442 @@
+@using Humanizer
+@using StardewModdingAPI.Toolkit.Utilities
+@using StardewModdingAPI.Web.Framework
+@using StardewModdingAPI.Web.Framework.LogParsing.Models
+@using StardewModdingAPI.Web.ViewModels
+@model StardewModdingAPI.Web.ViewModels.LogParserModel
+
+@{
+    ViewData["Title"] = "SMAPI log parser";
+
+    // get filters
+    IDictionary<string, bool> defaultFilters = Enum
+        .GetValues<LogLevel>()
+        .ToDictionary(level => level.ToString().ToLower(), level => level != LogLevel.Trace);
+    IDictionary<int, string> levelNames = Enum
+        .GetValues<LogLevel>()
+        .ToDictionary(level => (int)level, level => level.ToString().ToLower());
+    IDictionary<int, string> sectionName = Enum
+        .GetValues<LogSection>()
+        .ToDictionary(section => (int)section, section => section.ToString());
+
+    // get form
+    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId }, absoluteUrl: true)!;
+}
+
+@section Head {
+    @if (Model.PasteId != null)
+    {
+        <meta name="robots" content="noindex" />
+    }
+
+    <!-- jQuery -->
+    <script src="@Url.ContentWithCacheBust("~/Content/lib/jquery/dist/jquery.min.js")"></script>
+
+    <!-- Tabby -->
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/lib/tabbyjs/dist/css/tabby-ui-vertical.min.css")" />
+    <script src="@Url.ContentWithCacheBust("~/Content/lib/tabbyjs/dist/js/tabby.polyfills.min.js")"></script>
+
+    <!-- Vue -->
+    <script src="@Url.ContentWithCacheBust("~/Content/lib/vue/dist/vue.min.js")"></script>
+
+    <!-- page CSS/JS -->
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/file-upload.css")" />
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/log-parser.css")" />
+    <script src="@Url.ContentWithCacheBust("~/Content/js/file-upload.js")"></script>
+    <script src="@Url.ContentWithCacheBust("~/Content/js/log-parser.js")"></script>
+
+    <!-- init -->
+    <script>
+        $(async function() {
+            await smapi.logParser({
+                fetchUri: @this.ForJson(this.Model.FetchUri),
+                fetchedData: @this.ForJson(this.Model.FetchedData),
+                sectionNames: @this.ForJson(sectionName),
+                levelNames: @this.ForJson(levelNames),
+                showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
+                showLevels: @this.ForJson(defaultFilters),
+                enableFilters: @this.ForJson(!Model.ShowRaw)
+            });
+            @if (!Model.HasLog)
+            {
+                <text>new Tabby("[data-tabs]");</text>
+            }
+        });
+    </script>
+}
+
+@* quick navigation links *@
+@section SidebarExtra {
+    @if (Model.HasLog)
+    {
+        <nav id="quickNav">
+            <h4>Scroll to...</h4>
+            <ul>
+                <li><a href="#content">Top</a></li>
+                <li><a href="#filterHolder">Log start</a></li>
+                <li><a href="#footer">Bottom</a></li>
+            </ul>
+        </nav>
+    }
+}
+
+@* non-JavaScript error *@
+<noscript>
+    <div class="banner error">
+        <strong>This page requires JavaScript.</strong><br />
+        This pages uses JavaScript to render the log data. To view this log, please enable JavaScript or <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawDownload })">download the raw data</a>.
+    </div>
+</noscript>
+
+@* upload result banner *@
+@if (Model.UploadError != null)
+{
+    <div class="banner error" v-pre>
+        <strong>Oops, the server ran into trouble saving that file.</strong><br />
+        <small>Error details: @Model.UploadError</small>
+    </div>
+}
+
+@* fetched log data *@
+<div v-cloak id="output">
+    @* loading indicator *@
+    <div v-if="false" class="loading-indicator"><div></div><div></div><div></div><div></div></div>
+
+    @* log error banner *@
+    <div class="banner error" v-if="data.Error">
+        <div v-pre>
+            <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
+            Share this URL when asking for help: <code>@curPageUrl</code><br />
+            (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)<br />
+        </div>
+        <small>Error details: {{data.Error}}</small>
+    </div>
+
+    @* success banner *@
+    <div class="banner success" v-if="data.IsValid">
+        <strong>Share this link to let someone else see the log:</strong> <code>@curPageUrl</code><br />
+        (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)
+    </div>
+
+    @* save warnings *@
+    @if (Model.UploadWarning != null || Model.NewExpiry.HasValue)
+    {
+        @if (Model.UploadWarning != null)
+        {
+            <text>⚠️ @Model.UploadWarning<br /></text>
+        }
+
+        <div class="save-metadata" v-pre>
+            @if (Model.NewExpiry.HasValue)
+            {
+                string? oldExpiryText = Model.OldExpiry.HasValue
+                ? (DateTime.UtcNow - Model.OldExpiry.Value).Humanize()
+                : null;
+                string? newExpiryText = Model.NewExpiry.HasValue
+                ? (DateTime.UtcNow - Model.NewExpiry.Value).Humanize()
+                : null;
+
+                <text>This log will expire in </text>
+                @if (oldExpiryText != null && oldExpiryText != newExpiryText)
+                {
+                    <text><s>@(oldExpiryText)</s> </text>
+                }
+
+                <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteId, renew = true }))">renew</a>).</text>
+            }
+        </div>
+    }
+
+    @* upload new log *@
+    @if (!this.Model.HasLog)
+    {
+        <h2>Where do I find my SMAPI log?</h2>
+        <div id="os-instructions">
+            <div>
+                <ul data-tabs>
+                    @foreach (Platform platform in new[] { Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows })
+                    {
+                        @if (platform == Platform.Windows)
+                        {
+                            <li><a data-tabby-default href="#@(platform)-steamgog">@platform (Steam or GOG)</a></li>
+                            <li><a href="#@(platform)-xbox">@platform (Xbox app)</a></li>
+                        }
+                        else
+                        {
+                            <li><a href="#@platform">@platform</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div>
+                <div id="@Platform.Android">
+                    <ol>
+                        <li>Open a file app (like My Files or MT Manager).</li>
+                        <li>Find the <code>StardewValley</code> folder on your internal storage.</li>
+                        <li>Open the <code>ErrorLogs</code> subfolder.</li>
+                        <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                    </ol>
+                </div>
+                <div id="@Platform.Linux">
+                    <ol>
+                        <li>Open the Files app.</li>
+                        <li>Click the options menu (might be labeled <em>Go</em> or <code>⋮</code>).</li>
+                        <li>Choose <em>Enter Location</em>.</li>
+                        <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+                        <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                    </ol>
+                </div>
+                <div id="@Platform.Mac">
+                    <ol>
+                        <li>Open the Finder app.</li>
+                        <li>Click <em>Go</em> at the top, then <em>Go to Folder</em>.</li>
+                        <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+                        <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                    </ol>
+                </div>
+                <div id="@(Platform.Windows)-steamgog">
+                    <ol>
+                        <li>Press the <kbd>Windows</kbd> and <kbd>R</kbd> buttons at the same time.</li>
+                        <li>In the 'run' box that appears, enter this exact text: <pre>%appdata%\StardewValley\ErrorLogs</pre></li>
+                        <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                    </ol>
+                </div>
+                <div id="@(Platform.Windows)-xbox">
+                    <ol>
+                        <li>Press the <kbd>Windows</kbd> and <kbd>R</kbd> buttons at the same time.</li>
+                        <li>In the 'run' box that appears, enter this exact text: <pre>%localappdata%\Packages\ConcernedApe.StardewValleyPC_0c8vynj4cqe4e\LocalCache\Roaming\StardewValley\ErrorLogs</pre></li>
+                        <li>If you get an error with the title "Location is not available", try the "with Steam or GOG" instructions above.</li>
+                        <li>Otherwise the log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <h2>How do I share my log?</h2>
+        <form action="@this.Url.PlainAction("Post", "LogParser")" method="post">
+            <input id="inputFile" type="file" />
+            <ol>
+                <li>
+                    Drag the file onto this textbox <small>(or <a href="#" id="choose-file-link">choose a file</a>)</small>:<br />
+                    <textarea id="input" name="input" placeholder="paste log here"></textarea>
+                </li>
+                <li>
+                    Click this button:<br />
+                    <input type="submit" id="submit" value="save & parse log" />
+                </li>
+                <li>On the new page, copy the URL and send it to the person helping you.</li>
+            </ol>
+        </form>
+    }
+
+    @* parsed log *@
+    <div v-if="data.IsValid">
+        @* suggested fixes *@
+        <div v-if="data.HasApiUpdate || hasOutdatedMods">
+            <h2>Suggested fixes</h2>
+            <ul id="fix-list">
+                <li v-if="data.HasApiUpdate">
+                    You have an older version of SMAPI installed. Consider updating SMAPI to fix problems.
+                </li>
+
+                <li v-if="hasOutdatedMods">
+                    Consider updating these mods to fix problems:
+
+                    <table id="updates" class="table">
+                        <template v-for="(mod, key) of modsAndContentPacks">
+                            <tr class="mod-entry" v-if="mod.HasUpdate || mod.contentPacksHaveUpdates">
+                                <td>
+                                    @* mod name *@
+                                    <strong v-bind:class="{ hidden: !mod.HasUpdate }">{{mod.Name}}</strong>
+
+                                    @* content pack names *@
+                                    <div class="content-packs" v-if="mod.contentPacksHaveUpdates">
+                                        <template v-for="contentPack of mod.contentPacks">
+                                            <template v-if="contentPack.HasUpdate">
+                                                + {{contentPack.Name}}<br />
+                                            </template>
+                                        </template>
+                                    </div>
+                                </td>
+                                <td>
+                                    @* mod version *@
+                                    <a v-if="mod.HasUpdate" v-bind:href="mod.UpdateLink" target="_blank">
+                                        <template v-if="mod.Version">
+                                            {{mod.Version}} → {{mod.UpdateVersion}}
+                                        </template>
+                                        <template v-else>
+                                            {{mod.UpdateVersion}}
+                                        </template>
+                                    </a>
+                                    <template v-else>&nbsp;</template>
+
+                                    @* content pack versions *@
+                                    <div v-if="mod.contentPacksHaveUpdates">
+                                        <template v-for="contentPack of mod.contentPacks">
+                                            <template v-if="contentPack.HasUpdate">
+                                                <a v-bind:href="contentPack.UpdateLink" target="_blank">{{contentPack.Version}} → {{contentPack.UpdateVersion}}</a>
+                                                <br />
+                                            </template>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </li>
+            </ul>
+        </div>
+
+        @* log info *@
+        <h2>Log info</h2>
+        <table id="metadata" class="table">
+            <caption>Game info:</caption>
+            <tr>
+                <th>Stardew Valley:</th>
+                <td>{{data.GameVersion}} on {{data.OperatingSystem}}</td>
+            </tr>
+            <tr>
+                <th>SMAPI:</th>
+                <td>{{data.ApiVersion}}</td>
+            </tr>
+            <tr>
+                <th>Folder:</th>
+                <td>{{data.GamePath}}</td>
+            </tr>
+            <tr>
+                <th>Log started:</th>
+                <td>{{logStartedUtcStr}} UTC ({{logStartedLocalTimeStr}} your time)</td>
+            </tr>
+        </table>
+        <br />
+
+        @* mod list *@
+        <table id="mods" class="@(Model.ShowRaw ? "filters-disabled" : null) table">
+            <caption>
+                Installed mods:
+                @if (!Model.ShowRaw)
+                {
+                    <span class="notice txt"><i>click any mod to filter</i></span>
+                    <span class="notice btn txt" v-on:click="showAllMods" v-bind:class="{ invisible: !anyModsHidden }">show all</span>
+                    <span class="notice btn txt" v-on:click="hideAllMods" v-bind:class="{ invisible: !anyModsShown || !anyModsHidden }">hide all</span>
+                    <span class="notice btn txt" v-on:click="toggleContentPacks">toggle content packs in list</span>
+                }
+            </caption>
+
+            <tr v-for="(mod, key) of modsAndContentPacks" v-on:click="toggleMod(mod.Name)" class="mod-entry" v-bind:class="{ hidden: !showMods[mod.Name] }">
+                <td><input type="checkbox" v-bind:checked="showMods[mod.Name]" v-bind:class="{ invisible: !anyModsHidden }" /></td>
+
+                @* mod names *@
+                <td>
+                    <strong>{{mod.Name}}</strong> {{mod.Version}}
+
+                    <template v-if="mod.contentPacks.length">
+                        <div v-if="!hideContentPacks" class="content-packs">
+                            <template v-for="contentPack of mod.contentPacks">
+                                + {{contentPack.Name}} {{contentPack.Version}}<br />
+                            </template>
+                        </div>
+                        <span v-else class="content-packs-collapsed"> (+ {{mod.contentPacks.Length}} content packs)</span>
+                    </template>
+                </td>
+
+                @* mod versions *@
+                <td>
+                    {{mod.Author}}
+
+                    <template v-if="mod.contentPacks.length">
+                        <div v-if="!hideContentPacks" class="content-packs">
+                            <template v-for="contentPack of mod.contentPacks">
+                                + {{contentPack.Author}}<br />
+                            </template>
+                        </div>
+                    </template>
+                </td>
+
+                @* error summary *@
+                <td v-if="!mod.Loaded" class="has-errors">failed to load</td>
+                <td v-else-if="mod.Errors" class="has-errors">{{mod.Errors}} {{mod.Errors == 1 ? "error" : "errors"}}</td>
+                <td v-else class="no-errors">no errors</td>
+            </tr>
+        </table>
+
+        @* log *@
+        @if (!Model.ShowRaw)
+        {
+            @* filters + pagination *@
+            <div id="filterHolder"></div>
+            <div id="filters">
+                <div class="toggles">
+                    <div>
+                        Filter messages:
+                    </div>
+                    <div>
+                        <span role="button" v-bind:class="{ active: showLevels['trace'] }" v-on:click="toggleLevel('trace')">TRACE</span> |
+                        <span role="button" v-bind:class="{ active: showLevels['debug'] }" v-on:click="toggleLevel('debug')">DEBUG</span> |
+                        <span role="button" v-bind:class="{ active: showLevels['info'] }" v-on:click="toggleLevel('info')">INFO</span> |
+                        <span role="button" v-bind:class="{ active: showLevels['alert'] }" v-on:click="toggleLevel('alert')">ALERT</span> |
+                        <span role="button" v-bind:class="{ active: showLevels['warn'] }" v-on:click="toggleLevel('warn')">WARN</span> |
+                        <span role="button" v-bind:class="{ active: showLevels['error'] }" v-on:click="toggleLevel('error')">ERROR</span>
+                        <div class="filter-text">
+                            <input type="text"
+                                v-bind:class="{ active: !!filterText }"
+                                v-model="filterText"
+                                v-on:input="updateFilterText"
+                                placeholder="search to filter log..."
+                            />
+                            <span role="button" v-bind:class="{ active: filterUseRegex }" v-on:click="toggleFilterUseRegex" title="Use regular expression syntax.">.*</span>
+                            <span role="button" v-bind:class="{ active: !filterInsensitive }" v-on:click="toggleFilterInsensitive" title="Match exact capitalization only.">aA</span>
+                            <span role="button" v-bind:class="{ active: filterUseWord, 'whole-word': true }" v-on:click="toggleFilterWord" title="Match whole word only."><i>“ ”</i></span>
+                            <span role="button" v-bind:class="{ active: shouldHighlight }" v-on:click="toggleHighlight" title="Highlight matches in the log text.">HL</span>
+                            <div v-if="filterError" class="filter-error">{{filterError}}</div>
+                        </div>
+                        <filter-stats v-bind:start="start"
+                            v-bind:end="end"
+                            v-bind:pages="totalPages"
+                            v-bind:filtered="filteredMessages.total"
+                            v-bind:total="totalMessages"
+                        />
+                    </div>
+                </div>
+                <pager
+                    v-bind:page="page"
+                    v-bind:pages="totalPages"
+                    v-bind:prevPage="prevPage"
+                    v-bind:nextPage="nextPage"
+                />
+            </div>
+
+            @* log *@
+            <log-table>
+                <log-line
+                    v-for="msg in visibleMessages"
+                    v-bind:key="msg.id"
+                    v-bind:message="msg"
+                    v-bind:highlight="shouldHighlight"
+                />
+            </log-table>
+        }
+        else
+        {
+            <pre>{{data.RawText}}</pre>
+        }
+
+        @* option links *@
+        <small>
+            @if (Model.ShowRaw)
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId })">view parsed log</a>
+            }
+            else
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawView })">view raw log</a>
+            }
+            | <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteId, format = LogViewFormat.RawDownload })" download>download raw data</a>
+        </small>
+    </div>
+
+    <div v-else-if="data.RawText">
+        <h3>Raw log</h3>
+        <pre>{{data.RawText}}</pre>
+    </div>
+</div>

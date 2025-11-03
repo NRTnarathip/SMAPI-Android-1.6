@@ -281,6 +281,8 @@ internal class LogManager : IDisposable
         // warnings
         if (!settings.CheckForUpdates)
             this.Monitor.Log("You disabled update checks, so you won't be notified of new SMAPI or mod updates. Running an old version of SMAPI is not recommended. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
+        if (!settings.CheckForBlacklistUpdates)
+            this.Monitor.Log("You disabled mod blacklist updates, so you may not be protected from known malicious mods. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
         if (!settings.RewriteMods)
             this.Monitor.Log("You disabled rewriting broken mods, so many older mods may fail to load. You can undo this by reinstalling SMAPI.", LogLevel.Info);
 
@@ -305,6 +307,22 @@ internal class LogManager : IDisposable
     /// <param name="hasHarmonyFix">Whether Harmony was fixed to work with Stardew Valley.</param>
     public void LogModInfo(IModMetadata[] loaded, IModMetadata[] loadedContentPacks, IModMetadata[] loadedMods, IModMetadata[] skippedMods, bool logParanoidWarnings, bool logTechnicalDetailsForBrokenMods, bool hasHarmonyFix)
     {
+        // report malicious mod
+        foreach (IModMetadata mod in skippedMods)
+        {
+            if (mod.FailReason == ModFailReason.Malicious)
+            {
+                this.Monitor.LogFatal("Malicious mod detected.");
+                this.Monitor.Log($"The '{mod.DisplayName}' mod has been flagged as a malicious mod.", LogLevel.Error);
+                this.Monitor.Newline();
+                this.Monitor.Log(mod.Error ?? "You should immediately delete this mod and perform a full anti-malware scan of your computer to be safe.", LogLevel.Error);
+                if (mod.ErrorDetails != null)
+                    this.Monitor.Log(mod.ErrorDetails);
+
+                this.PressAnyKeyToExit();
+            }
+        }
+
         // log loaded mods
         this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
         foreach (IModMetadata metadata in loadedMods.OrderBy(p => p.DisplayName))

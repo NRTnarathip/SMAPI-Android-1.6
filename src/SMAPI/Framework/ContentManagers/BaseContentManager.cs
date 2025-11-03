@@ -161,26 +161,22 @@ internal abstract class BaseContentManager : LocalizedContentManager, IContentMa
             string localeCode = this.GetLocale(language);
             IAssetName localizedName = new AssetName(baseName: assetName.BaseName, localeCode: localeCode, languageCode: language);
 
-            try
+            if (this.DoesAssetExist<T>(localizedName))
             {
                 T data = this.LoadExact<T>(localizedName, useCache: useCache);
                 localizedAssetNames[assetName.Name] = localizedName.Name;
                 return data;
             }
-            catch (ContentLoadException)
+
+            localizedName = new AssetName(assetName.BaseName + "_international", null, null);
+            if (this.DoesAssetExist<T>(localizedName))
             {
-                localizedName = new AssetName(assetName.BaseName + "_international", null, null);
-                try
-                {
-                    T data = this.LoadExact<T>(localizedName, useCache: useCache);
-                    localizedAssetNames[assetName.Name] = localizedName.Name;
-                    return data;
-                }
-                catch (ContentLoadException)
-                {
-                    localizedAssetNames[assetName.Name] = assetName.Name;
-                }
+                T data = this.LoadExact<T>(localizedName, useCache: useCache);
+                localizedAssetNames[assetName.Name] = localizedName.Name;
+                return data;
             }
+
+            localizedAssetNames[assetName.Name] = assetName.Name;
         }
 
         // use cached key

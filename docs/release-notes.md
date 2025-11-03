@@ -2,6 +2,75 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Fixed `player_add` and `list_items` console commands not including some newer juice items.
+
+* For the web UI:
+  * Improved Content Patcher [JSON schemas](technical/web.md#using-a-schema-file-directly):
+    * Updated for Content Patcher 2.8.0.
+    * Fixed schema requiring `AddNPCWarps` instead of `AddNpcWarps`.
+    * Fixed validation error if a warp field contains tokens or consecutive spaces (thanks to irocendar!).
+    * Fixed validation error if a `Target` contains multiple targets (thanks to irocendar!).
+    * Fixed `FromFile` errors like "_matches a schema that is not allowed_" (thanks to irocendar!).
+
+## 4.3.2
+Released 14 July 2025 for Stardew Valley 1.6.14 or later. See [4.3 release highlights](https://www.patreon.com/posts/133992196).
+
+* For players:
+  * Added a friendly error message when the game fails to launch with a `NoSuitableGraphicsDeviceException`.
+  * Fixed crash when SMAPI tries to update the mod blacklist if ReShade is installed.
+
+## 4.3.1
+Released 13 July 2025 for Stardew Valley 1.6.14 or later.
+
+* For players:
+  * Improved performance when mods edit maps (thanks to SinZ!).
+* For mod authors:
+  * Fixed new `helper.ModRegistry.GetFromNamespacedId` not handling prefix IDs correctly.
+
+## 4.3.0
+Released 12 July 2025 for Stardew Valley 1.6.14 or later. See [release highlights](https://www.patreon.com/posts/133992196).
+
+* For players:
+  * Added 'malicious mod' blacklist.  
+    _Once a malicious mod has been reported, this lets us quickly block it for all players. This helps mitigate damage in case of future attacks. This feature can be disabled in the SMAPI settings if needed._
+  * Improved content load performance for non-English players.
+  * Fixed some community shortcuts breaking if a mod edited the map which contains them.
+
+* For mod authors:
+  * Added `helper.ModRegistry.GetFromNamespacedId` method to get a mod given a [standard namespaced ID](https://stardewvalleywiki.com/Modding:Common_data_field_types#Unique_string_ID) (e.g. an item ID).
+  * You can now have an `en.json` translation file which overrides `default.json`.
+  * Updated dependencies, including...
+    * [Mono.Cecil](https://github.com/jbevain/cecil) 0.11.5 → 0.11.6 (see [changes](https://github.com/jbevain/cecil/compare/0.11.5...0.11.6));
+    * [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.4.1 → 4.4.2 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#442));
+    * [Pintail](https://github.com/Nanoray-pl/Pintail) 2.6.1 → 2.8.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#260)).
+
+* For the web UI:
+  * Increased default upload expiry from 30 to 60 days, to help avoid expired SMAPI logs when mod authors check messages monthly.
+  * Improved JSON validator:
+    * You can now hover/click braces to highlight matching pairs.
+    * You can now hover and click 'Copy' on the top-right to copy the full code to the clipboard.
+    * Updated to newer syntax highlighting library.
+    * Fixed CurseForge update keys not recognized (thanks to Dunc4nNT!).
+    * Fixed some JSON files breaking page layout.
+  * Improved log parser:
+    * Mods which failed to load are now shown in the mod list (with 'failed to load' in the error column).
+    * Added suggested fix if there's a newer SMAPI version available.
+    * Reduced response times with a new analysis cache and client-side fetch.
+    * Removed support for very old SMAPI logs.
+    * You can now download a JSON representation of the parsed log (see the download link at the bottom of the log page).
+    * Fixed server error if a JSON file contains nested comment syntax.
+  * Improved [JSON schemas](technical/web.md#using-a-schema-file-directly):
+    * The Content Patcher JSON schema now allows decimal values in local tokens (thanks to rikai!).
+    * The `$schema` value is no longer validated.
+    * Updated Content Patcher schema for Content Patcher 2.7.0.
+    * Updated manifest schema for the new `%ProjectVersion%` value in `Version`.
+  * Improved mod compatibility list:
+    * Reduced response times with a new cache and client-side fetch.
+    * Fixed sort order for mods with non-Latin characters in the name.
+  * Third-party libraries are now served from `smapi.io` instead of external CDNs.
+
+## 4.2.1
 Released 25 March 2025 for Stardew Valley 1.6.14 or later.
 
 * For players:

@@ -16,6 +16,7 @@ internal class SConfig
     private static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>
     {
         [nameof(CheckForUpdates)] = true,
+        [nameof(CheckForBlacklistUpdates)] = true,
         [nameof(CheckContentIntegrity)] = true,
         [nameof(ListenForConsoleInput)] = true,
         [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
@@ -51,6 +52,9 @@ internal class SConfig
     /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
     public bool CheckForUpdates { get; set; }
 
+    /// <summary>Whether to update the mod blacklist from the SMAPI web server, which is used to block malicious or harmful mods.</summary>
+    public bool CheckForBlacklistUpdates { get; set; }
+
     /// <summary>Whether SMAPI should check whether the content files are present and unmodified.</summary>
     public bool CheckContentIntegrity { get; set; }
 
@@ -68,6 +72,9 @@ internal class SConfig
 
     /// <summary>The base URL for SMAPI's web API, used to perform update checks.</summary>
     public string WebApiBaseUrl { get; set; }
+
+    /// <summary>The URL for the 'malicious mod' blacklist on the SMAPI web server.</summary>
+    public string BlacklistUrl { get; set; }
 
     /// <summary>The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</summary>
     /// <remarks>The possible values are "*" (everything is verbose), "SMAPI", (SMAPI itself), or mod IDs.</remarks>
@@ -110,6 +117,7 @@ internal class SConfig
     /// <summary>Construct an instance.</summary>
     /// <param name="developerMode"><inheritdoc cref="DeveloperMode" path="/summary" /></param>
     /// <param name="checkForUpdates"><inheritdoc cref="CheckForUpdates" path="/summary" /></param>
+    /// <param name="checkForBlacklistUpdates"><inheritdoc cref="CheckForBlacklistUpdates" path="/summary" /></param>
     /// <param name="checkContentIntegrity"><inheritdoc cref="CheckContentIntegrity" path="/summary" /></param>
     /// <param name="listenForConsoleInput"><inheritdoc cref="ListenForConsoleInput" path="/summary" /></param>
     /// <param name="paranoidWarnings"><inheritdoc cref="ParanoidWarnings" path="/summary" /></param>
@@ -127,10 +135,11 @@ internal class SConfig
     /// <param name="suppressUpdateChecks"><inheritdoc cref="SuppressUpdateChecks" path="/summary" /></param>
     /// <param name="modsToLoadEarly"><inheritdoc cref="ModsToLoadEarly" path="/summary" /></param>
     /// <param name="modsToLoadLate"><inheritdoc cref="ModsToLoadLate" path="/summary" /></param>
-    public SConfig(bool developerMode, bool? checkForUpdates, bool? checkContentIntegrity, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? fixHarmony, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, bool? logTechnicalDetailsForBrokenMods, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadEarly, string[]? modsToLoadLate)
+    public SConfig(bool developerMode, bool? checkForUpdates, bool? checkForBlacklistUpdates, bool? checkContentIntegrity, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? fixHarmony, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, bool? logTechnicalDetailsForBrokenMods, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadEarly, string[]? modsToLoadLate)
     {
         this.DeveloperMode = developerMode;
         this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
+        this.CheckForBlacklistUpdates = checkForBlacklistUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForBlacklistUpdates)];
         this.CheckContentIntegrity = checkContentIntegrity ?? (bool)SConfig.DefaultValues[nameof(this.CheckContentIntegrity)];
         this.ListenForConsoleInput = listenForConsoleInput ?? (bool)SConfig.DefaultValues[nameof(this.ListenForConsoleInput)];
         this.ParanoidWarnings = paranoidWarnings ?? (bool)SConfig.DefaultValues[nameof(this.ParanoidWarnings)];

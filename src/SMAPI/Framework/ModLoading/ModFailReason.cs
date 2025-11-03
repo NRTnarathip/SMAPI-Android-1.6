@@ -21,6 +21,9 @@ internal enum ModFailReason
     /// <summary>The mod was deemed compatible, but SMAPI failed when it tried to load it.</summary>
     LoadFailed,
 
+    /// <summary>The mod was flagged as harmful or malicious.</summary>
+    Malicious,
+
     /// <summary>The mod requires other mods which aren't installed, or its dependencies have a circular reference.</summary>
     MissingDependencies,
 

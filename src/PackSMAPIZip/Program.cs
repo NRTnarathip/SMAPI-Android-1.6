@@ -62,6 +62,7 @@ internal class Program
         Directory.CreateDirectory(smapiInternalDir);
         CloneDirectory(Path.Combine(SMAPIBinDir, "i18n"), Path.Combine(smapiInternalDir, "i18n"));
         File.Copy(Path.Combine(SMAPIBinDir, "SMAPI.config.json"), Path.Combine(smapiInternalDir, "config.json"));
+        File.Copy(Path.Combine(SMAPIBinDir, "SMAPI.blacklist.json"), Path.Combine(smapiInternalDir, "blacklist.json"));
 
         await DownloadSMAPIMetadataJson();
         File.Copy("SMAPI.metadata.json", Path.Combine(smapiInternalDir, "metadata.json"));

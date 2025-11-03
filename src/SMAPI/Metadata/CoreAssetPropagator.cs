@@ -694,13 +694,15 @@ internal class CoreAssetPropagator
         location.interiorDoors.ResetSharedState(); // load doors from map properties
         location.interiorDoors.ResetLocalState(); // reapply door tiles
 
-        // reapply map changes (after reloading doors so they apply theirs too)
-        location.MakeMapModifications(force: true);
-
         // update for changes
         location.updateWarps();
         location.updateDoors();
         locationInfo.ParentBuilding?.updateInteriorWarps();
+
+        // reapply map changes
+        // This must happen after updating warps (since some map modifications like the community shortcuts add warps)
+        // and after resetting interior doors' state (so they apply their modifications too).
+        location.MakeMapModifications(force: true);
 
         // reset player position
         // The game may move the player as part of the map changes, even if they're not in that

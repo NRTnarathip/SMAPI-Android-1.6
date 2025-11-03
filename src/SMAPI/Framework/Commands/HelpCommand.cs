@@ -19,7 +19,16 @@ internal class HelpCommand : IInternalCommand
     public string Name { get; } = "help";
 
     /// <summary>The human-readable documentation shown when the player runs the built-in 'help' command.</summary>
-    public string Description { get; } = "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.";
+    public string Description { get; } =
+        """
+        Lists command documentation.
+
+        Usage: help
+        Lists all available commands.
+
+        Usage: help <cmd>
+        - cmd: The name of a command whose documentation to display.
+        """;
 
 
     /*********
