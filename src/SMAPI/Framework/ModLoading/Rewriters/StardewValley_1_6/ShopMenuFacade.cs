@@ -30,8 +30,25 @@ public class ShopMenuFacade : ShopMenu, IRewriteFacade
         RewriteHelper.ThrowFakeConstructorCalled();
     }
 
-
 #if SMAPI_FOR_ANDROID
+    public ShopMenuFacade(
+        string shopId,
+        List<ISalable> itemsForSale,
+        int currency = 0,
+        string who = null,
+        ShopMenu.OnPurchaseDelegate on_purchase = null,
+        Func<ISalable, bool> on_sell = null,
+        bool playOpenSound = true)
+            : base(shopId,
+                itemsForSale: itemsForSale,
+                currency: currency,
+                who: who,
+                on_purchase: on_purchase,
+                on_sell: on_sell,
+                context: null)
+    {
+    }
+
 
     List<ShopTabClickableTextureComponentFacade> _tabButtons = new();
     public List<ShopTabClickableTextureComponentFacade> tabButtons

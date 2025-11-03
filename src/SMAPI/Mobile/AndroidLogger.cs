@@ -9,34 +9,18 @@ namespace StardewModdingAPI.Mobile;
 public static class AndroidLogger
 {
     const string Tag = "SMAPI-Tag";
+    static bool isAdbEnabled = Android.Provider.Settings.Global.GetInt(
+            Android.App.Application.Context.ContentResolver,
+            Android.Provider.Settings.Global.AdbEnabled, 0
+        ) == 1;
+
     public static void Log(object msg)
     {
         if (msg == null)
             msg = "";
 
-        AndroidUtils.Log.Debug(Tag, msg.ToString());
-
-        //TODO
-        //Debug Only
-        //LogToFile(msg.ToString());
-    }
-
-    static StreamWriter LogToFileStream;
-    static string LogToFilePath = EarlyConstants.ExternalFilesDir + "/AndroidLog.txt";
-    static void LogToFile(string msg)
-    {
-        //create first
-        if (LogToFileStream == null)
-        {
-            if (File.Exists(LogToFilePath))
-                File.Delete(LogToFilePath);
-
-            LogToFileStream = new StreamWriter(LogToFilePath, append: true);
-        }
-
-        //ready
-        LogToFileStream.WriteLine(msg);
-        LogToFileStream.Flush();
+        if (isAdbEnabled)
+            AndroidUtils.Log.Debug(Tag, msg.ToString());
     }
 
     [HarmonyPrefix]
