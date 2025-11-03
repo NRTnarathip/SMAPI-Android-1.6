@@ -43,3 +43,10 @@ src/DependenciesDll/StardewValley.dll
 src/DependenciesDll/StardewValley.GameData.dll
 src/DependenciesDll/xTile.dll
 src/DependenciesDll/BmFont.dll
+
+# Android
+src/SMAPI.Tests
+src/SMAPI.ModBuildConfig
+src/SMAPI.ModBuildConfig.Analyzer.Tests
+src/SMAPI.Mods.ConsoleCommands
+src/SMAPI.Mods.SaveBackup
