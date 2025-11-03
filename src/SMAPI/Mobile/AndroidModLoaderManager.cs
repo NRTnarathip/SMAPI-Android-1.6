@@ -82,7 +82,6 @@ internal static class AndroidModLoaderManager
         //main thread safe
         Task taskModEntry = new Task(() =>
         {
-            //AndroidModFixManager.Instance.OnPrefixModEntry(mod);
             mod.Entry(mod.Helper);
             AndroidModFixManager.Instance.OnPostfixModEntry(mod);
         });
@@ -90,11 +89,13 @@ internal static class AndroidModLoaderManager
         lock (_lock_queueTaskStartModEntry)
         {
             queueTaskStartModEntry.Enqueue(taskModEntry);
+            //Console.WriteLine("enqueue task mod loading.");
         }
 
-        //wait
+        // log
         //Console.WriteLine("task id: " + taskModEntry.Id + ", mod name: " + mod.GetType());
         //Console.WriteLine("taskModEntry.Wait()...");
+
         try
         {
             taskModEntry.Wait();

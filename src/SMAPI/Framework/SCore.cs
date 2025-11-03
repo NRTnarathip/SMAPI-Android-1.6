@@ -493,6 +493,12 @@ internal class SCore : IDisposable
             Constants.ApiBlacklistActualPath = Constants.ApiBlacklistPath;
         }
 
+#if SMAPI_FOR_ANDROID
+        Console.WriteLine("start loading mods in background thread");
+        AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.Starting;
+        AndroidModLoaderManager.StartLoggerToScreen();
+        Task.Run(() =>
+#endif
         // load mods
         {
             this.Monitor.Log("Loading mod metadata...", LogLevel.Debug);
@@ -552,20 +558,16 @@ internal class SCore : IDisposable
 
             // check for updates
             _ = this.CheckForUpdatesAsync(mods); // ignore task since the main thread doesn't need to wait for it
-#endif
+#else
 
-#if SMAPI_FOR_ANDROID
-            //debug
-            //check make sure
-            // Game1.OnAfterLoadContent it will called when is LoadModsStateEnum.LoadedConfirm
-            //while (true)
-            //{
-            //    Console.WriteLine("Sleep 1 second at LoadMods");
-            //    Thread.Sleep(1000);
-            //}
             AndroidModLoaderManager.CurrentStatus = AndroidModLoaderManager.LoadStatus.LoadedAndNeedToConfirm;
 #endif
         }
+
+#if SMAPI_FOR_ANDROID
+        // close task LoadMods
+        );
+#endif
 
         // update window titles
         this.UpdateWindowTitles();
