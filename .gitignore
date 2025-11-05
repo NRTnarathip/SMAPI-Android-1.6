@@ -50,3 +50,4 @@ src/SMAPI.ModBuildConfig
 src/SMAPI.ModBuildConfig.Analyzer.Tests
 src/SMAPI.Mods.ConsoleCommands
 src/SMAPI.Mods.SaveBackup
+/src/PackSMAPIZip/PackSMAPIZip BinOutput.lnk
