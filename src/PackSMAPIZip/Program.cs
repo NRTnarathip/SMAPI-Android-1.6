@@ -72,12 +72,10 @@ internal class Program
 
         //Pack SMAPI-x.x.x.x.zip from directory SMAPI-x.x.x.x
         string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName + ".zip");
-        //add date after version
         string stardewModdingAPIFilePath = Path.Combine(SMAPIBinDir, StardewModdingAPIFileName);
-        //DateTime fileDateTime = File.GetLastWriteTime(stardewModdingAPIFilePath);
-        //long unixTimestamp = ((DateTimeOffset)fileDateTime).ToUnixTimeSeconds();
         var buildTool = new SMAPIAndroidBuildTool(stardewModdingAPIFilePath);
-        outputZipFilePath = outputZipFilePath.Replace(".zip", $"-({buildTool.GetBuildCode()}).zip");
+        string buildCode = $"{buildTool.GetBuildCode()}";
+        outputZipFilePath = outputZipFilePath.Replace(".zip", $"-({buildCode}).zip");
 
         Console.WriteLine("try pack SMPAI.zip output at " + outputZipFilePath);
         using var zipStream = File.Open(outputZipFilePath, FileMode.Create, FileAccess.ReadWrite);

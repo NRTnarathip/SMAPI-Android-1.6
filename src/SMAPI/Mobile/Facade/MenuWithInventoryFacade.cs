@@ -25,7 +25,12 @@ public class MenuWithInventoryFacade : MenuWithInventory, IRewriteFacade
     /// Whether to allow exiting the menu while the player has a held item on their cursor.
     /// The <see cref="StardewValley.Menus.MenuWithInventory.HeldItemExitBehavior" /> will be applied.
     /// </summary>
-    public bool AllowExitWithHeldItem;
+    public bool AllowExitWithHeldItem
+    {
+        get => this.m_AllowExitWithHeldItem;
+        set => this.m_AllowExitWithHeldItem = value;
+    }
+    bool m_AllowExitWithHeldItem;
 
     public Item heldItem
     {
@@ -72,6 +77,13 @@ public class MenuWithInventoryFacade : MenuWithInventory, IRewriteFacade
         base.emergencyShutDown();
     }
 
+
+    public override bool readyToClose()
+    {
+        if (!this.m_AllowExitWithHeldItem)
+            return this.heldItem == null;
+        return true;
+    }
 
     /// <summary>
     /// Rescue the <see cref="StardewValley.Menus.MenuWithInventory.heldItem" />
