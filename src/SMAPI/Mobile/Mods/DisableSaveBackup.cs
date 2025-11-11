@@ -11,13 +11,12 @@ using System.Runtime.CompilerServices;
 
 namespace StardewModdingAPI.Mobile.Mods;
 
-static class DisableQuickSave
+static class DisableSaveBackup
 {
     static bool isApplyPatched = false;
     public static void Init(AndroidModFixManager modFix)
     {
         modFix.RegisterOnModLoaded(SpaceCoreFix.SpaceCoreDllFileName, OnModLoaded);
-        // not sure for disable this
         modFix.RegisterOnModLoaded(FarmTypeManagerFix.DllFileName, OnModLoaded);
     }
 
@@ -49,19 +48,19 @@ static class DisableQuickSave
                 ]);
             harmony.Patch(
                 original: OptionPageCtor,
-                postfix: new(typeof(DisableQuickSave), nameof(Postfix_OptionsPage_Ctor)));
+                postfix: new(typeof(DisableSaveBackup), nameof(Postfix_OptionsPage_Ctor)));
 
             var saveWholeBackup = typeof(Game1).GetMethod(nameof(Game1.saveWholeBackup));
             harmony.Patch(
                 original: saveWholeBackup,
-                prefix: new(typeof(DisableQuickSave), nameof(Prefix_saveWholeBackup))
+                prefix: new(typeof(DisableSaveBackup), nameof(Prefix_saveWholeBackup))
             );
             monitor.Log("Disable Game1.saveWholeBackup");
 
             //Disable this, caller from SMAPIActivity.OnPause();
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.emergencyBackup)),
-                prefix: new(typeof(DisableQuickSave), nameof(Prefix_emergencyBackup))
+                prefix: new(typeof(DisableSaveBackup), nameof(Prefix_emergencyBackup))
             );
             monitor.Log("Disable Game1.emergencyBackup()");
         }
@@ -80,27 +79,22 @@ static class DisableQuickSave
     static FieldInfo btnPaddingYField = OptionsButtonType.GetField("paddingY",
         BindingFlags.Instance | BindingFlags.NonPublic);
 
-    const string DisableQuickSaveButtonText = "Disable QuickSave By SMAPI Android";
+    const string DisableQuickSaveButtonText = "Disable SaveBackup By SMAPI Android! \n Please Use Mod QuickSave!";
     static void Postfix_OptionsPage_Ctor(OptionsPage __instance,
+        ref List<OptionsElement> ___options,
         int x, int y, int width, int height, float widthMod = 1f, float heightMod = 1f)
     {
         try
         {
-
-            var options = optionsFieldInfo.GetValue(__instance) as List<OptionsElement>;
-            //buttons
-            //0: ExitToTitle
-            //if(...)
-            //1: swap_saves
-            //2: save_backup
-            //endif
-            //1<>3: OptionsDropDown: show_controls_toggle_button
-            //4: OptionsCheckbox: invisible_button_width 
-
-            var btn = options[2] as OptionsButton;
+            var saveBackupString = Game1.content.LoadString("Strings\\UI:save_backup");
+            var btn = ___options.Find(e =>
+            {
+                if (e is OptionsButton btn)
+                    return btn.label.Equals(saveBackupString, StringComparison.OrdinalIgnoreCase);
+                return false;
+            }) as OptionsButton;
             if (btn is null)
                 return;
-
 
             btnLabelFieldInfo.SetValue(btn, DisableQuickSaveButtonText);
             int paddingY = (int)btnPaddingYField.GetValue(btn);
@@ -117,6 +111,7 @@ static class DisableQuickSave
             monitor.Log(ex.GetLogSummary(), LogLevel.Warn);
         }
     }
+
     static bool Prefix_saveWholeBackup()
     {
         var monitor = SCore.Instance.SMAPIMonitor;

@@ -287,8 +287,6 @@ internal class InstructionMetadata
                 .MapFacade<MenuWithInventory, MenuWithInventoryFacade>()
                 .MapFacade<IClickableMenu, IClickableMenuFacadeAndroid>()
                 .MapFacade<SaveGame, SaveGameFacade>()
-                //need to fix, interface it not works good, you need to implement
-                //.MapFacade<ICue, ICueFacade>()
                 .MapFacade<ItemGrabMenu, ItemGrabMenuFacade>()
                 .MapFacade<InventoryPage, InventoryPageFacade>()
                 .MapFacade<Toolbar, ToolbarFacade>()
@@ -298,6 +296,8 @@ internal class InstructionMetadata
                 .MapType(typeof(KeyboardInput).FullName, typeof(KeyboardInput))
                 .MapType(typeof(KeyEventArgs).FullName, typeof(KeyEventArgs))
                 .MapType("StardewValley.Game1/BundleType", typeof(StardewValley.BundleType))
+                .MapType("StardewValley.Game1/MineChestType", typeof(MineChestType))
+
 #endif
                 // BuildableGameLocation merged into GameLocation
                 .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
