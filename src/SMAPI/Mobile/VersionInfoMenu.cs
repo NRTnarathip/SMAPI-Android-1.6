@@ -28,6 +28,18 @@ internal static class VersionInfoMenu
         {
             RenderVerionInfo(spriteBatch);
         }
+
+        else if (step == RenderSteps.Overlays)
+        {
+            var titleMenu = Game1.activeClickableMenu as TitleMenu;
+
+            // WIP: fix bug stuck on white screen.
+            if (titleMenu != null && TitleMenu.subMenu == null)
+            {
+                if (titleMenu.birds.Count > 0)
+                    titleMenu.skipToTitleButtons();
+            }
+        }
     }
 
 
@@ -41,16 +53,8 @@ internal static class VersionInfoMenu
         if (titleMenu == null || TitleMenu.subMenu != null)
             return;
 
-        // WIP: fix bug stuck on white screen.
-        if (titleMenu.birds.Count > 0)
-        {
-            titleMenu.skipToTitleButtons();
-            return;
-        }
-
         if (titleMenu?.isTransitioningButtons is true)
             return;
-
 
         if (titleMenu.logoFadeTimer > 0)
             return;
