@@ -31,17 +31,22 @@ internal class Program
         }
     }
 
+    static string GetOutputSMAPIZipFileName(string smapiBinDir)
+    {
+        string SMAPIVersionName = GetSMAPIVersion(Path.Combine(smapiBinDir, StardewModdingAPIFileName)).ToString();
+        string finalName = $"SMAPI-Android-{SMAPIVersionName}";
+        return finalName;
+    }
+
     static async Task StartRunPack(string[] args)
     {
 
         //Create Folder SMAPI-x.x.x.x
         string SMAPIBinDir = GetParentDirectory(Directory.GetCurrentDirectory(), 4);
         SMAPIBinDir = Path.Combine(SMAPIBinDir, "SMAPI/bin/Arm64/Android Release");
-
-        string SMAPIVersionName = GetSMAPIVersion(Path.Combine(SMAPIBinDir, StardewModdingAPIFileName)).ToString();
-        string PackFolderName = $"SMAPI-{SMAPIVersionName}";
-        Console.WriteLine("Start Pack: " + PackFolderName);
-        string smapiOutputDir = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName);
+        var outputSMAPIZipFileName = GetOutputSMAPIZipFileName(SMAPIBinDir);
+        Console.WriteLine("Start Pack: " + outputSMAPIZipFileName);
+        string smapiOutputDir = Path.Combine(Directory.GetCurrentDirectory(), outputSMAPIZipFileName);
         if (Directory.Exists(smapiOutputDir))
             Directory.Delete(smapiOutputDir, true);
         Directory.CreateDirectory(smapiOutputDir);
@@ -71,7 +76,7 @@ internal class Program
 
 
         //Pack SMAPI-x.x.x.x.zip from directory SMAPI-x.x.x.x
-        string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), PackFolderName + ".zip");
+        string outputZipFilePath = Path.Combine(Directory.GetCurrentDirectory(), outputSMAPIZipFileName + ".zip");
         string stardewModdingAPIFilePath = Path.Combine(SMAPIBinDir, StardewModdingAPIFileName);
         var buildTool = new SMAPIAndroidBuildTool(stardewModdingAPIFilePath);
         string buildCode = $"{buildTool.GetBuildCode()}";
