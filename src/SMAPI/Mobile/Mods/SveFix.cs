@@ -14,6 +14,7 @@ using StardewValley.Menus;
 using StardewValley.Network;
 
 namespace StardewModdingAPI.Mobile.Mods;
+
 [HarmonyPatch]
 internal static class SveFix
 {
@@ -43,7 +44,7 @@ internal static class SveFix
             original: AccessTools.Method(typeof(Game1), "warpFarmer",
             [
                 typeof(LocationRequest), typeof(int),
-                typeof(int), typeof(int), typeof(bool),
+                typeof(int), typeof(int),
             ]),
             prefix: new(typeof(SveFix), nameof(Sve_TXMLMapFacingDir_warpFarmer))
         );
@@ -60,7 +61,7 @@ internal static class SveFix
     /// <param name="facingDirectionAfterWarp">The direction the player will face after warping.</param>
 
     static void Sve_TXMLMapFacingDir_warpFarmer(LocationRequest locationRequest, int tileX, int tileY,
-       ref int facingDirectionAfterWarp, bool doFade)
+       ref int facingDirectionAfterWarp)
     {
         Console.WriteLine("On Sve_TXMLMapFacingDir_warpFarmer");
         try
