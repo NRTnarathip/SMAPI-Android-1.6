@@ -40,6 +40,14 @@ internal static class VersionInfoMenu
         var titleMenu = Game1.activeClickableMenu as TitleMenu;
         if (titleMenu == null || TitleMenu.subMenu != null)
             return;
+
+        // WIP: fix bug stuck on white screen.
+        if (titleMenu.birds.Count > 0)
+        {
+            titleMenu.skipToTitleButtons();
+            return;
+        }
+
         if (titleMenu?.isTransitioningButtons is true)
             return;
 
@@ -58,11 +66,11 @@ internal static class VersionInfoMenu
             texts = new();
             textLineHeight = font.MeasureString("AAA").Y;
 
-            texts.Add($"SMAPI v{Constants.ApiVersionForAndroid}");
-            texts.Add($"Build {SMAPIAndroidBuild.BuildCode}");
-            texts.Add($"Game v{Constants.GameVersion}");
-            texts.Add("Discord Stardew SMAPI Thai");
-            texts.Add("Github NRTnarathip");
+            texts.Add($"SMAPI: v{Constants.ApiVersionForAndroid}");
+            texts.Add($"Build: {SMAPIAndroidBuild.BuildCode}");
+            texts.Add($"Game: v{Constants.GameVersion}");
+            texts.Add("Discord: Stardew SMAPI Thailand");
+            texts.Add("Github: NRTnarathip");
         }
 
 
