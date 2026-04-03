@@ -1,22 +1,11 @@
 using System;
-using System.Collections;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
-using Force.DeepCloner;
 using HarmonyLib;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Mobile.Facade;
 using StardewModdingAPI.Mobile.Mods;
-using StardewModdingAPI.Mobile.Optimizer;
 using StardewModdingAPI.Mobile.Vectors;
-using StardewValley;
-using StardewValley.Pathfinding;
-using StardewValley.SpecialOrders.Objectives;
+using StardewValley.Menus;
 
 namespace StardewModdingAPI.Mobile;
 
@@ -75,7 +64,6 @@ internal static class AndroidPatcher
         DisableSaveBackup.Init(modFix);
         ModQuickSaveOptionPage.Init(modFix);
     }
-
     internal static void OnBeforeSCoreRun()
     {
         var saveBackupZip = new SaveBackupZip();
@@ -86,5 +74,16 @@ internal static class AndroidPatcher
         VectorTypeConverterFix.ApplyPatch(harmony);
         MobileFarmChooserPatcher.Patch(harmony);
         LetterViewerMenuRewriter.ApplyPatch(harmony);
+    }
+
+
+    // Disable checkForAndLoadEmergencySave for Emergency Save
+    [HarmonyPatch(typeof(TitleMenu), nameof(TitleMenu.checkForAndLoadEmergencySave))]
+    [HarmonyPrefix]
+    static bool Disable_checkForAndLoadEmergencySave(ref bool __result)
+    {
+        TitleMenu.PromptedEmergencySave = true;
+        __result = false;
+        return false;
     }
 }

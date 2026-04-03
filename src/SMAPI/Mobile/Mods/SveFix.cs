@@ -39,7 +39,7 @@ internal static class SveFix
     {
         monitor.Log("Try fix TMXLLoadMapFacingDirection_ApplyPatch", LogLevel.Trace);
         monitor.Log("Applying Harmony patch \"Sve_TXMLMapFacingDir_warpFarmer\": " +
-            "prefixing SDV method \"Game1.warpFarmer(LocationRequest, int, int, int, bool)\".");
+            "prefixing SDV method \"Game1.warpFarmer(LocationRequest, int, int, int)\".");
         harmony.Patch(
             original: AccessTools.Method(typeof(Game1), "warpFarmer",
             [
@@ -63,7 +63,6 @@ internal static class SveFix
     static void Sve_TXMLMapFacingDir_warpFarmer(LocationRequest locationRequest, int tileX, int tileY,
        ref int facingDirectionAfterWarp)
     {
-        Console.WriteLine("On Sve_TXMLMapFacingDir_warpFarmer");
         try
         {
             //Console.WriteLine("Skip code Sve_TXMLMapFacingDir_warpFarmer");
