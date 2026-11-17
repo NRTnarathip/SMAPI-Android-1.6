@@ -78,7 +78,8 @@ internal static class VersionInfoMenu
         }
 
 
-        var viewport = Game1.viewport;
+        // drawn in UI mode; Game1.viewport is in zoom units
+        var viewport = Game1.uiViewport;
         for (int i = 0; i < texts.Count; i++)
         {
             string text = texts[texts.Count - i - 1];
